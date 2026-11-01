@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "filtering",
+  "id": "campus-combine",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "组合条件",
+  "prerequisites": [
+    "campus-where"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where",
+    "boolean-conditions"
+  ],
+  "introducedConcepts": [
+    "boolean-conditions"
+  ],
+  "objective": "用 AND / OR 与括号组合分类和学分条件，理解优先级。",
+  "statement": "查询类别为“计算机”或“理学”、且学分不低于 4 的课程，依次输出 id、name、credit。两类课程都必须满足学分条件。不要求行顺序。",
+  "knowledge": [
+    "AND 要求条件同时成立，OR 只要求至少一个条件成立。",
+    "AND 的优先级高于 OR。用 (分类条件 OR 分类条件) AND 学分条件，才能让两个分类都受学分限制。",
+    "文本值用单引号，例如 category = '理学'；数值条件写作 credit >= 4。"
+  ],
+  "readableTables": [
+    "courses"
+  ],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 AND / OR 与括号组合分类和学分条件，理解优先级。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, name, credit FROM courses WHERE (category = '人文' OR category = '艺术') AND credit <= 2;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "组合条件的结构",
+        "description": "示例查人文或艺术类中不超过 2 学分的课程；题目的类别与学分范围不同，条件结构相同。"
+      },
+      {
+        "id": "or",
+        "label": "两个分类\nOR 任一成立",
+        "description": "category = '人文' OR category = '艺术' 表示分类是两者之一；每个等值比较都要写完整字段名。"
+      },
+      {
+        "id": "and",
+        "label": "再与学分相交\nAND credit <= 2",
+        "description": "AND 表示分类和学分两个要求都要满足；<= 包含恰好 2 学分。"
+      },
+      {
+        "id": "priority",
+        "label": "括号决定先算谁",
+        "description": "AND 优先级高于 OR：无括号时“人文 OR 艺术 AND <= 2”会先算艺术且不超过 2，多选出不受学分限制的人文课程。"
+      },
+      {
+        "id": "output",
+        "label": "输出三列",
+        "description": "SELECT 仍决定输出列；组合条件只决定哪些行进入结果，不改变列，也不合并同名课程。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "or"
+      },
+      {
+        "from": "topic",
+        "to": "and"
+      },
+      {
+        "from": "topic",
+        "to": "priority"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先用括号把两个分类括成一组，再和学分条件相交。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE (分类条件 OR 分类条件) AND credit >= 4；用半角括号组合分类条件。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, credit FROM courses WHERE (category = ____ OR category = ____) AND credit ____ 4;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, credit FROM courses WHERE (category = '计算机' OR category = '理学') AND credit >= 4;",
+      "explanation": "括号把两个分类合并为一组再与学分相交；3 学分和 2 学分的计算机课程被学分条件排除。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "credit"
+        ],
+        "rows": [
+          [
+            102,
+            "程序设计",
+            4
+          ],
+          [
+            103,
+            "高等数学",
+            5
+          ],
+          [
+            105,
+            "数据结构",
+            4
+          ],
+          [
+            107,
+            "大学物理",
+            4
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "credit"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "credit"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "missing-brackets",
+      "sql": "SELECT id, name, credit FROM courses WHERE category = '计算机' OR category = '理学' AND credit >= 4;"
+    },
+    {
+      "id": "excludes-boundary",
+      "sql": "SELECT id, name, credit FROM courses WHERE (category = '计算机' OR category = '理学') AND credit > 4;"
+    }
+  ]
+}

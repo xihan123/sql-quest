@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "loan-reports",
+  "id": "book-loan-report",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "未归还图书",
+  "prerequisites": [
+    "book-author-report"
+  ],
+  "concepts": [
+    "select",
+    "where",
+    "null",
+    "count",
+    "group-by",
+    "inner-join",
+    "join-cardinality",
+    "left-join",
+    "order-by"
+  ],
+  "introducedConcepts": [],
+  "objective": "用 IS NULL 筛出未归还明细，分组计数并按规则排序输出。",
+  "statement": "统计各本图书尚未归还的借阅次数，依次输出 book_id、title、unreturned_count。returned_on 为 SQL NULL 表示未归还；没有未归还记录的图书不输出。同名图书按编号分开统计，按次数降序、book_id 升序排列。",
+  "knowledge": [
+    "用 INNER JOIN 连接图书与借阅记录，再用 WHERE br.returned_on IS NULL 保留未归还记录。",
+    "按 b.id、b.title 分组，COUNT(br.id) 统计每本书未归还的次数。",
+    "ORDER BY 先按次数降序，相同再按 book_id 升序。没有符合条件的记录时返回零行。"
+  ],
+  "readableTables": [
+    "books",
+    "borrow_records"
+  ],
+  "previewFixtureId": "library-loans-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出有未归还借阅的图书，输出编号、书名与未归还次数，按次数降序、同次数按编号升序。\n",
+  "flowchart": {
+    "exampleSql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS unreturned_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id WHERE br.returned_on IS NULL GROUP BY b.id, b.title ORDER BY unreturned_count DESC, b.id ASC;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "未归还借阅统计",
+        "description": "筛出未归还记录，按图书计数后排序。"
+      },
+      {
+        "id": "filter",
+        "label": "筛明细\nWHERE br.returned_on IS NULL",
+        "description": "只保留未归还的借阅记录，已归还记录不参与后面的计数。"
+      },
+      {
+        "id": "group",
+        "label": "按书分组\nGROUP BY b.id, b.title",
+        "description": "分组身份是馆藏编号；两本同名书是不同馆藏，各自计数。"
+      },
+      {
+        "id": "count",
+        "label": "计数\nCOUNT(br.id)",
+        "description": "每组数未归还明细的条数；有未归还记录的书至少是 1。"
+      },
+      {
+        "id": "order",
+        "label": "排序\n次数降序，编号升序",
+        "description": "先比未归还次数，次数相同再比 book_id；报告的行顺序由此完全确定。"
+      },
+      {
+        "id": "scope",
+        "label": "谁不会出现？\n已还清与未借出",
+        "description": "全部归还的图书没有未归还明细，分组后不出现；从未借出的图书同样不会出现。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "filter"
+      },
+      {
+        "from": "topic",
+        "to": "group"
+      },
+      {
+        "from": "topic",
+        "to": "count"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "filter",
+        "to": "group"
+      },
+      {
+        "from": "group",
+        "to": "count"
+      },
+      {
+        "from": "count",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先筛未归还的借阅记录，再按图书计数和排序。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE br.returned_on IS NULL 放在分组之前；ORDER BY 聚合别名 DESC, b.id ASC 放在最后。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS unreturned_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id WHERE ____ GROUP BY b.id, b.title ORDER BY unreturned_count DESC, b.id ASC;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS unreturned_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id WHERE br.returned_on IS NULL GROUP BY b.id, b.title ORDER BY unreturned_count DESC, b.id ASC;",
+      "explanation": "先用 IS NULL 筛出未归还明细，再按馆藏编号分组计数，最后按次数降序、编号升序输出；已还清与未借出的图书不出现。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "loans",
+      "fixtureId": "library-loans-v1",
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "unreturned_count"
+        ],
+        "rows": [
+          [
+            101,
+            "雾中灯塔",
+            2
+          ],
+          [
+            102,
+            "雾中灯塔",
+            1
+          ],
+          [
+            104,
+            "秋日食谱",
+            1
+          ],
+          [
+            106,
+            "静物写生",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-loans",
+      "fixtureId": "library-loans-varied-v1",
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "unreturned_count"
+        ],
+        "rows": [
+          [
+            101,
+            "慢速列车",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-loans",
+      "fixtureId": "library-loans-empty-v1",
+      "expected": {
+        "columns": [
+          "book_id",
+          "title",
+          "unreturned_count"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "counts-all-loans",
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS unreturned_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.id, b.title ORDER BY unreturned_count DESC, b.id ASC;"
+    },
+    {
+      "id": "treats-null-as-empty",
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS unreturned_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id WHERE br.returned_on = '' GROUP BY b.id, b.title ORDER BY unreturned_count DESC, b.id ASC;"
+    },
+    {
+      "id": "keeps-zero-count-books",
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS unreturned_count FROM books AS b LEFT JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.id, b.title ORDER BY unreturned_count DESC, b.id ASC;"
+    },
+    {
+      "id": "reverses-order",
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS unreturned_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id WHERE br.returned_on IS NULL GROUP BY b.id, b.title ORDER BY unreturned_count ASC, b.id ASC;"
+    }
+  ]
+}

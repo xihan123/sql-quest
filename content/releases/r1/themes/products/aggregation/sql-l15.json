@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "aggregation",
+  "id": "sql-l15",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "筛选分组",
+  "prerequisites": [
+    "sql-l14"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where",
+    "group-by",
+    "count",
+    "column-alias",
+    "having"
+  ],
+  "introducedConcepts": [
+    "having"
+  ],
+  "objective": "先筛选有库存商品，再保留商品数至少为 2 的类别。",
+  "statement": "只统计 stock 大于 0 的商品，按 category 分组，保留记录数至少为 2 的类别。依次输出 category、product_count。统计的是商品记录数，不是库存件数；恰好两条也保留。不要求行顺序。",
+  "knowledge": [
+    "WHERE 在分组前筛选输入记录，HAVING 在分组后筛选整个组。二者用途不同，不能随意交换。",
+    "例如 WHERE stock > 0 先排除无库存商品，再由 GROUP BY 形成各类；HAVING COUNT(*) >= 2 检查的是筛选后的组内记录数。",
+    "写法顺序是 SELECT、FROM、WHERE、GROUP BY、HAVING。聚合条件写在 HAVING 中，不能直接把 COUNT(*) 条件放进 WHERE。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 先筛选有库存商品，再保留商品数至少为 2 的类别。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先划定被计数的商品，再判断哪个类别够两条记录。"
+    },
+    {
+      "id": "syntax",
+      "text": "库存条件放 WHERE，记录数条件放 HAVING，别用库存之和代替 COUNT。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT category, COUNT(*) AS product_count FROM products WHERE stock > 0 GROUP BY category HAVING ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT category, COUNT(*) AS product_count FROM products WHERE stock > 0 GROUP BY category HAVING COUNT(*) >= 2;",
+      "explanation": "预览的日用有 4 条有库存记录，文具有 2 条；餐厨和礼品各只有 1 条，不能算入。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count"
+        ],
+        "rows": [
+          [
+            "日用",
+            4
+          ],
+          [
+            "文具",
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-report-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count"
+        ],
+        "rows": [
+          [
+            "餐厨",
+            2
+          ],
+          [
+            "文具",
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "single-product-many-units",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "counts-out-of-stock",
+      "sql": "SELECT category, COUNT(*) AS product_count FROM products GROUP BY category HAVING COUNT(*) >= 2;"
+    },
+    {
+      "id": "excludes-boundary",
+      "sql": "SELECT category, COUNT(*) AS product_count FROM products WHERE stock > 0 GROUP BY category HAVING COUNT(*) > 2;"
+    },
+    {
+      "id": "tests-stock-not-records",
+      "sql": "SELECT category, COUNT(*) AS product_count FROM products WHERE stock > 0 GROUP BY category HAVING SUM(stock) >= 2;"
+    }
+  ],
+  "flowchart": {
+    "exampleSql": "SELECT category, COUNT(*) AS product_count FROM products WHERE stock > 0 GROUP BY category HAVING COUNT(*) >= 2;",
+    "nodes": [
+      {
+        "id": "source",
+        "label": "FROM：读取商品",
+        "description": "从 products 表读取商品记录，供后续筛选和分组。"
+      },
+      {
+        "id": "filter",
+        "label": "WHERE：先筛有库存行",
+        "description": "stock > 0 只保留有库存的商品记录。"
+      },
+      {
+        "id": "group",
+        "label": "GROUP BY：按类别形成组",
+        "description": "同一类别的保留记录组成一组，COUNT(*) 在每组内计数。"
+      },
+      {
+        "id": "having",
+        "label": "HAVING：检查组内条数",
+        "description": "只留下记录数至少为 2 的组，不是库存合计至少 2 件。"
+      },
+      {
+        "id": "project",
+        "label": "SELECT：输出类别与计数",
+        "description": "每组输出 category 和 product_count。图按逻辑关系讲解；SQL 书写仍从 SELECT 开始，不保证结果行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "source",
+        "to": "filter"
+      },
+      {
+        "from": "filter",
+        "to": "group"
+      },
+      {
+        "from": "group",
+        "to": "having"
+      },
+      {
+        "from": "having",
+        "to": "project"
+      }
+    ]
+  }
+}

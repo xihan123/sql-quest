@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "result-shaping",
+  "id": "sql-l11",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "去除重复",
+  "prerequisites": [
+    "sql-l10"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "null",
+    "distinct"
+  ],
+  "introducedConcepts": [
+    "distinct"
+  ],
+  "objective": "按类别和价格的完整组合去重，而不是按商品编号。",
+  "statement": "输出 products 中出现过的 category、price 组合，每个相同组合只保留一行，不输出 id。相同类别下的多个 NULL 价格合并为一行，不同类别分别保留。免费和缺货商品也参与，不要求行顺序。",
+  "knowledge": [
+    "DISTINCT 放在 SELECT 后，对整个输出列组合去重，不只针对紧跟它的第一列。",
+    "加入唯一 id 后，每个输出组合都会不同，不能再合并同类别同价格的记录。",
+    "DISTINCT 不保证排序；需要排序时必须另外写 ORDER BY。本关不要求排序。",
+    "去重时重复的 NULL 组合被合并；这不是在说 SQL 中 NULL = NULL 为真，也不改变空值比较规则。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "distinct",
+  "starterSql": "-- 按类别和价格的完整组合去重，而不是按商品编号。\n",
+  "flowchart": {
+    "exampleSql": "SELECT DISTINCT category, note FROM products;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "去重看整个输出组合",
+        "description": "示例对类别和备注的组合去重；题目要求类别和价格的组合。"
+      },
+      {
+        "id": "tuple",
+        "label": "比较两列整体\ncategory + note",
+        "description": "只有类别与备注都相同才合并；同一类别下的不同备注仍保留，不是每类只留一行。"
+      },
+      {
+        "id": "identity",
+        "label": "不带唯一 id",
+        "description": "如果再输出唯一商品编号，每条组合都不同，便无法合并相同类别与备注的输出。"
+      },
+      {
+        "id": "null",
+        "label": "NULL 组合也可重复",
+        "description": "同类别的多个 NULL 备注组合只输出一次；空字符串、文字 NULL 与 SQL NULL 仍是不同值。"
+      },
+      {
+        "id": "order",
+        "label": "DISTINCT 不负责排序",
+        "description": "它不承诺输出先后；本例无需行排序，也不能拿预览中的相邻位置判断是否重复。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "tuple"
+      },
+      {
+        "from": "topic",
+        "to": "identity"
+      },
+      {
+        "from": "topic",
+        "to": "null"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先决定“相同”的两个字段，别把每条记录独有的编号带进来。"
+    },
+    {
+      "id": "syntax",
+      "text": "写 SELECT DISTINCT 两个字段 FROM products。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT DISTINCT ____, ____ FROM products;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT DISTINCT category, price FROM products;",
+      "explanation": "按类别与价格两列整体去重，日用 20 元和礼品 NULL 的重复组合各保留一次。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "日用",
+            20
+          ],
+          [
+            "餐厨",
+            30
+          ],
+          [
+            "日用",
+            0
+          ],
+          [
+            "文具",
+            10
+          ],
+          [
+            "餐厨",
+            40
+          ],
+          [
+            "日用",
+            null
+          ],
+          [
+            "文具",
+            20
+          ],
+          [
+            "礼品",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "日用",
+            0
+          ],
+          [
+            "餐厨",
+            20
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-duplicates",
+      "sql": "SELECT category, price FROM products;"
+    },
+    {
+      "id": "deduplicates-only-category",
+      "sql": "SELECT category, MIN(price) AS price FROM products GROUP BY category;"
+    },
+    {
+      "id": "includes-identity",
+      "sql": "SELECT DISTINCT id, category, price FROM products;"
+    }
+  ]
+}

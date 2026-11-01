@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 1,
+  "id": "products-orders-v1",
+  "tables": [
+    {
+      "name": "customers",
+      "description": "虚构顾客。id 唯一，姓名可能相同；没有订单的顾客仍保留在此表。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "description": "顾客编号",
+          "primaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "顾客姓名，不保证唯一"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "林杉"
+        ],
+        [
+          2,
+          "周禾"
+        ],
+        [
+          3,
+          "林杉"
+        ],
+        [
+          4,
+          "陈果"
+        ],
+        [
+          5,
+          "许星"
+        ],
+        [
+          6,
+          "温澄"
+        ]
+      ]
+    },
+    {
+      "name": "products",
+      "description": "当前商品目录；当前标价可能不同于历史订单的成交价。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "description": "商品编号",
+          "primaryKey": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "商品名称"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "description": "当前单价，整数元，不用于计算历史成交金额",
+          "minimum": 0
+        }
+      ],
+      "rows": [
+        [
+          10,
+          "陶瓷杯",
+          99
+        ],
+        [
+          20,
+          "笔记本",
+          50
+        ],
+        [
+          30,
+          "帆布袋",
+          80
+        ],
+        [
+          40,
+          "赠品",
+          10
+        ]
+      ]
+    },
+    {
+      "name": "orders",
+      "description": "虚构订单头，一行一张订单。顾客可有多张订单；paid 为已支付，pending 为待支付，cancelled 为已取消。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "description": "订单编号",
+          "primaryKey": true
+        },
+        {
+          "name": "customer_id",
+          "type": "INTEGER",
+          "description": "下单顾客编号，指向 customers.id",
+          "references": {
+            "table": "customers",
+            "column": "id"
+          }
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "订单状态：paid / pending / cancelled"
+        }
+      ],
+      "rows": [
+        [
+          101,
+          1,
+          "paid"
+        ],
+        [
+          102,
+          1,
+          "paid"
+        ],
+        [
+          103,
+          2,
+          "pending"
+        ],
+        [
+          104,
+          3,
+          "paid"
+        ],
+        [
+          105,
+          4,
+          "cancelled"
+        ],
+        [
+          106,
+          2,
+          "paid"
+        ],
+        [
+          107,
+          5,
+          "paid"
+        ]
+      ]
+    },
+    {
+      "name": "order_items",
+      "description": "虚构订单明细，一行代表一条明细，订单可包含多条。金额为 quantity × unit_price；成交价是下单时的快照。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "description": "明细编号",
+          "primaryKey": true
+        },
+        {
+          "name": "order_id",
+          "type": "INTEGER",
+          "description": "所属订单编号，指向 orders.id",
+          "references": {
+            "table": "orders",
+            "column": "id"
+          }
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "description": "商品编号，指向 products.id",
+          "references": {
+            "table": "products",
+            "column": "id"
+          }
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "description": "购买件数，至少 1 件",
+          "minimum": 1
+        },
+        {
+          "name": "unit_price",
+          "type": "INTEGER",
+          "description": "历史单件成交价，整数元；0 为赠送，不是缺失",
+          "minimum": 0
+        }
+      ],
+      "rows": [
+        [
+          1001,
+          101,
+          10,
+          2,
+          25
+        ],
+        [
+          1002,
+          101,
+          20,
+          1,
+          50
+        ],
+        [
+          1003,
+          102,
+          30,
+          1,
+          50
+        ],
+        [
+          1004,
+          103,
+          10,
+          9,
+          30
+        ],
+        [
+          1005,
+          104,
+          10,
+          1,
+          30
+        ],
+        [
+          1006,
+          104,
+          30,
+          2,
+          60
+        ],
+        [
+          1007,
+          105,
+          20,
+          5,
+          40
+        ],
+        [
+          1008,
+          106,
+          20,
+          2,
+          50
+        ],
+        [
+          1009,
+          107,
+          30,
+          1,
+          100
+        ],
+        [
+          1010,
+          102,
+          40,
+          1,
+          0
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "products-report-v1",
+  "tables": [
+    {
+      "name": "products",
+      "description": "虚构的扩展商品目录。price 可以未知；note 区分未填写、空字符串和文字 NULL。每个 id 是独立商品。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "商品编号，唯一标识一条商品记录"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "商品名称，不保证唯一"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "商品类别"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "单价，整数元；0 为免费，SQL NULL 表示价格未知",
+          "nullable": true
+        },
+        {
+          "name": "stock",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "库存件数；0 表示暂时无库存，仍是目录中的商品"
+        },
+        {
+          "name": "note",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "备注；SQL NULL 为未填写，空字符串和文字 NULL 都是已填写的文本"
+        }
+      ],
+      "rows": [
+        [
+          21,
+          "餐具套装",
+          "餐厨",
+          10,
+          2,
+          null
+        ],
+        [
+          22,
+          "陶瓷杯",
+          "餐厨",
+          20,
+          1,
+          ""
+        ],
+        [
+          23,
+          "便签",
+          "文具",
+          10,
+          1,
+          "NULL"
+        ],
+        [
+          24,
+          "书签",
+          "文具",
+          15,
+          2,
+          null
+        ],
+        [
+          25,
+          "免费试用",
+          "日用",
+          0,
+          0,
+          null
+        ],
+        [
+          26,
+          "杯垫",
+          "餐厨",
+          0,
+          0,
+          ""
+        ]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "products_category_order",
+      "table": "products",
+      "columns": [
+        {
+          "name": "category",
+          "direction": "ASC"
+        }
+      ]
+    },
+    {
+      "name": "products_price_order",
+      "table": "products",
+      "columns": [
+        {
+          "name": "price",
+          "direction": "DESC"
+        },
+        {
+          "name": "id",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

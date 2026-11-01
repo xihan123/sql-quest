@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "filtering",
+  "id": "campus-where",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "比较条件",
+  "prerequisites": [
+    "campus-columns"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where"
+  ],
+  "introducedConcepts": [
+    "where"
+  ],
+  "objective": "用 WHERE 按年级筛选学生，区分大于与大于等于。",
+  "statement": "查询二年级及以上的学生，依次输出 id、name、grade。包含二年级，不按性别或电话筛选。不要求行顺序。",
+  "knowledge": [
+    "WHERE 放在 FROM 后，决定哪些行进入结果；SELECT 决定输出列。",
+    "比较运算包括 =、<>（不等于）、>、>=、<、<=。“及以上”包含边界值，应使用 >=。",
+    "grade 是数值字段，直接与数字比较。本关不附加其他筛选条件。"
+  ],
+  "readableTables": [
+    "students"
+  ],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 WHERE 按年级筛选学生，区分大于与大于等于。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, name, grade FROM students WHERE grade >= 3;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "用比较条件筛行",
+        "description": "示例查询三年级及以上的学生；题目要求二年级及以上，边界值不同。"
+      },
+      {
+        "id": "rows",
+        "label": "筛哪些行？\nWHERE grade >= 3",
+        "description": "逐条判断学生年级，只有条件为真的行进入结果。字段列表不决定年级范围。"
+      },
+      {
+        "id": "boundary",
+        "label": "边界是否包含？\n>= 包含等于",
+        "description": "恰好 3 年级符合本示例；> 3 会漏掉它。本关的“及以上”同样包含边界二年级。"
+      },
+      {
+        "id": "scope",
+        "label": "是否检查其他字段？\n没有额外条件",
+        "description": "示例只比较 grade，不应额外排除某个性别或电话未登记的学生。"
+      },
+      {
+        "id": "output",
+        "label": "保留哪些列？\nid、name、grade",
+        "description": "SELECT 指定这三列及顺序；WHERE 去掉的是不符合条件的行。没有符合行时保留列名并输出零行。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "rows"
+      },
+      {
+        "from": "topic",
+        "to": "boundary"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "“及以上”包含二年级本身，注意比较符号的边界。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 FROM students 后添加 WHERE，使用包含等号的下界比较。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, grade FROM students WHERE grade ____ 2;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, grade FROM students WHERE grade >= 2;",
+      "explanation": ">= 保留二年级学生，也不额外附加性别或电话条件。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "grade"
+        ],
+        "rows": [
+          [
+            3,
+            "李梅",
+            2
+          ],
+          [
+            4,
+            "张伟",
+            2
+          ],
+          [
+            5,
+            "赵敏",
+            3
+          ],
+          [
+            7,
+            "陈静",
+            3
+          ],
+          [
+            8,
+            "杨帆",
+            2
+          ],
+          [
+            9,
+            "周婷",
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "grade"
+        ],
+        "rows": [
+          [
+            11,
+            "王强",
+            2
+          ],
+          [
+            12,
+            "刘洋",
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "grade"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "excludes-boundary",
+      "sql": "SELECT id, name, grade FROM students WHERE grade > 2;"
+    },
+    {
+      "id": "wrong-direction",
+      "sql": "SELECT id, name, grade FROM students WHERE grade <= 2;"
+    }
+  ]
+}

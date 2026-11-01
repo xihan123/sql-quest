@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "id": "library-loans-varied-v1",
+  "tables": [
+    {
+      "name": "authors",
+      "description": "虚构作者表变化用例，规模较小。id 唯一，姓名可能相同。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "作者编号，唯一标识一位作者"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "作者姓名，不保证唯一；同名不代表同一作者"
+        },
+        {
+          "name": "country",
+          "type": "TEXT",
+          "description": "作者所在国家或地区"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "沈临",
+          "中国"
+        ],
+        [
+          2,
+          "白榆",
+          "中国"
+        ],
+        [
+          3,
+          "芮宁",
+          "中国"
+        ]
+      ]
+    },
+    {
+      "name": "books",
+      "description": "虚构馆藏书目变化用例；books.author_id 指向 authors.id，含一本从未借出的书。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "馆藏图书编号，唯一标识一条书目"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一；同名行可能是不同作者的作品"
+        },
+        {
+          "name": "author_id",
+          "type": "INTEGER",
+          "description": "作者编号，指向 authors.id",
+          "references": {
+            "table": "authors",
+            "column": "id"
+          }
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "图书分类"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "定价，整数元；0 表示开放获取的免费图书，不是价格缺失"
+        }
+      ],
+      "rows": [
+        [
+          101,
+          "慢速列车",
+          1,
+          "文学",
+          33
+        ],
+        [
+          102,
+          "屋顶花园",
+          2,
+          "生活",
+          28
+        ],
+        [
+          103,
+          "慢速列车",
+          3,
+          "文学",
+          40
+        ],
+        [
+          104,
+          "纸船",
+          2,
+          "文学",
+          28
+        ]
+      ]
+    },
+    {
+      "name": "borrow_records",
+      "description": "虚构借阅记录变化用例；returned_on 为 SQL NULL 表示尚未归还。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "借阅记录编号，唯一标识一次借阅"
+        },
+        {
+          "name": "book_id",
+          "type": "INTEGER",
+          "description": "所借图书编号，指向 books.id",
+          "references": {
+            "table": "books",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reader_name",
+          "type": "TEXT",
+          "description": "借阅读者姓名，不保证唯一"
+        },
+        {
+          "name": "borrowed_on",
+          "type": "TEXT",
+          "description": "借出日期，ISO 8601 格式的文本（YYYY-MM-DD）"
+        },
+        {
+          "name": "returned_on",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "归还日期，ISO 8601 格式的文本（YYYY-MM-DD）；SQL NULL 表示尚未归还，不是空字符串"
+        }
+      ],
+      "rows": [
+        [
+          301,
+          101,
+          "方远",
+          "2024-02-10",
+          "2024-02-25"
+        ],
+        [
+          302,
+          101,
+          "方远",
+          "2024-05-01",
+          null
+        ],
+        [
+          303,
+          102,
+          "方远",
+          "2024-06-12",
+          "2024-06-30"
+        ],
+        [
+          304,
+          103,
+          "高原",
+          "2024-03-03",
+          "2024-04-01"
+        ]
+      ]
+    }
+  ]
+}

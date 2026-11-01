@@ -1,0 +1,295 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "first-query",
+  "id": "campus-view",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看数据",
+  "prerequisites": [],
+  "concepts": [
+    "select"
+  ],
+  "introducedConcepts": [
+    "select"
+  ],
+  "objective": "用 SELECT * 读取学生的全部记录，认识表、行、列。",
+  "statement": "查看 students 表的全部记录，依次输出 id、name、gender、grade、phone，保留原列名。同名学生分别保留，phone 为 NULL 的学生也要输出。不要求行顺序；空表返回零行，仍保留列名。",
+  "knowledge": [
+    "students 每行代表一名学生，id 是学号，每列描述学生的一项信息。",
+    "SELECT * FROM 表名; 按表结构的列顺序输出全部字段，不筛选记录，也不修改原表。",
+    "phone 为 SQL NULL 表示电话未登记。姓名相同或电话未登记都不是排除记录的理由。",
+    "没有 ORDER BY 时，查询不保证行顺序。"
+  ],
+  "readableTables": [
+    "students"
+  ],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看 students 表的全部行和全部列。\n",
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "select",
+        "sql": "SELECT"
+      },
+      {
+        "id": "star",
+        "sql": "*"
+      },
+      {
+        "id": "source",
+        "sql": "FROM students"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      },
+      {
+        "id": "name",
+        "sql": "name"
+      },
+      {
+        "id": "comma",
+        "sql": ","
+      }
+    ],
+    "solutionOrder": [
+      "select",
+      "star",
+      "source",
+      "end"
+    ]
+  },
+  "flowchart": {
+    "exampleSql": "SELECT * FROM students;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "读懂这条查询",
+        "description": "读取学生表的全部字段，各分支说明数据来源、列和记录。"
+      },
+      {
+        "id": "source",
+        "label": "从哪里读？\nFROM students",
+        "description": "FROM students 指定数据来源是学生表。逻辑上先确定数据来源，再确定输出；但 SQL 书写时 SELECT 在 FROM 前面。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪些列？\nSELECT *",
+        "description": "星号表示按表结构的列顺序输出 id、name、gender、grade、phone 五列，不是只输出姓名。"
+      },
+      {
+        "id": "identity",
+        "label": "一行代表什么？\n一名学生",
+        "description": "id 是学号，区分同名学生；姓名相同仍是不同的行，不能合并。"
+      },
+      {
+        "id": "records",
+        "label": "保留哪些记录？\n全部学生",
+        "description": "这条查询没有筛选条件，电话未登记的学生也保留；没有学生时输出零行，但仍保留五个列名。"
+      },
+      {
+        "id": "row-order",
+        "label": "行按什么顺序？\n没有保证",
+        "description": "查询没有指定排序，不要把预览中的插入顺序理解为查询始终保证的输出顺序。列的先后与行的先后是两回事。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "identity"
+      },
+      {
+        "from": "topic",
+        "to": "records"
+      },
+      {
+        "from": "topic",
+        "to": "row-order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务要全部学生，不需要挑选字段或筛选记录。"
+    },
+    {
+      "id": "syntax",
+      "text": "使用 SELECT * FROM 表名，星号表示输出全部字段。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM students;",
+      "explanation": "星号输出全部五列，保留全部学生记录及电话空值。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "gender",
+          "grade",
+          "phone"
+        ],
+        "rows": [
+          [
+            1,
+            "李梅",
+            "女",
+            1,
+            "13700000001"
+          ],
+          [
+            2,
+            "王强",
+            "男",
+            1,
+            null
+          ],
+          [
+            3,
+            "李梅",
+            "女",
+            2,
+            "13700000003"
+          ],
+          [
+            4,
+            "张伟",
+            "男",
+            2,
+            "13700000004"
+          ],
+          [
+            5,
+            "赵敏",
+            "女",
+            3,
+            null
+          ],
+          [
+            6,
+            "刘洋",
+            "男",
+            1,
+            "13700000006"
+          ],
+          [
+            7,
+            "陈静",
+            "女",
+            3,
+            "13700000007"
+          ],
+          [
+            8,
+            "杨帆",
+            "男",
+            2,
+            null
+          ],
+          [
+            9,
+            "周婷",
+            "女",
+            3,
+            "13700000009"
+          ],
+          [
+            10,
+            "吴迪",
+            "男",
+            1,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "gender",
+          "grade",
+          "phone"
+        ],
+        "rows": [
+          [
+            11,
+            "王强",
+            "男",
+            2,
+            null
+          ],
+          [
+            12,
+            "刘洋",
+            "女",
+            3,
+            "13700000012"
+          ],
+          [
+            13,
+            "王强",
+            "男",
+            1,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "gender",
+          "grade",
+          "phone"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "outputs-two-columns",
+      "sql": "SELECT id, name FROM students;"
+    },
+    {
+      "id": "filters-records",
+      "sql": "SELECT * FROM students WHERE grade = 3;"
+    }
+  ]
+}

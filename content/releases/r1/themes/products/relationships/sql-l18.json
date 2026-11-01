@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "relationships",
+  "id": "sql-l18",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "内连接",
+  "prerequisites": [
+    "sql-l17"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "relational-keys",
+    "where",
+    "column-alias",
+    "inner-join"
+  ],
+  "introducedConcepts": [
+    "inner-join"
+  ],
+  "objective": "按外键连接已支付订单与顾客，明确同名列来自哪张表。",
+  "statement": "查询全部已支付（status = 'paid'）订单及其顾客，依次输出 order_id（orders.id）、customer_id（customers.id）、customer_name（customers.name）。按 orders.customer_id = customers.id 连接，每张订单一行。同名顾客和同一顾客的多张订单分别保留，不要求行顺序。",
+  "knowledge": [
+    "INNER JOIN 只保留满足 ON 关联条件的组合行。写法为 FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.id。",
+    "AS o / AS c 是表别名，只在当前查询中使用；o.id 与 c.id 指向不同表的同名列，必须明确来源。输出别名则仍写在 SELECT 中。",
+    "不要用 o.id = c.id 连接两个不同业务的编号，也不能省略关联条件形成所有行的组合。",
+    "先按编号连接，再用 WHERE 筛状态；一位顾客匹配多张订单时会出现多行，这是正确的一对多结果，不需要去重。"
+  ],
+  "readableTables": [
+    "customers",
+    "orders"
+  ],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按外键连接已支付订单与顾客，明确同名列来自哪张表。\n",
+  "flowchart": {
+    "exampleSql": "SELECT o.id AS order_id, c.name AS customer_name FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.id WHERE o.status = 'pending';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "连接按关系，不按列同名",
+        "description": "示例为待支付订单补上顾客姓名；题目要求已支付订单，且多输出顾客编号。"
+      },
+      {
+        "id": "aliases",
+        "label": "两张表各有简称\no、c",
+        "description": "o 是 orders 的表别名，c 是 customers 的表别名。o.id 代表订单编号，c.id 代表顾客编号，不是同一个字段。"
+      },
+      {
+        "id": "match",
+        "label": "真正的对应关系\no.customer_id = c.id",
+        "description": "用订单外键找顾客主键。不能改成 o.id = c.id，也不能省掉 ON 后形成所有行的任意组合。"
+      },
+      {
+        "id": "inner",
+        "label": "INNER JOIN 只保留匹配",
+        "description": "满足关联条件的组合才输出；没有订单匹配的顾客不会凭空出现。同一顾客的多张匹配订单会分别输出。"
+      },
+      {
+        "id": "output",
+        "label": "筛状态，再说明输出",
+        "description": "WHERE 选 pending 订单；SELECT 中 o.id AS order_id 设置结果列名，与 FROM 中的表别名职责不同。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "aliases"
+      },
+      {
+        "from": "topic",
+        "to": "match"
+      },
+      {
+        "from": "topic",
+        "to": "inner"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "用订单的 customer_id 找到顾客，每张订单仍输出一行。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 o.customer_id = c.id 作 ON 条件，给输出列分别命名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT o.id AS order_id, c.id AS customer_id, c.name AS customer_name FROM orders AS o INNER JOIN customers AS c ON ____ WHERE o.status = 'paid';"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT o.id AS order_id, c.id AS customer_id, c.name AS customer_name FROM orders AS o INNER JOIN customers AS c ON o.customer_id = c.id WHERE o.status = 'paid';",
+      "explanation": "关联键找对顾客，订单编号仍取自 orders；两个名为林杉的顾客由编号区分。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "customer_id",
+          "customer_name"
+        ],
+        "rows": [
+          [
+            101,
+            1,
+            "林杉"
+          ],
+          [
+            102,
+            1,
+            "林杉"
+          ],
+          [
+            104,
+            3,
+            "林杉"
+          ],
+          [
+            106,
+            2,
+            "周禾"
+          ],
+          [
+            107,
+            5,
+            "许星"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "customer_id",
+          "customer_name"
+        ],
+        "rows": [
+          [
+            202,
+            12,
+            "陆宁"
+          ],
+          [
+            203,
+            13,
+            "乔安"
+          ],
+          [
+            204,
+            13,
+            "乔安"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "customer_id",
+          "customer_name"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "customer_id",
+          "customer_name"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "joins-unrelated-ids",
+      "sql": "SELECT o.id AS order_id, c.id AS customer_id, c.name AS customer_name FROM orders AS o INNER JOIN customers AS c ON o.id = c.id WHERE o.status = 'paid';"
+    },
+    {
+      "id": "cartesian-pairs",
+      "sql": "SELECT o.id AS order_id, c.id AS customer_id, c.name AS customer_name FROM orders AS o INNER JOIN customers AS c ON 1 = 1 WHERE o.status = 'paid';"
+    }
+  ]
+}

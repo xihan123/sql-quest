@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "relationships",
+  "id": "sql-l17",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "认识关联键",
+  "prerequisites": [
+    "sql-l16"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where",
+    "relational-keys"
+  ],
+  "introducedConcepts": [
+    "relational-keys"
+  ],
+  "objective": "识别订单编号和顾客外键，暂不合并两张表。",
+  "statement": "数据区有 customers 和 orders 两张表。本关只查询 orders 中 status = 'paid' 的订单，依次输出 id、customer_id。同一顾客的不同订单分别保留，不要求连接两张表，也不要求行顺序。",
+  "knowledge": [
+    "customers.id 唯一标识顾客，orders.id 唯一标识订单；两个 id 属于不同的身份，数值无需相同。",
+    "orders.customer_id 是指向 customers.id 的外键。一个顾客可对应多张订单，因此该字段允许重复；外键有效也不代表每个顾客一定有订单。",
+    "不要通过姓名猜关联：姓名可重复，关系由稳定编号确定。本关先读取外键值，下一关才学习把顾客信息接到订单上。",
+    "status 的 paid 表示已支付，pending 为待支付，cancelled 为已取消；本关只用已经学过的 WHERE 等值筛选。"
+  ],
+  "readableTables": [
+    "customers",
+    "orders"
+  ],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 识别订单编号和顾客外键，暂不合并两张表。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, customer_id FROM orders WHERE status = 'pending';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "用编号认识表关系",
+        "description": "示例读取待支付订单的编号和顾客编号；题目要求已支付订单。"
+      },
+      {
+        "id": "order",
+        "label": "这行是什么？\norders.id 是订单编号",
+        "description": "orders 一行一张订单，id 唯一标识订单。不同订单不能因为顾客相同就合并。"
+      },
+      {
+        "id": "customer",
+        "label": "它属于谁？\ncustomer_id 指向 customers.id",
+        "description": "customer_id 保存顾客编号，不是订单编号。数值属于另一种身份，不要求等于 orders.id。"
+      },
+      {
+        "id": "many",
+        "label": "同一顾客可以有多张订单",
+        "description": "外键值允许重复，表示多张订单指向同一顾客；有效外键不代表每位顾客都有订单。"
+      },
+      {
+        "id": "status",
+        "label": "查询仍只用已学筛选",
+        "description": "WHERE status = 'pending' 只选待支付订单，SELECT 输出订单与顾客编号；这条示例不读取顾客姓名。"
+      },
+      {
+        "id": "name",
+        "label": "姓名不是关联键",
+        "description": "同名顾客可以有不同 id。后续连接应使用编号关系，不能通过姓名或两个表碰巧相同的 id 猜配对。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "order"
+      },
+      {
+        "from": "topic",
+        "to": "customer"
+      },
+      {
+        "from": "topic",
+        "to": "many"
+      },
+      {
+        "from": "topic",
+        "to": "status"
+      },
+      {
+        "from": "customer",
+        "to": "name"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "一行仍代表一张订单，不能把顾客编号当成订单编号。"
+    },
+    {
+      "id": "syntax",
+      "text": "只 FROM orders，选 id 和 customer_id；按状态筛选。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, customer_id FROM orders WHERE status = ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, customer_id FROM orders WHERE status = 'paid';",
+      "explanation": "订单 101 和 102 都属于顾客 1，但它们是两张独立的已支付订单，均保留。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "customer_id"
+        ],
+        "rows": [
+          [
+            101,
+            1
+          ],
+          [
+            102,
+            1
+          ],
+          [
+            104,
+            3
+          ],
+          [
+            106,
+            2
+          ],
+          [
+            107,
+            5
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "customer_id"
+        ],
+        "rows": [
+          [
+            202,
+            12
+          ],
+          [
+            203,
+            13
+          ],
+          [
+            204,
+            13
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "customer_id"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "customer_id"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "swaps-identities",
+      "sql": "SELECT customer_id AS id, id AS customer_id FROM orders WHERE status = 'paid';"
+    },
+    {
+      "id": "all-statuses",
+      "sql": "SELECT id, customer_id FROM orders;"
+    },
+    {
+      "id": "one-order-per-customer",
+      "sql": "SELECT MIN(id) AS id, customer_id FROM orders WHERE status = 'paid' GROUP BY customer_id;"
+    }
+  ]
+}

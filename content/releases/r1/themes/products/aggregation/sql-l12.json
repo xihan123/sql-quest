@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "aggregation",
+  "id": "sql-l12",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "统计记录",
+  "prerequisites": [
+    "sql-l11"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null",
+    "distinct",
+    "count"
+  ],
+  "introducedConcepts": [
+    "count"
+  ],
+  "objective": "同时统计商品记录数和已知价格的记录数。",
+  "statement": "对 products 输出一行两列：product_count（全部记录数）、priced_count（price 非 NULL 的记录数）。0 元是已知价格，重复价格按记录分别计数，不按库存筛选。空表时两个计数均为 0。",
+  "knowledge": [
+    "COUNT(*) 统计输入记录数；COUNT(price) 只统计 price 非 NULL 的记录。星号在 COUNT 内是计数写法，不表示把所有列输出。",
+    "COUNT 不把 0 当作缺失，也不会自动把重复值去重。COUNT(DISTINCT price) 统计不同的已知价格种类，不是已知价格的商品数。",
+    "没有 GROUP BY 的整体聚合即使输入为空，也产生一行统计结果；COUNT 在空输入时为 0。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 同时统计商品记录数和已知价格的记录数。\n",
+  "flowchart": {
+    "exampleSql": "SELECT COUNT(*) AS product_count, COUNT(note) AS noted_count FROM products;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "计数先确定对象",
+        "description": "示例统计全部记录数与非 NULL 备注数；题目第二项统计的是非 NULL 价格数。"
+      },
+      {
+        "id": "all",
+        "label": "COUNT(*) 计输入行",
+        "description": "每条商品记录计一次，与字段值是否缺失无关。这里的 * 是计数写法，不是输出所有字段。"
+      },
+      {
+        "id": "known",
+        "label": "COUNT(note) 计非 NULL 行",
+        "description": "只排除 note 为 SQL NULL 的行，空字符串与文字 NULL 都会计入；相同备注来自多条记录时也分别计数。"
+      },
+      {
+        "id": "distinct",
+        "label": "不是备注种类数",
+        "description": "COUNT(DISTINCT note) 才会合并相同的非 NULL 备注值，它回答的问题不同，不能替代 COUNT(note)。"
+      },
+      {
+        "id": "shape",
+        "label": "整表聚合输出一行",
+        "description": "没有 GROUP BY，空表也有一行统计结果，两个 COUNT 都为 0。输出别名分别是 product_count、noted_count。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "all"
+      },
+      {
+        "from": "topic",
+        "to": "known"
+      },
+      {
+        "from": "topic",
+        "to": "distinct"
+      },
+      {
+        "from": "topic",
+        "to": "shape"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "一个计数关注所有行，另一个关注价格已填写的行。"
+    },
+    {
+      "id": "syntax",
+      "text": "分别使用 COUNT(*) 与 COUNT(price)，再用 AS 设置输出列名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS product_count, COUNT(____) AS priced_count FROM products;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS product_count, COUNT(price) AS priced_count FROM products;",
+      "explanation": "预览共有 10 条商品，其中 3 条价格未知；其余 7 条中包括免费商品和重复价格。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "product_count",
+          "priced_count"
+        ],
+        "rows": [
+          [
+            10,
+            7
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "product_count",
+          "priced_count"
+        ],
+        "rows": [
+          [
+            2,
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-unknown-v1",
+      "expected": {
+        "columns": [
+          "product_count",
+          "priced_count"
+        ],
+        "rows": [
+          [
+            2,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "product_count",
+          "priced_count"
+        ],
+        "rows": [
+          [
+            0,
+            0
+          ]
+        ]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "counts-null-as-priced",
+      "sql": "SELECT COUNT(*) AS product_count, COUNT(*) AS priced_count FROM products;"
+    },
+    {
+      "id": "counts-distinct-prices",
+      "sql": "SELECT COUNT(*) AS product_count, COUNT(DISTINCT price) AS priced_count FROM products;"
+    },
+    {
+      "id": "filters-free",
+      "sql": "SELECT COUNT(*) AS product_count, COUNT(price) AS priced_count FROM products WHERE price > 0;"
+    }
+  ]
+}

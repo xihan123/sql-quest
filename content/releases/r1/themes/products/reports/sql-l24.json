@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "reports",
+  "id": "sql-l24",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "综合查询",
+  "prerequisites": [
+    "sql-l23"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "inner-join",
+    "join-cardinality",
+    "where",
+    "numeric-aggregation",
+    "group-by",
+    "having",
+    "order-by",
+    "limit",
+    "column-alias"
+  ],
+  "introducedConcepts": [],
+  "objective": "制作满足累计成交额门槛的顾客前三名报告。",
+  "statement": "汇总每位顾客的 paid 订单明细金额，只保留累计不少于 100 元的顾客，依次输出 customer_id、customer_name、paid_total（元）。金额逐条按 quantity × 历史 unit_price 累加，相同金额不去重，同名顾客按编号分开统计。按 paid_total 降序、customer_id 升序取前 3 位；同额不增加名额，不足 3 位按实际人数输出。",
+  "knowledge": [
+    "本关综合已学的连接、行筛选、逐行表达式聚合、组筛选、排序和 LIMIT，不需要子查询或窗口函数。",
+    "筛订单状态是 WHERE；筛顾客累计金额是 HAVING，不能先删掉单条不足 100 元的明细，否则会漏掉小额累计达标的顾客。",
+    "同名顾客使用编号分开，所有非聚合输出字段都列入 GROUP BY。先完成累计和门槛筛选，再排序并截取。",
+    "先比较累计金额，再比较唯一顾客编号，最后 LIMIT 3；同额顾客不会自动全入选。"
+  ],
+  "readableTables": [
+    "customers",
+    "orders",
+    "order_items"
+  ],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 制作满足累计成交额门槛的顾客前三名报告。\n",
+  "flowchart": {
+    "exampleSql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name HAVING SUM(i.quantity * i.unit_price) >= 50 ORDER BY paid_total DESC, customer_id ASC LIMIT 2;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "综合查询的五个口径",
+        "description": "示例取累计至少 50 元的前 2 位顾客；题目要求至少 100 元的前 3 位。"
+      },
+      {
+        "id": "scope",
+        "label": "来源与支付范围",
+        "description": "顾客按编号连接订单，再按订单编号连接明细；WHERE 只保留 paid 订单，不把未支付或已取消订单计入。"
+      },
+      {
+        "id": "group",
+        "label": "按顾客汇总金额",
+        "description": "按 c.id、c.name 分组，把每条 quantity * 历史 unit_price 相加。不同明细的相同金额不能去重，同名不同编号也不能合并。"
+      },
+      {
+        "id": "threshold",
+        "label": "累计门槛在 HAVING",
+        "description": "示例的 >= 50 检查每位顾客的累计值，包含恰好 50；不是先从 WHERE 排除每条不足 50 元的明细。"
+      },
+      {
+        "id": "top",
+        "label": "稳定排序后取前 2 位",
+        "description": "先按 paid_total 降序，同额再按 customer_id 升序，最后 LIMIT 2。并列不扩容，不足两位也不补行。"
+      },
+      {
+        "id": "small-items",
+        "label": "小额可以累计达标",
+        "description": "多条较小明细相加后可能超过门槛。如果提前逐条筛金额，就改变了顾客累计口径，不能用来代替 HAVING。"
+      },
+      {
+        "id": "writing",
+        "label": "SQL 书写从 SELECT 开始",
+        "description": "书写顺序是 SELECT、FROM / JOIN、WHERE、GROUP BY、HAVING、ORDER BY、LIMIT；图的分支不是要求照顺序拼卡片的执行计划。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "group"
+      },
+      {
+        "from": "topic",
+        "to": "threshold"
+      },
+      {
+        "from": "topic",
+        "to": "top"
+      },
+      {
+        "from": "threshold",
+        "to": "small-items"
+      },
+      {
+        "from": "top",
+        "to": "writing"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "沿用关联汇总，新增的是已学能力的组合：总额门槛和前三名。"
+    },
+    {
+      "id": "syntax",
+      "text": "HAVING SUM(数量 * 历史单价) >= 100；ORDER BY 总额 DESC, 编号 ASC 后 LIMIT 3。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name HAVING ____ ORDER BY paid_total DESC, customer_id ASC LIMIT ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name HAVING SUM(i.quantity * i.unit_price) >= 100 ORDER BY paid_total DESC, customer_id ASC LIMIT 3;",
+      "explanation": "预览中顾客 1、3 同为 150 元，按编号排列；顾客 2、5 同为 100 元，截点只保留编号更小的 2。变化用例只有顾客 12 达标，不能补足三人。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "paid_total"
+        ],
+        "rows": [
+          [
+            1,
+            "林杉",
+            150
+          ],
+          [
+            3,
+            "林杉",
+            150
+          ],
+          [
+            2,
+            "周禾",
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "paid_total"
+        ],
+        "rows": [
+          [
+            12,
+            "陆宁",
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "paid_total"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "paid_total"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "excludes-exact-threshold",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name HAVING SUM(i.quantity * i.unit_price) > 100 ORDER BY paid_total DESC, customer_id ASC LIMIT 3;"
+    },
+    {
+      "id": "filters-lines-not-groups",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' AND i.quantity * i.unit_price >= 100 GROUP BY c.id, c.name HAVING SUM(i.quantity * i.unit_price) >= 100 ORDER BY paid_total DESC, customer_id ASC LIMIT 3;"
+    },
+    {
+      "id": "wrong-tie-order",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name HAVING SUM(i.quantity * i.unit_price) >= 100 ORDER BY paid_total DESC, customer_id DESC LIMIT 3;"
+    },
+    {
+      "id": "expands-all-ties",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name HAVING SUM(i.quantity * i.unit_price) >= 100 ORDER BY paid_total DESC, customer_id ASC;"
+    },
+    {
+      "id": "omits-total-threshold",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name ORDER BY paid_total DESC, customer_id ASC LIMIT 3;"
+    }
+  ]
+}

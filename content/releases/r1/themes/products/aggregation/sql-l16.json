@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "aggregation",
+  "id": "sql-l16",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "分类统计报告",
+  "prerequisites": [
+    "sql-l15"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where",
+    "count",
+    "numeric-aggregation",
+    "group-by",
+    "having",
+    "order-by",
+    "column-alias",
+    "null"
+  ],
+  "introducedConcepts": [],
+  "objective": "组合行筛选、分组、聚合、组筛选和确定性排序。",
+  "statement": "只统计 stock 大于 0 的商品，按 category 分组，保留记录数至少为 2 的类别。依次输出 category、product_count、total_stock（库存件数之和）、stock_value（price × stock 之和，元）。按 stock_value 降序、category 降序排列；文本使用 SQLite 默认排序，不按拼音。全部价格未知的组保留 NULL，排在已知价值之后。",
+  "knowledge": [
+    "本关只组合已经学过的能力：WHERE 筛记录，GROUP BY 分组，HAVING 筛组，ORDER BY 排列结果。",
+    "商品数用 COUNT(*)，库存件数用 SUM(stock)，库存价值用 SUM(price * stock)，这三个指标不能互相替代。",
+    "ORDER BY 可以使用本次 SELECT 的输出别名。排序有并列时需要次排序键；category 已是唯一的分组身份。",
+    "SQL 书写时 ORDER BY 在 HAVING 后；排序方向分别写在两个键之后。默认文本排序不是拼音排序，本关使用数据库默认规则。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 组合行筛选、分组、聚合、组筛选和确定性排序。\n",
+  "flowchart": {
+    "exampleSql": "SELECT category, COUNT(*) AS product_count, SUM(stock) AS total_stock FROM products WHERE stock > 0 GROUP BY category HAVING COUNT(*) >= 2 ORDER BY total_stock DESC, category DESC;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "组合一份类别报告",
+        "description": "示例按库存件数排序；题目还要计算库存价值，并按价值排序。"
+      },
+      {
+        "id": "input",
+        "label": "行范围\nWHERE stock > 0",
+        "description": "只有有库存的商品进入统计。WHERE 控制输入记录，不用它直接判断整个类别的商品数。"
+      },
+      {
+        "id": "group",
+        "label": "每个类别一行\nGROUP BY category",
+        "description": "一个类别一行，COUNT(*) 是有库存商品的记录数，SUM(stock) 是它们的库存件数。"
+      },
+      {
+        "id": "threshold",
+        "label": "组门槛\nHAVING COUNT(*) >= 2",
+        "description": "至少有两条保留商品记录的类别才输出；一件商品有很多库存，不代表有两条商品记录。"
+      },
+      {
+        "id": "sort",
+        "label": "最终排序\n库存降序、类别降序",
+        "description": "示例用 total_stock 排序，件数相同再按 category 的 SQLite 默认文本顺序降序，不是拼音顺序。"
+      },
+      {
+        "id": "writing",
+        "label": "书写顺序与逻辑作用",
+        "description": "SQL 仍从 SELECT 开始，ORDER BY 写在 HAVING 后；图的分支用于理解职责，不让学生按节点排列拼写 SQL。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "input"
+      },
+      {
+        "from": "topic",
+        "to": "group"
+      },
+      {
+        "from": "topic",
+        "to": "threshold"
+      },
+      {
+        "from": "topic",
+        "to": "sort"
+      },
+      {
+        "from": "sort",
+        "to": "writing"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先把每一行代表的类别及三个指标写清楚，再排列子句。"
+    },
+    {
+      "id": "syntax",
+      "text": "沿用上一关 WHERE 与 HAVING，补上两个 SUM，最后按价值和类别降序。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT category, COUNT(*) AS product_count, SUM(stock) AS total_stock, SUM(price * stock) AS stock_value FROM products WHERE ____ GROUP BY category HAVING ____ ORDER BY stock_value DESC, category DESC;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT category, COUNT(*) AS product_count, SUM(stock) AS total_stock, SUM(price * stock) AS stock_value FROM products WHERE stock > 0 GROUP BY category HAVING COUNT(*) >= 2 ORDER BY stock_value DESC, category DESC;",
+      "explanation": "先筛掉无库存行，日用与文具满足记录数门槛。变化用例的两个类别价值同为 40 元，按类别降序稳定决定先后。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count",
+          "total_stock",
+          "stock_value"
+        ],
+        "rows": [
+          [
+            "日用",
+            4,
+            17,
+            100
+          ],
+          [
+            "文具",
+            2,
+            5,
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-report-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count",
+          "total_stock",
+          "stock_value"
+        ],
+        "rows": [
+          [
+            "餐厨",
+            2,
+            3,
+            40
+          ],
+          [
+            "文具",
+            2,
+            3,
+            40
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-unknown-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count",
+          "total_stock",
+          "stock_value"
+        ],
+        "rows": [
+          [
+            "礼品",
+            2,
+            2,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "product_count",
+          "total_stock",
+          "stock_value"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-row-filter",
+      "sql": "SELECT category, COUNT(*) AS product_count, SUM(stock) AS total_stock, SUM(price * stock) AS stock_value FROM products GROUP BY category HAVING COUNT(*) >= 2 ORDER BY stock_value DESC, category DESC;"
+    },
+    {
+      "id": "omits-tie-order",
+      "sql": "SELECT category, COUNT(*) AS product_count, SUM(stock) AS total_stock, SUM(price * stock) AS stock_value FROM products WHERE stock > 0 GROUP BY category HAVING COUNT(*) >= 2 ORDER BY stock_value DESC;"
+    },
+    {
+      "id": "sums-prices-not-value",
+      "sql": "SELECT category, COUNT(*) AS product_count, SUM(stock) AS total_stock, SUM(price) AS stock_value FROM products WHERE stock > 0 GROUP BY category HAVING COUNT(*) >= 2 ORDER BY stock_value DESC, category DESC;"
+    }
+  ]
+}

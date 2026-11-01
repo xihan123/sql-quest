@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "first-query",
+  "id": "campus-columns",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "选择字段",
+  "prerequisites": [
+    "campus-view"
+  ],
+  "concepts": [
+    "select",
+    "select-columns"
+  ],
+  "introducedConcepts": [
+    "select-columns"
+  ],
+  "objective": "只输出学生姓名与年级，理解选列与筛行的区别。",
+  "statement": "输出全部学生的 name、grade 两列，按此顺序保留原列名。同名同年级的学生也各输出一行。不要求行顺序。",
+  "knowledge": [
+    "SELECT 后逐个列出要输出的字段，用逗号分隔；输出列的先后按书写顺序排列，可以与表结构顺序不同。",
+    "选择字段不等于筛选记录：本关输出全部学生，只决定“看哪几列”，不减少任何行。",
+    "同名同年级的两名学生是两条记录，各自输出一行；去重不是本关的任务。"
+  ],
+  "readableTables": [
+    "students"
+  ],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出全部学生的姓名和年级。\n",
+  "flowchart": {
+    "exampleSql": "SELECT name, grade FROM students;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "读懂这条查询",
+        "description": "只选择姓名和年级两列，不筛选或合并学生记录。"
+      },
+      {
+        "id": "source",
+        "label": "从哪里读？\nFROM students",
+        "description": "FROM students 指定数据来源是学生表。"
+      },
+      {
+        "id": "projection",
+        "label": "选哪些列？\nSELECT name, grade",
+        "description": "输出 name、grade 两列，列的先后按书写顺序排列，不输出 id、gender、phone。SELECT 在这里选择字段，而不是筛选记录。"
+      },
+      {
+        "id": "records",
+        "label": "保留哪些记录？\n全部，包含重复输出",
+        "description": "没有筛选条件，也没有去重。两名李梅各有自己的输出；即使姓名与年级完全相同，也不会合并为一条。"
+      },
+      {
+        "id": "row-order",
+        "label": "行按什么顺序？\n没有保证",
+        "description": "查询没有指定排序，不要把预览顺序理解为输出顺序的保证。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "projection"
+      },
+      {
+        "from": "topic",
+        "to": "records"
+      },
+      {
+        "from": "topic",
+        "to": "row-order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "只输出姓名和年级两列，全部学生都要保留。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT 字段列表 FROM 表名；两个字段用逗号分隔。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT ____, ____ FROM students;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT name, grade FROM students;",
+      "explanation": "按要求选出两列，保留全部记录及重复输出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": [
+          "name",
+          "grade"
+        ],
+        "rows": [
+          [
+            "李梅",
+            1
+          ],
+          [
+            "王强",
+            1
+          ],
+          [
+            "李梅",
+            2
+          ],
+          [
+            "张伟",
+            2
+          ],
+          [
+            "赵敏",
+            3
+          ],
+          [
+            "刘洋",
+            1
+          ],
+          [
+            "陈静",
+            3
+          ],
+          [
+            "杨帆",
+            2
+          ],
+          [
+            "周婷",
+            3
+          ],
+          [
+            "吴迪",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": [
+          "name",
+          "grade"
+        ],
+        "rows": [
+          [
+            "王强",
+            2
+          ],
+          [
+            "刘洋",
+            3
+          ],
+          [
+            "王强",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": [
+          "name",
+          "grade"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "selects-all-columns",
+      "sql": "SELECT * FROM students;"
+    },
+    {
+      "id": "filters-records",
+      "sql": "SELECT name, grade FROM students WHERE grade = 3;"
+    }
+  ]
+}

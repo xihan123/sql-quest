@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "filtering",
+  "id": "book-in",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "多个可选值",
+  "prerequisites": [
+    "book-and-or"
+  ],
+  "concepts": [
+    "select",
+    "where",
+    "in"
+  ],
+  "introducedConcepts": [
+    "in"
+  ],
+  "objective": "用 IN 一次匹配同一列的多个可选值。",
+  "statement": "查询类别为“文学”或“自然”的图书，依次输出 title、category、price。练习用 IN 列出可选类别。保留不同记录，不要求行顺序。",
+  "knowledge": [
+    "category IN ('文学', '自然') 表示类别是两者之一，等价于两个等值条件用 OR 连接。",
+    "候选值放在半角括号中，用逗号分隔；文本值分别加单引号。",
+    "IN 不会合并记录，也不保证行顺序。本关只按类别筛选，不附加价格条件。"
+  ],
+  "readableTables": [
+    "books"
+  ],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出文学类和自然类图书的名称、分类与定价。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title, category, price FROM books WHERE category IN ('文学', '自然');",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "一列匹配多个值",
+        "description": "用 IN 判断 category 是否属于指定的两个类别。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "books 的每一行都拿自己的 category 与值列表核对。"
+      },
+      {
+        "id": "condition",
+        "label": "值列表怎么写？\nIN ('文学', '自然')",
+        "description": "括号里列出全部可选值，逗号分隔；category 只要等于其中之一，这一行就通过。"
+      },
+      {
+        "id": "equivalence",
+        "label": "等价写法是什么？\n两个 = 用 OR 连",
+        "description": "IN 等价于把每个可选值写成等式再用 OR 连接；可选项越多，IN 越省事，含义完全相同。"
+      },
+      {
+        "id": "scope",
+        "label": "其他类别呢？\n都不入选",
+        "description": "值列表之外的类别（计算机、历史、生活）不通过检查；没有匹配时结果为零行。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n行未保证",
+        "description": "IN 不排序也不去重；同类多本图书照常逐行出现。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "condition"
+      },
+      {
+        "from": "topic",
+        "to": "equivalence"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务是按类别选行：只有「文学」和「自然」两个类别入选，其他类别都不要。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE category IN (值1, 值2); 字符串值用单引号，值之间用逗号分隔。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, category, price FROM books WHERE category IN (____, ____);"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, category, price FROM books WHERE category IN ('文学', '自然');",
+      "explanation": "IN 列出两个可选类别，等于每个值逐一相等比较后用 OR 连接；命中的行保留并输出三列。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "诗的练习",
+            "文学",
+            39
+          ],
+          [
+            "诗的练习",
+            "文学",
+            39
+          ],
+          [
+            "城市植物图鉴",
+            "自然",
+            45
+          ],
+          [
+            "城市植物图鉴",
+            "自然",
+            33
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "星图手册",
+            "自然",
+            0
+          ],
+          [
+            "民谣收集记",
+            "文学",
+            18
+          ],
+          [
+            "民谣收集记",
+            "文学",
+            18
+          ],
+          [
+            "星图手册",
+            "自然",
+            25
+          ]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "童话铁路",
+            "文学",
+            30
+          ],
+          [
+            "童话铁路",
+            "文学",
+            35
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "drops-one-value",
+      "sql": "SELECT title, category, price FROM books WHERE category IN ('文学');"
+    },
+    {
+      "id": "narrows-to-impossible",
+      "sql": "SELECT title, category, price FROM books WHERE category = '文学' AND category = '自然';"
+    },
+    {
+      "id": "excludes-wanted-values",
+      "sql": "SELECT title, category, price FROM books WHERE category NOT IN ('文学', '自然');"
+    },
+    {
+      "id": "omits-columns",
+      "sql": "SELECT category, price FROM books WHERE category IN ('文学', '自然');"
+    }
+  ]
+}

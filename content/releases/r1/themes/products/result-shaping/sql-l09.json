@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "result-shaping",
+  "id": "sql-l09",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "排序结果",
+  "prerequisites": [
+    "sql-l08"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "null",
+    "order-by"
+  ],
+  "introducedConcepts": [
+    "order-by"
+  ],
+  "objective": "按价格降序、编号升序确定结果的完整行顺序。",
+  "statement": "输出全部商品的 id、name、price，按 price 降序、id 升序排列。未知价格 NULL 排在已知价格之后，多个 NULL 也按 id 升序。免费、缺货商品和重复记录都要保留。",
+  "knowledge": [
+    "ORDER BY 放在查询后部；ASC 是升序，DESC 是降序，每个排序字段单独指定方向。没有 ORDER BY 不能保证行顺序。",
+    "多个排序键以逗号分隔：先比较第一个键，相同才比较下一个。主键 id 唯一，作为最后一个键可以消除并列的不确定性。",
+    "SQLite 默认排序中 NULL 小于非 NULL，因此 ASC 时在前，DESC 时在后。本关不通过 WHERE 排除未知价格。",
+    "索引、插入或预览顺序不能代替 ORDER BY；SELECT 的列顺序也不是行的排序规则。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按价格降序、编号升序确定结果的完整行顺序。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, price FROM products ORDER BY price DESC, id ASC;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "让排序规则完整",
+        "description": "示例只输出编号和价格，按价格降序、编号升序排列；题目还要求名称。"
+      },
+      {
+        "id": "primary",
+        "label": "先比较价格\nprice DESC",
+        "description": "DESC 表示从高到低，每个排序键的方向单独书写；SELECT 的字段先后不决定行排序。"
+      },
+      {
+        "id": "tie",
+        "label": "同价再比较编号\nid ASC",
+        "description": "只有价格相同时才比较 id；编号唯一且升序，使同价商品的先后稳定。"
+      },
+      {
+        "id": "null",
+        "label": "未知价格排最后",
+        "description": "SQLite 默认把 NULL 看作小于非 NULL，价格降序时未知价格位于末尾；多个 NULL 仍按 id 升序。"
+      },
+      {
+        "id": "scope",
+        "label": "排序不筛行",
+        "description": "没有 WHERE 或 LIMIT，免费、无库存和未知价格商品都参与。索引和预览顺序不能替代 ORDER BY。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "primary"
+      },
+      {
+        "from": "topic",
+        "to": "tie"
+      },
+      {
+        "from": "topic",
+        "to": "null"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先让价格越高越靠前，再用唯一编号解决同价。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY price DESC, id ASC；方向分别属于各自字段。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, price FROM products ORDER BY price ____, id ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, price FROM products ORDER BY price DESC, id ASC;",
+      "explanation": "价格降序把未知价格放在末尾；id 升序明确每个同价组及 NULL 组的顺序。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": [
+          [
+            6,
+            "陶瓷杯",
+            40
+          ],
+          [
+            2,
+            "陶瓷杯",
+            30
+          ],
+          [
+            1,
+            "帆布袋",
+            20
+          ],
+          [
+            3,
+            "帆布袋",
+            20
+          ],
+          [
+            8,
+            "书签",
+            20
+          ],
+          [
+            5,
+            "笔记本",
+            10
+          ],
+          [
+            4,
+            "体验装",
+            0
+          ],
+          [
+            7,
+            "神秘盒",
+            null
+          ],
+          [
+            9,
+            "礼盒",
+            null
+          ],
+          [
+            10,
+            "包装盒",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": [
+          [
+            22,
+            "陶瓷杯",
+            20
+          ],
+          [
+            21,
+            "样品",
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "missing-tie-key",
+      "sql": "SELECT id, name, price FROM products ORDER BY price DESC;"
+    },
+    {
+      "id": "reversed-tie-key",
+      "sql": "SELECT id, name, price FROM products ORDER BY price DESC, id DESC;"
+    },
+    {
+      "id": "no-order",
+      "sql": "SELECT id, name, price FROM products;"
+    }
+  ],
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "order",
+        "sql": "ORDER BY"
+      },
+      {
+        "id": "select",
+        "sql": "SELECT id, name, price"
+      },
+      {
+        "id": "source",
+        "sql": "FROM products"
+      },
+      {
+        "id": "price",
+        "sql": "price DESC,"
+      },
+      {
+        "id": "wrong-id",
+        "sql": "id DESC"
+      },
+      {
+        "id": "id",
+        "sql": "id ASC"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      }
+    ],
+    "solutionOrder": [
+      "select",
+      "source",
+      "order",
+      "price",
+      "id",
+      "end"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "library-basic-v1",
+  "tables": [
+    {
+      "name": "books",
+      "description": "图书清单，每行代表一条独立记录。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "图书编号"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "图书名称"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "价格，整数元"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "数据库入门",
+          39
+        ],
+        [
+          2,
+          "SQL 手册",
+          59
+        ],
+        [
+          3,
+          "SQL 手册",
+          59
+        ]
+      ]
+    }
+  ]
+}

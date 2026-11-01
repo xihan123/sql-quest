@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "products-intro-varied-v1",
+  "tables": [
+    {
+      "name": "products",
+      "description": "虚构的另一批商品，编号、名称、价格和记录数量与预览不同；查询应读取当前数据，而不是照抄预览。所有字段均已填写。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "商品编号，唯一标识一条商品记录"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "商品名称，不保证唯一"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "商品类别"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "商品单价，单位为整数元；0 表示免费，不表示缺失"
+        },
+        {
+          "name": "stock",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "库存件数；0 表示暂时无库存，仍是目录中的商品"
+        }
+      ],
+      "rows": [
+        [
+          11,
+          "书签",
+          "文具",
+          6,
+          0
+        ],
+        [
+          12,
+          "收纳盒",
+          "日用",
+          32,
+          7
+        ],
+        [
+          13,
+          "书签",
+          "文具",
+          6,
+          15
+        ],
+        [
+          14,
+          "试用装",
+          "日用",
+          0,
+          0
+        ]
+      ]
+    }
+  ]
+}

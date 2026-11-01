@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "filtering",
+  "id": "book-and-or",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "组合条件",
+  "prerequisites": [
+    "book-compare"
+  ],
+  "concepts": [
+    "select",
+    "where",
+    "boolean-conditions"
+  ],
+  "introducedConcepts": [
+    "boolean-conditions"
+  ],
+  "objective": "用 AND / OR 组合多个条件，理解两者满足方式的差别。",
+  "statement": "查询类别为“生活”或定价高于 50 元的图书，依次输出 title、category、price。任一条件成立即可；同一条记录同时满足两项时只输出一次。保留不同记录，不要求行顺序。",
+  "knowledge": [
+    "AND 要求条件同时成立，OR 只要求至少一个条件成立。",
+    "AND 的优先级高于 OR：A OR B AND C 相当于 A OR (B AND C)。需要先组合 A 与 B 时写 (A OR B) AND C。",
+    "文本条件写作 category = '生活'。OR 不会复制记录：两个条件都成立时，该记录仍只输出一次。"
+  ],
+  "readableTables": [
+    "books"
+  ],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出生活类或定价高于 50 元的图书。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title, category, price FROM books WHERE category = '生活' OR price > 50;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "用「或」组合条件",
+        "description": "用 OR 连接两个筛选条件，同时满足两项的记录不会重复输出。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "books 的每一行都要依次通过 WHERE 的组合条件检查。"
+      },
+      {
+        "id": "condition",
+        "label": "条件怎么连？\nOR 满足其一",
+        "description": "category = '生活' 或 price > 50 任一成立，这一行就进入结果；AND 则要求两个都成立。"
+      },
+      {
+        "id": "duplicate",
+        "label": "同时满足怎么办？\n只输出一次",
+        "description": "一本书既是生活类又高于 50 元时，它只是一行；筛选不会让一行出现两次。"
+      },
+      {
+        "id": "precedence",
+        "label": "优先级与括号\nAND 先于 OR",
+        "description": "混写时先结合 AND；想先算 OR 的部分就加括号。写清括号能让条件的含义更明确。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n行未保证",
+        "description": "OR 不保证行顺序；输出列顺序由 SELECT 的字段列表决定。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "condition"
+      },
+      {
+        "from": "topic",
+        "to": "duplicate"
+      },
+      {
+        "from": "topic",
+        "to": "precedence"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "两个条件是「或」的关系：生活类可以入选，价格高于 50 的任何类别也可以入选。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE 条件1 OR 条件2; 字符串条件写 category = '生活'，数值条件写 price > 50。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, category, price FROM books WHERE ____ OR ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, category, price FROM books WHERE category = '生活' OR price > 50;",
+      "explanation": "WHERE 里用 OR 连接两个条件：生活类图书，或定价高于 50 元的图书；同时满足的只输出一次。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "SQL 手册",
+            "计算机",
+            59
+          ],
+          [
+            "SQL 手册",
+            "计算机",
+            65
+          ],
+          [
+            "烹饪入门",
+            "生活",
+            33
+          ],
+          [
+            "烹饪入门",
+            "生活",
+            39
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "厨房里的化学",
+            "生活",
+            52
+          ],
+          [
+            "文字的故事",
+            "历史",
+            52
+          ]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": [
+          [
+            "陶艺手册",
+            "生活",
+            40
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "category",
+          "price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "uses-and-instead",
+      "sql": "SELECT title, category, price FROM books WHERE category = '生活' AND price > 50;"
+    },
+    {
+      "id": "uses-equality",
+      "sql": "SELECT title, category, price FROM books WHERE category = '生活' OR price = 50;"
+    },
+    {
+      "id": "drops-category",
+      "sql": "SELECT title, category, price FROM books WHERE price > 50;"
+    },
+    {
+      "id": "omits-columns",
+      "sql": "SELECT category, price FROM books WHERE category = '生活' OR price > 50;"
+    }
+  ]
+}

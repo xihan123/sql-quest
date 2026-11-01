@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "relationships",
+  "id": "sql-l20",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "左连接",
+  "prerequisites": [
+    "sql-l19"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "inner-join",
+    "null",
+    "column-alias",
+    "left-join"
+  ],
+  "introducedConcepts": [
+    "left-join"
+  ],
+  "objective": "保留所有顾客，为没有订单的顾客显示未匹配的 NULL。",
+  "statement": "输出全部顾客及其全部订单，不筛选订单状态。依次输出 customer_id、customer_name、order_id、status。每张匹配订单一行；没有订单的顾客也输出一行，order_id 和 status 均为 SQL NULL。同名顾客按编号区分，不要求行顺序。",
+  "knowledge": [
+    "LEFT JOIN 保留左表所有行；存在匹配时输出匹配组合，不存在匹配时仍输出一行，并把右表列补为 NULL。",
+    "本关左表应是 customers；把 orders 放左边只能保留订单，不能表示完全没有订单的顾客。",
+    "右表 orders.id 在原表不为空，但外连接生成的未匹配行可以让它变成 NULL。这是连接结果的空值，不是夹具中存在坏编号。",
+    "不要用 DISTINCT 合并顾客的多张订单；左连接保证保留左行，并不保证每个顾客恰好只有一行。"
+  ],
+  "readableTables": [
+    "customers",
+    "orders"
+  ],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 保留所有顾客，为没有订单的顾客显示未匹配的 NULL。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "确定哪个实体即使没有匹配也必须出现，把它放左边。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM customers AS c LEFT JOIN orders AS o，ON 仍沿 customer_id 外键。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id, o.status FROM customers AS c LEFT JOIN orders AS o ON ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id, o.status FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id;",
+      "explanation": "顾客 6 没有订单，所以出现一行右侧 NULL；顾客 4 的已取消订单仍是真实匹配，本关不能删掉。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "order_id",
+          "status"
+        ],
+        "rows": [
+          [
+            1,
+            "林杉",
+            101,
+            "paid"
+          ],
+          [
+            1,
+            "林杉",
+            102,
+            "paid"
+          ],
+          [
+            2,
+            "周禾",
+            103,
+            "pending"
+          ],
+          [
+            2,
+            "周禾",
+            106,
+            "paid"
+          ],
+          [
+            3,
+            "林杉",
+            104,
+            "paid"
+          ],
+          [
+            4,
+            "陈果",
+            105,
+            "cancelled"
+          ],
+          [
+            5,
+            "许星",
+            107,
+            "paid"
+          ],
+          [
+            6,
+            "温澄",
+            null,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "order_id",
+          "status"
+        ],
+        "rows": [
+          [
+            11,
+            "乔安",
+            201,
+            "pending"
+          ],
+          [
+            12,
+            "陆宁",
+            202,
+            "paid"
+          ],
+          [
+            13,
+            "乔安",
+            203,
+            "paid"
+          ],
+          [
+            13,
+            "乔安",
+            204,
+            "paid"
+          ],
+          [
+            14,
+            "沈夏",
+            null,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "order_id",
+          "status"
+        ],
+        "rows": [
+          [
+            21,
+            "季青",
+            301,
+            "pending"
+          ],
+          [
+            22,
+            "唐宁",
+            null,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": [
+          "customer_id",
+          "customer_name",
+          "order_id",
+          "status"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-loses-unmatched",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id, o.status FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id;"
+    },
+    {
+      "id": "wrong-preserved-side",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id, o.status FROM orders AS o LEFT JOIN customers AS c ON c.id = o.customer_id;"
+    },
+    {
+      "id": "changes-null-to-zero",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, COALESCE(o.id, 0) AS order_id, o.status FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id;"
+    }
+  ],
+  "flowchart": {
+    "exampleSql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id, o.status FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id;",
+    "nodes": [
+      {
+        "id": "left",
+        "label": "左侧：所有顾客",
+        "description": "以 customers 为保留侧，顾客按 id 区分，而不是按姓名合并。"
+      },
+      {
+        "id": "match",
+        "label": "ON：匹配订单顾客编号",
+        "description": "查找 c.id = o.customer_id 的订单；同一顾客可以匹配多张订单。"
+      },
+      {
+        "id": "preserve",
+        "label": "LEFT JOIN：保留匹配或未匹配行",
+        "description": "有匹配时每张订单形成一行；无匹配时仍保留顾客，右表列补为 NULL。"
+      },
+      {
+        "id": "project",
+        "label": "SELECT：输出四列",
+        "description": "取顾客编号、姓名与右侧订单编号、状态；本例不筛选状态，也不保证行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "left",
+        "to": "match"
+      },
+      {
+        "from": "match",
+        "to": "preserve"
+      },
+      {
+        "from": "preserve",
+        "to": "project"
+      }
+    ]
+  }
+}

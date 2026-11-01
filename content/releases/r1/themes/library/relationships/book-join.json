@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "relationships",
+  "id": "book-join",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "内连接",
+  "prerequisites": [
+    "book-keys"
+  ],
+  "concepts": [
+    "select",
+    "where",
+    "relational-keys",
+    "inner-join"
+  ],
+  "introducedConcepts": [
+    "inner-join"
+  ],
+  "objective": "用 INNER JOIN 按外键连接两张表，并用表别名消歧同名列。",
+  "statement": "连接 books 与 authors，按 books.author_id = authors.id 配对。每本图书输出一行，依次为 title（书名）、author（作者姓名）。同名图书分别保留，不要求行顺序。",
+  "knowledge": [
+    "INNER JOIN（可简写为 JOIN）只保留满足 ON 条件的匹配行。",
+    "FROM books AS b JOIN authors AS a 为两张表设置别名；b.id 和 a.id 分别引用图书编号、作者编号。",
+    "本例的 author_id 非空且有外键约束，每本书恰好匹配一位作者。SELECT 决定连接后输出哪些列。"
+  ],
+  "readableTables": [
+    "books",
+    "authors"
+  ],
+  "previewFixtureId": "library-loans-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出每本馆藏图书的书名与作者姓名。\n",
+  "flowchart": {
+    "exampleSql": "SELECT b.title AS title, a.name AS author FROM books AS b JOIN authors AS a ON b.author_id = a.id;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "把书和作者连起来",
+        "description": "沿 author_id 连接图书与作者，输出书名和作者姓名。"
+      },
+      {
+        "id": "source",
+        "label": "连接哪两张表？\nbooks AS b 与 authors AS a",
+        "description": "两张表各起一个短别名；之后 b 代表 books，a 代表 authors。"
+      },
+      {
+        "id": "condition",
+        "label": "怎么配对？\nON b.author_id = a.id",
+        "description": "ON 条件成立时两行合成一行：书行的作者编号等于作者行的编号。"
+      },
+      {
+        "id": "columns",
+        "label": "同名列怎么办？\n用别名限定",
+        "description": "两张表都有自己的 id；b.id 与 a.id 分别指各自的列，不带限定就有歧义。"
+      },
+      {
+        "id": "matched",
+        "label": "配不上的行呢？\n不出现",
+        "description": "INNER JOIN 只保留匹配行。本例每本书的 author_id 都引用有效作者，因此每本书都能匹配。"
+      },
+      {
+        "id": "result",
+        "label": "输出什么？\ntitle 与 author",
+        "description": "输出 title 和 author 两列；同名但编号不同的图书各自保留。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "condition"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "matched"
+      },
+      {
+        "from": "topic",
+        "to": "result"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "书的 author_id 与作者的 id 相等时配对；给两张表起短别名，输出两列并按题目命名。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM 表1 AS 别名1 JOIN 表2 AS 别名2 ON 别名1.列 = 别名2.列; 输出列用 别名.列名 引用。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT b.title AS title, a.name AS author FROM books AS b JOIN authors AS a ON ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT b.title AS title, a.name AS author FROM books AS b JOIN authors AS a ON b.author_id = a.id;",
+      "explanation": "JOIN 按外键配对：书行的 author_id 等于作者行的 id；输出书名与作者姓名，两位沈临各自与自己的书配对。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "loans",
+      "fixtureId": "library-loans-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "author"
+        ],
+        "rows": [
+          [
+            "雾中灯塔",
+            "沈临"
+          ],
+          [
+            "雾中灯塔",
+            "沈临"
+          ],
+          [
+            "河流改道",
+            "白榆"
+          ],
+          [
+            "秋日食谱",
+            "江晚"
+          ],
+          [
+            "桥梁简史",
+            "Anna Reed"
+          ],
+          [
+            "静物写生",
+            "Mora Kim"
+          ],
+          [
+            "声音的形状",
+            "白榆"
+          ],
+          [
+            "候鸟旅馆",
+            "Anna Reed"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-loans",
+      "fixtureId": "library-loans-varied-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "author"
+        ],
+        "rows": [
+          [
+            "慢速列车",
+            "沈临"
+          ],
+          [
+            "屋顶花园",
+            "白榆"
+          ],
+          [
+            "慢速列车",
+            "芮宁"
+          ],
+          [
+            "纸船",
+            "白榆"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-loans",
+      "fixtureId": "library-loans-empty-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "author"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "crosses-every-pair",
+      "sql": "SELECT b.title AS title, a.name AS author FROM books AS b JOIN authors AS a;"
+    },
+    {
+      "id": "joins-on-wrong-columns",
+      "sql": "SELECT b.title AS title, a.name AS author FROM books AS b JOIN authors AS a ON b.id = a.id;"
+    },
+    {
+      "id": "omits-author-column",
+      "sql": "SELECT b.title AS title FROM books AS b JOIN authors AS a ON b.author_id = a.id;"
+    }
+  ],
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "select",
+        "sql": "SELECT"
+      },
+      {
+        "id": "b-title",
+        "sql": "b.title"
+      },
+      {
+        "id": "as-title",
+        "sql": "AS title"
+      },
+      {
+        "id": "comma",
+        "sql": ","
+      },
+      {
+        "id": "a-name",
+        "sql": "a.name"
+      },
+      {
+        "id": "as-author",
+        "sql": "AS author"
+      },
+      {
+        "id": "source",
+        "sql": "FROM books AS b"
+      },
+      {
+        "id": "join",
+        "sql": "JOIN authors AS a"
+      },
+      {
+        "id": "on",
+        "sql": "ON b.author_id = a.id"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      },
+      {
+        "id": "all-columns",
+        "sql": "*"
+      },
+      {
+        "id": "wrong-on",
+        "sql": "ON b.id = a.id"
+      }
+    ],
+    "solutionOrder": [
+      "select",
+      "b-title",
+      "as-title",
+      "comma",
+      "a-name",
+      "as-author",
+      "source",
+      "join",
+      "on",
+      "end"
+    ]
+  }
+}

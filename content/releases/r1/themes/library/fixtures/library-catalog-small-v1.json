@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "id": "library-catalog-small-v1",
+  "tables": [
+    {
+      "name": "books",
+      "description": "虚构的小型图书目录，用于检验数量截断与不足数量的行为；同名书是不同版本。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "书目编号，唯一标识一条图书记录"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一；同名行是不同版本，仍是不同图书"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "图书分类"
+        },
+        {
+          "name": "publish_year",
+          "type": "INTEGER",
+          "description": "出版年份，公历四位年份"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "定价，整数元；0 表示开放获取的免费图书，不是价格缺失"
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "内容简介；SQL NULL 表示尚未填写，空字符串和文字 NULL 都是已填写的文本"
+        }
+      ],
+      "rows": [
+        [
+          21,
+          "童话铁路",
+          "文学",
+          2020,
+          30,
+          "彩绘版"
+        ],
+        [
+          22,
+          "童话铁路",
+          "文学",
+          2023,
+          35,
+          "修订版"
+        ],
+        [
+          23,
+          "数字小史",
+          "计算机",
+          2021,
+          35,
+          null
+        ],
+        [
+          24,
+          "陶艺手册",
+          "生活",
+          2019,
+          40,
+          "图解版"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "filtering",
+  "id": "sql-l05",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "组合条件",
+  "prerequisites": [
+    "sql-l04"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where",
+    "boolean-conditions"
+  ],
+  "introducedConcepts": [
+    "boolean-conditions"
+  ],
+  "objective": "用括号组合可选类别，再要求商品有库存。",
+  "statement": "查询类别为“日用”或“文具”、且 stock 大于 0 的商品，依次输出 id、name、category、stock。两类商品都必须有库存。保留不同记录，不要求行顺序。",
+  "knowledge": [
+    "AND 要求两侧都成立，OR 只需一侧成立。文本值写在单引号中，例如 category = '日用'。",
+    "SQL 中 AND 比 OR 优先；A OR B AND C 相当于 A OR (B AND C)，不是 (A OR B) AND C。",
+    "括号先组合两种可选类别，再与库存条件用 AND 连接。括号只影响条件组合，不改变输出列。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-intro-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用括号组合可选类别，再要求商品有库存。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, category, stock FROM products WHERE (category = '日用' OR category = '餐厨') AND stock > 0;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "先分清“或”与“且”",
+        "description": "示例查询日用或餐厨类的有库存商品；题目要求的类别是日用和文具。"
+      },
+      {
+        "id": "choice",
+        "label": "类别二选一\n日用 OR 餐厨",
+        "description": "OR 只要求至少一边成立，不是要求同一商品同时属于两个类别。文本类别用单引号。"
+      },
+      {
+        "id": "stock",
+        "label": "共同门槛\nAND stock > 0",
+        "description": "两类商品都必须有库存；stock 等于 0 不符合，不是只有餐厨商品才检查库存。"
+      },
+      {
+        "id": "grouping",
+        "label": "括号先把类别合成一组",
+        "description": "括号表达“任一类别成立”这个整体，再与库存条件连接。省略括号时 AND 先于 OR，含义可能改变。"
+      },
+      {
+        "id": "output",
+        "label": "筛行后再看输出\nid、category、stock",
+        "description": "示例显示编号、类别和库存，保留符合条件的每条记录；没有合并或排序。"
+      },
+      {
+        "id": "precedence",
+        "label": "无括号的含义\nA OR (B AND C)",
+        "description": "A OR B AND C 按 AND 优先处理。不能因为一条预览数据恰好得出相同结果，就认定它等价于 (A OR B) AND C。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "choice"
+      },
+      {
+        "from": "topic",
+        "to": "stock"
+      },
+      {
+        "from": "topic",
+        "to": "grouping"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      },
+      {
+        "from": "grouping",
+        "to": "precedence"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "把“属于两类中的任意一类”当作一个整体，再判断库存。"
+    },
+    {
+      "id": "syntax",
+      "text": "使用 (类别条件 OR 类别条件) AND 库存条件。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, category, stock FROM products WHERE (category = '日用' OR category = '文具') AND ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, category, stock FROM products WHERE (category = '日用' OR category = '文具') AND stock > 0;",
+      "explanation": "括号让日用商品也必须通过库存检查；文具与日用是可选项，而不是要求同一商品同时属于两个类别。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-intro-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "category",
+          "stock"
+        ],
+        "rows": [
+          [
+            1,
+            "帆布袋",
+            "日用",
+            12
+          ],
+          [
+            4,
+            "体验装",
+            "日用",
+            30
+          ],
+          [
+            5,
+            "笔记本",
+            "文具",
+            20
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-intro-varied-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "category",
+          "stock"
+        ],
+        "rows": [
+          [
+            12,
+            "收纳盒",
+            "日用",
+            7
+          ],
+          [
+            13,
+            "书签",
+            "文具",
+            15
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-intro-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "category",
+          "stock"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "missing-parentheses",
+      "sql": "SELECT id, name, category, stock FROM products WHERE category = '日用' OR category = '文具' AND stock > 0;"
+    },
+    {
+      "id": "requires-both-categories",
+      "sql": "SELECT id, name, category, stock FROM products WHERE category = '日用' AND category = '文具' AND stock > 0;"
+    },
+    {
+      "id": "includes-zero-stock",
+      "sql": "SELECT id, name, category, stock FROM products WHERE (category = '日用' OR category = '文具') AND stock >= 0;"
+    }
+  ],
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "stock",
+        "sql": "stock > 0"
+      },
+      {
+        "id": "source",
+        "sql": "FROM products"
+      },
+      {
+        "id": "projection",
+        "sql": "SELECT id, name, category, stock"
+      },
+      {
+        "id": "categories",
+        "sql": "(category = '日用' OR category = '文具')"
+      },
+      {
+        "id": "and",
+        "sql": "AND"
+      },
+      {
+        "id": "where",
+        "sql": "WHERE"
+      },
+      {
+        "id": "wrong-stock",
+        "sql": "stock >= 0"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      }
+    ],
+    "solutionOrder": [
+      "projection",
+      "source",
+      "where",
+      "categories",
+      "and",
+      "stock",
+      "end"
+    ]
+  }
+}

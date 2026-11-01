@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "aggregation",
+  "id": "book-having",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "筛选分组",
+  "prerequisites": [
+    "book-group"
+  ],
+  "concepts": [
+    "select",
+    "where",
+    "count",
+    "group-by",
+    "having"
+  ],
+  "introducedConcepts": [
+    "having"
+  ],
+  "objective": "用 HAVING 在分组之后筛选组，区分它与 WHERE 的作用对象。",
+  "statement": "按 books.category 统计图书记录数，只保留数量不少于 2 的分类，依次输出 category、book_count。不要求行顺序；没有符合条件的分类时返回零行。",
+  "knowledge": [
+    "HAVING 写在 GROUP BY 后，用聚合条件筛选组，例如 HAVING COUNT(*) >= 2。",
+    "WHERE 在分组前筛选记录，不能直接使用本层查询的聚合结果；HAVING 在分组后筛选组。",
+    "两者可以一起用：WHERE 决定哪些记录参与统计，HAVING 决定哪些组输出。"
+  ],
+  "readableTables": [
+    "books"
+  ],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出书目数量不少于 2 的分类及其数量。\n",
+  "flowchart": {
+    "exampleSql": "SELECT category, COUNT(*) AS book_count FROM books GROUP BY category HAVING COUNT(*) >= 2;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "筛选「够大」的组",
+        "description": "HAVING 按记录数筛选分类，恰好两条的组也保留。"
+      },
+      {
+        "id": "group",
+        "label": "先分组\nGROUP BY category",
+        "description": "每组得到一个计数；HAVING 的判断对象是组，不是单行。"
+      },
+      {
+        "id": "having",
+        "label": "再筛组\nHAVING COUNT(*) >= 2",
+        "description": "计数小于 2 的组不输出；HAVING 的条件可以使用聚合函数。"
+      },
+      {
+        "id": "contrast",
+        "label": "换成 WHERE 行吗？\n不行",
+        "description": "WHERE 在分组前逐行检查，那时还没有「组的计数」；用 WHERE 写聚合条件不是合法做法。"
+      },
+      {
+        "id": "result",
+        "label": "输出什么？\ncategory 与 book_count",
+        "description": "被保留的组各输出一行两列；没有组满足条件时输出零行。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n行未保证",
+        "description": "HAVING 不排序；保留组的先后没有保证。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "group"
+      },
+      {
+        "from": "topic",
+        "to": "having"
+      },
+      {
+        "from": "topic",
+        "to": "contrast"
+      },
+      {
+        "from": "topic",
+        "to": "result"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "筛选的对象是「组」：先按分类分组计数，再让计数不小于 2 的组留下来。"
+    },
+    {
+      "id": "syntax",
+      "text": "GROUP BY 分组列 HAVING 聚合条件; 条件里写 COUNT(*) 与比较符。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT category, COUNT(*) AS book_count FROM books GROUP BY category ____ ____ >= 2;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT category, COUNT(*) AS book_count FROM books GROUP BY category HAVING COUNT(*) >= 2;",
+      "explanation": "分组计数后，HAVING 只保留计数不少于 2 的组；少于 2 本的分类整体不输出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "book_count"
+        ],
+        "rows": [
+          [
+            "计算机",
+            3
+          ],
+          [
+            "文学",
+            2
+          ],
+          [
+            "自然",
+            2
+          ],
+          [
+            "生活",
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "book_count"
+        ],
+        "rows": [
+          [
+            "自然",
+            2
+          ],
+          [
+            "文学",
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "book_count"
+        ],
+        "rows": [
+          [
+            "文学",
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "category",
+          "book_count"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-having",
+      "sql": "SELECT category, COUNT(*) AS book_count FROM books GROUP BY category;"
+    },
+    {
+      "id": "uses-wrong-threshold",
+      "sql": "SELECT category, COUNT(*) AS book_count FROM books GROUP BY category HAVING COUNT(*) >= 3;"
+    },
+    {
+      "id": "filters-rows-not-groups",
+      "sql": "SELECT category, COUNT(*) AS book_count FROM books WHERE price >= 39 GROUP BY category;"
+    },
+    {
+      "id": "keeps-category-only",
+      "sql": "SELECT category FROM books GROUP BY category HAVING COUNT(*) >= 2;"
+    }
+  ]
+}
