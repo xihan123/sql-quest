@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "filtering",
+  "id": "sql-l07",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "文本匹配",
+  "prerequisites": ["sql-l06"],
+  "concepts": ["select", "select-columns", "where", "like"],
+  "introducedConcepts": ["like"],
+  "objective": "用 LIKE 匹配名称前缀，并要求前缀后至少有一个字符。",
+  "statement": "查询名称以 ASCII 字母 sql 开头，且前缀后至少还有一个字符的商品，依次输出 id、name。不区分这些 ASCII 字母的大小写。名称 SQL 不符合，SQL_指南符合。保留不同记录，不要求行顺序。",
+  "knowledge": [
+    "LIKE 的模式是单引号内的文本。% 匹配零个或多个字符，_ 匹配恰好一个字符；例如 'A_%' 要求以 A 开头且后面至少还有一个字符。",
+    "SQLite 默认 LIKE 对 ASCII 英文字母大小写不敏感；这不等于对所有 Unicode 字母都如此。本关使用 ASCII 的 sql 前缀，不修改 PRAGMA。",
+    "模式开头不放 % 才要求从名称开头匹配；'sql%' 也允许只有 sql 三个字母。名称中的下划线是数据；模式中的下划线才是通配符。"
+  ],
+  "readableTables": ["products"],
+  "previewFixtureId": "products-pattern-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 LIKE 匹配名称前缀，并要求前缀后至少有一个字符。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, name FROM products WHERE name LIKE 'sql%';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "拆解 LIKE 模式",
+        "description": "示例允许名称只有 SQL 三个字母；题目还要求前缀后至少有一个字符。"
+      },
+      {
+        "id": "prefix",
+        "label": "从开头匹配\n模式以 sql 开头",
+        "description": "sql 前没有 %，所以必须从名称开头匹配；中间出现 sql 不够。"
+      },
+      {
+        "id": "wildcard",
+        "label": "% 可以匹配零字符",
+        "description": "末尾 % 接受任意长度后缀，包括空后缀。因此这个示例不能排除名称只有 SQL 的记录。"
+      },
+      {
+        "id": "case",
+        "label": "ASCII 大小写不敏感",
+        "description": "本项目 SQLite 默认 LIKE 可匹配 SQL、sql、Sql 这样的 ASCII 大小写变化；不能推断所有 Unicode 字母都如此。"
+      },
+      {
+        "id": "data",
+        "label": "模式与数据不要混淆",
+        "description": "单引号中的模式控制匹配；商品名称中的下划线只是数据字符，不会主动变成通配符。示例只输出 id、name，不修改名称。"
+      },
+      {
+        "id": "one-character",
+        "label": "_ 要求恰好一个字符",
+        "description": "_ 与 % 的区别是必须消耗一个字符；把字符数要求与后续任意长度分开考虑，才能表达本关边界。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "prefix"
+      },
+      {
+        "from": "topic",
+        "to": "wildcard"
+      },
+      {
+        "from": "topic",
+        "to": "case"
+      },
+      {
+        "from": "topic",
+        "to": "data"
+      },
+      {
+        "from": "wildcard",
+        "to": "one-character"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先限制开头，再让模式覆盖至少一个额外字符。"
+    },
+    {
+      "id": "syntax",
+      "text": "把恰好一个字符的通配符与零个或多个字符的通配符连用。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name FROM products WHERE name LIKE ____; -- 填入带单引号的模式：sql 前缀后至少一字符，再允许任意长度"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name FROM products WHERE name LIKE 'sql_%';",
+      "explanation": "_ 要求至少一字符，随后 % 允许更长名称；ASCII 大小写按 SQLite 默认 LIKE 规则匹配。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-pattern-v1",
+      "expected": {
+        "columns": ["id", "name"],
+        "rows": [
+          [1, "SQL手册"],
+          [2, "sql卡片"],
+          [3, "Sql速查"],
+          [6, "SQL_指南"],
+          [7, "SQLAB"]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-intro-empty-v1",
+      "expected": {
+        "columns": ["id", "name"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "allows-bare-prefix",
+      "sql": "SELECT id, name FROM products WHERE name LIKE 'sql%';"
+    },
+    {
+      "id": "matches-middle",
+      "sql": "SELECT id, name FROM products WHERE name LIKE '%sql_%';"
+    },
+    {
+      "id": "exactly-one-suffix",
+      "sql": "SELECT id, name FROM products WHERE name LIKE 'sql_';"
+    }
+  ]
+}

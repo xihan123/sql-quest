@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "relationships",
+  "id": "sql-l21",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "连接与筛选",
+  "prerequisites": ["sql-l20"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "left-join",
+    "where",
+    "boolean-conditions",
+    "null",
+    "column-alias",
+    "join-filter"
+  ],
+  "introducedConcepts": ["join-filter"],
+  "objective": "只匹配已支付订单，同时仍保留所有顾客。",
+  "statement": "输出全部顾客及其已支付订单，依次为 customer_id、customer_name、order_id。每张 paid 订单一行；没有 paid 订单的顾客也输出一行，order_id 为 SQL NULL，包括完全无订单和只有 pending / cancelled 订单的顾客。同名顾客按编号区分，不要求行顺序。",
+  "knowledge": [
+    "LEFT JOIN 的 ON 决定哪些右侧行可以匹配。把 o.status = 'paid' 与编号条件一起放入 ON，可只匹配已支付订单，仍保留左侧每个顾客。",
+    "WHERE 在连接结果形成后筛行。如果在 WHERE 要求右表为 paid，未匹配的 NULL 行不会为真，就会被删除。",
+    "写 WHERE o.status = 'paid' OR o.id IS NULL 也不能挽救只有非 paid 订单的顾客：他们在按编号连接时已匹配到非 paid 行，根本没产生补 NULL 行。",
+    "条件是否能移动需要看保留语义。本关要求的是“所有顾客，仅匹配 paid”，不是“仅有 paid 的顾客”。"
+  ],
+  "readableTables": ["customers", "orders"],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 只匹配已支付订单，同时仍保留所有顾客。\n",
+  "flowchart": {
+    "exampleSql": "SELECT c.id AS customer_id, o.id AS order_id FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id AND o.status = 'pending';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "匹配条件不等于结果筛选",
+        "description": "示例保留所有顾客，只匹配待支付订单；题目只匹配已支付订单。"
+      },
+      {
+        "id": "left",
+        "label": "谁必须保留？\n左表 customers",
+        "description": "每个顾客至少有一条连接结果，有多张符合条件的订单则可有多条。姓名相同不代表同一顾客。"
+      },
+      {
+        "id": "on",
+        "label": "哪些订单可以匹配？\n编号相同且 pending",
+        "description": "ON 同时检查顾客编号与状态。不是先接入所有订单再把非 pending 结果删除。"
+      },
+      {
+        "id": "unmatched",
+        "label": "找不到匹配时补 NULL",
+        "description": "完全没有订单，或者只有 paid / cancelled 订单的顾客，在这个固定示例里都没有 pending 匹配，仍保留一个 NULL 订单编号。"
+      },
+      {
+        "id": "where",
+        "label": "移到 WHERE 会怎样？",
+        "description": "连接形成后再要求右表状态为 pending，补 NULL 的行不会满足条件，顾客会丢失；这不等价于限制匹配范围。"
+      },
+      {
+        "id": "or-null",
+        "label": "OR o.id IS NULL 也不总能补救",
+        "description": "若先只按编号连接，只有非 pending 订单的顾客已经匹配到真实订单，不会生成补 NULL 行。之后加 OR o.id IS NULL 仍可能丢掉他们。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "left"
+      },
+      {
+        "from": "topic",
+        "to": "on"
+      },
+      {
+        "from": "topic",
+        "to": "unmatched"
+      },
+      {
+        "from": "topic",
+        "to": "where"
+      },
+      {
+        "from": "where",
+        "to": "or-null"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先决定什么订单有资格参与匹配，而不是连接后删除顾客行。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 ON 中用 AND 连接编号关系和状态限制，不在 WHERE 过滤右侧状态。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id AND ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id AND o.status = 'paid';",
+      "explanation": "顾客 4 虽有 cancelled 订单但没有 paid 匹配，应与无订单的顾客 6 一样保留一个 NULL 订单编号。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "order_id"],
+        "rows": [
+          [1, "林杉", 101],
+          [1, "林杉", 102],
+          [2, "周禾", 106],
+          [3, "林杉", 104],
+          [4, "陈果", null],
+          [5, "许星", 107],
+          [6, "温澄", null]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "order_id"],
+        "rows": [
+          [11, "乔安", null],
+          [12, "陆宁", 202],
+          [13, "乔安", 203],
+          [13, "乔安", 204],
+          [14, "沈夏", null]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "order_id"],
+        "rows": [
+          [21, "季青", null],
+          [22, "唐宁", null]
+        ]
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "order_id"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "filters-after-join",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id WHERE o.status = 'paid';"
+    },
+    {
+      "id": "null-or-does-not-rescue",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id WHERE o.status = 'paid' OR o.id IS NULL;"
+    },
+    {
+      "id": "matches-all-orders",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id;"
+    }
+  ],
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "status",
+        "sql": "AND o.status = 'paid'"
+      },
+      {
+        "id": "join",
+        "sql": "LEFT JOIN orders AS o"
+      },
+      {
+        "id": "select",
+        "sql": "SELECT c.id AS customer_id, c.name AS customer_name, o.id AS order_id"
+      },
+      {
+        "id": "wrong-status",
+        "sql": "WHERE o.status = 'paid'"
+      },
+      {
+        "id": "source",
+        "sql": "FROM customers AS c"
+      },
+      {
+        "id": "keys",
+        "sql": "ON c.id = o.customer_id"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      }
+    ],
+    "solutionOrder": ["select", "source", "join", "keys", "status", "end"]
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "filtering",
+  "id": "book-like",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "文本匹配",
+  "prerequisites": ["book-in"],
+  "concepts": ["select", "where", "like"],
+  "introducedConcepts": ["like"],
+  "objective": "用 LIKE 和通配符按书名模式匹配文本。",
+  "statement": "查询书名以“诗”开头的图书，依次输出 title、price、publish_year。书名只有“诗”一个字也符合；仅在中间或末尾出现“诗”则不符合。保留不同记录，不要求行顺序。",
+  "knowledge": [
+    "LIKE 使用单引号内的模式匹配文本。% 匹配零个或多个字符，_ 匹配恰好一个字符。",
+    "'诗%' 要求以“诗”开头；'%诗%' 则只要求包含“诗”。",
+    "SQLite 默认 LIKE 对 ASCII 字母不区分大小写，但不会普遍忽略非 ASCII 字符的大小写。没有通配符的 LIKE 仍沿用这一规则，不应笼统地当作 =。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出书名以「诗」开头的图书。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title, price, publish_year FROM books WHERE title LIKE '诗%';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "按书名模式匹配",
+        "description": "用 LIKE 匹配书名前缀，% 允许前缀后没有其他字符。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "books 的每一行都拿自己的 title 与模式核对。"
+      },
+      {
+        "id": "pattern",
+        "label": "模式怎么写？\nLIKE '诗%'",
+        "description": "「诗」是第一个字符，% 代表其后的任意内容，包括空；两者合起来就是「以诗开头」。"
+      },
+      {
+        "id": "wildcards",
+        "label": "两个通配符\n% 与 _",
+        "description": "% 匹配任意长度，_ 只匹配一个字符；本关用 %。通配符写在引号里才是模式的一部分。"
+      },
+      {
+        "id": "scope",
+        "label": "中间出现算吗？\n不算",
+        "description": "「诗」出现在书名中间或末尾时不是开头，不匹配；没有匹配的图书时结果为零行。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n行未保证",
+        "description": "LIKE 不排序也不去重；命中的图书照常逐行输出三列。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "pattern"
+      },
+      {
+        "from": "topic",
+        "to": "wildcards"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务是按书名的开头匹配：只关心第一个字符是「诗」，后面的内容不限。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE title LIKE '模式'; % 放在「诗」的后面表示后面任意，整个模式写在单引号里。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, price, publish_year FROM books WHERE title LIKE '____';"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, price, publish_year FROM books WHERE title LIKE '诗%';",
+      "explanation": "模式「诗%」要求第一个字符是「诗」、其后任意；命中的图书输出书名、定价与出版年份。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["title", "price", "publish_year"],
+        "rows": [
+          ["诗的练习", 39, 2015],
+          ["诗的练习", 39, 2019]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["title", "price", "publish_year"],
+        "rows": []
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["title", "price", "publish_year"],
+        "rows": []
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["title", "price", "publish_year"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "exact-match-no-wildcard",
+      "sql": "SELECT title, price, publish_year FROM books WHERE title LIKE '诗';"
+    },
+    {
+      "id": "single-char-wildcard",
+      "sql": "SELECT title, price, publish_year FROM books WHERE title LIKE '诗_';"
+    },
+    {
+      "id": "matches-wrong-column",
+      "sql": "SELECT title, price, publish_year FROM books WHERE category LIKE '诗%';"
+    },
+    {
+      "id": "omits-filter",
+      "sql": "SELECT title, price, publish_year FROM books;"
+    }
+  ]
+}

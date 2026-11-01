@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "first-query",
+  "id": "sql-l03",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "列别名",
+  "prerequisites": ["sql-l02"],
+  "concepts": ["select", "select-columns", "column-alias"],
+  "introducedConcepts": ["column-alias"],
+  "objective": "用 AS 给输出列取别名，区分原字段、输出列名和字段值。",
+  "statement": "输出全部商品的 name、price，结果列依次命名为 product_name、unit_price。价格单位为元，字段值不变。保留免费、缺货商品和重复记录，不要求行顺序。",
+  "knowledge": [
+    "字段 AS 别名 为结果列命名，不修改原表字段或数据。多个输出列分别设置别名，用逗号分隔。",
+    "例如 stock AS available_stock 读取库存并改结果列名。stock 是字段，'stock' 是固定文本。",
+    "设置别名不筛选或合并记录，输出值仍来自 AS 前的字段。"
+  ],
+  "readableTables": ["products"],
+  "previewFixtureId": "products-intro-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 为名称和价格分别设置题目要求的输出列名。\n",
+  "flowchart": {
+    "exampleSql": "SELECT name, stock AS available_stock FROM products;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "列别名改变什么？",
+        "description": "示例将 stock 命名为 available_stock；题目要求的是名称和价格的别名。"
+      },
+      {
+        "id": "value",
+        "label": "值从哪里来？\nname、stock",
+        "description": "FROM products 确定来源，name 和 stock 读取每条商品的名称与库存。库存为 0 也照常输出。"
+      },
+      {
+        "id": "alias",
+        "label": "结果叫什么？\nAS available_stock",
+        "description": "AS 紧跟 stock，只把该输出列命名为 available_stock；name 没有设置别名，仍叫 name。"
+      },
+      {
+        "id": "unchanged",
+        "label": "原表是否改变？\n不改字段和值",
+        "description": "别名属于本次查询的输出，不会把 products.stock 重命名，也不会改变库存数或减少商品记录。"
+      },
+      {
+        "id": "literal",
+        "label": "字段还是固定文字？\nstock 与单引号",
+        "description": "不加引号的 stock 是字段；单引号包住的固定文字不是读取字段值。别把新列名写成要在每行重复输出的字符串。"
+      },
+      {
+        "id": "shape",
+        "label": "输出形状\n两列、每件商品一行",
+        "description": "示例先输出 name，再输出 available_stock；列顺序按 SELECT 列表排列，不要求行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "value"
+      },
+      {
+        "from": "topic",
+        "to": "alias"
+      },
+      {
+        "from": "topic",
+        "to": "unchanged"
+      },
+      {
+        "from": "topic",
+        "to": "literal"
+      },
+      {
+        "from": "topic",
+        "to": "shape"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "保持上一关读取的两个字段和值，只给结果列换标题。名称和价格分别对应哪个新标题？"
+    },
+    {
+      "id": "syntax",
+      "text": "每个字段写成 原字段 AS 输出列名。两个带别名的字段之间仍使用半角逗号。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT name AS ____, price AS ____ FROM products; 按题目分别补全两个输出列名。"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT name AS product_name, price AS unit_price FROM products;",
+      "explanation": "name、price 决定每行读取的值，AS 后的名称只决定结果列名。保留全部记录和重复输出，原表不变。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "products-intro-v1",
+      "expected": {
+        "columns": ["product_name", "unit_price"],
+        "rows": [
+          ["帆布袋", 25],
+          ["陶瓷杯", 39],
+          ["帆布袋", 25],
+          ["体验装", 0],
+          ["笔记本", 18],
+          ["陶瓷杯", 49]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "products-intro-varied-v1",
+      "expected": {
+        "columns": ["product_name", "unit_price"],
+        "rows": [
+          ["书签", 6],
+          ["收纳盒", 32],
+          ["书签", 6],
+          ["试用装", 0]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "products-intro-empty-v1",
+      "expected": {
+        "columns": ["product_name", "unit_price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "aliases-the-wrong-source",
+      "sql": "SELECT price AS product_name, name AS unit_price FROM products;"
+    },
+    {
+      "id": "quotes-field-as-text",
+      "sql": "SELECT 'name' AS product_name, price AS unit_price FROM products;"
+    },
+    {
+      "id": "outputs-labels-as-values",
+      "sql": "SELECT 'product_name', 'unit_price' FROM products;"
+    }
+  ]
+}

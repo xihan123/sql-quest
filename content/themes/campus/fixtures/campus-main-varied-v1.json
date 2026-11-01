@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "id": "campus-main-varied-v1",
+  "tables": [
+    {
+      "name": "students",
+      "description": "在校学生变体数据：两位学生同名，用于同名不同身份的用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "学号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "学生姓名，不保证唯一"
+        },
+        {
+          "name": "gender",
+          "type": "TEXT",
+          "description": "性别：男 / 女"
+        },
+        {
+          "name": "grade",
+          "type": "INTEGER",
+          "minimum": 1,
+          "description": "年级，1 至 4"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话，虚构号码；NULL 表示未登记"
+        }
+      ],
+      "rows": [
+        [11, "王强", "男", 2, null],
+        [12, "刘洋", "女", 3, "13700000012"],
+        [13, "王强", "男", 1, null]
+      ]
+    },
+    {
+      "name": "teachers",
+      "description": "任课教师变体数据，结构与 campus-main-v1 相同。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "教师编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "教师姓名，虚构人物"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "职称：教授 / 副教授 / 讲师"
+        }
+      ],
+      "rows": [
+        [5, "冯书", "讲师"],
+        [2, "何雨", "副教授"]
+      ]
+    },
+    {
+      "name": "courses",
+      "description": "开课课程变体数据：包含与主数据同名的课程，用于同名不同身份的用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "课程编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "课程名称，不保证唯一"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "课程分类：计算机 / 理学 / 人文 / 艺术"
+        },
+        {
+          "name": "credit",
+          "type": "REAL",
+          "minimum": 0,
+          "description": "学分"
+        },
+        {
+          "name": "teacher_id",
+          "type": "INTEGER",
+          "description": "任课教师编号，指向 teachers.id",
+          "references": {
+            "table": "teachers",
+            "column": "id"
+          }
+        }
+      ],
+      "rows": [
+        [111, "高等数学", "理学", 3, 2],
+        [112, "数据库基础", "计算机", 2, 5]
+      ]
+    },
+    {
+      "name": "enrollments",
+      "description": "选课记录变体数据：包含成绩 0 分、100 分、并列 60 分和未公布成绩，用于边界用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "选课记录编号"
+        },
+        {
+          "name": "student_id",
+          "type": "INTEGER",
+          "description": "选课学生编号，指向 students.id",
+          "references": {
+            "table": "students",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_id",
+          "type": "INTEGER",
+          "description": "课程编号，指向 courses.id",
+          "references": {
+            "table": "courses",
+            "column": "id"
+          }
+        },
+        {
+          "name": "score",
+          "type": "REAL",
+          "nullable": true,
+          "minimum": 0,
+          "description": "成绩，百分制；NULL 表示尚未公布，0 分是已公布的成绩"
+        }
+      ],
+      "rows": [
+        [34, 11, 112, 100],
+        [31, 11, 111, 60],
+        [36, 13, 111, 60],
+        [32, 12, 111, 60],
+        [35, 12, 111, 0],
+        [33, 13, 112, null]
+      ]
+    }
+  ]
+}

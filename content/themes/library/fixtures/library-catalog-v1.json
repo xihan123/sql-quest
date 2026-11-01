@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "library-catalog-v1",
+  "tables": [
+    {
+      "name": "books",
+      "description": "虚构的图书目录，每行代表一条独立的书目记录；同名书可能是不同年份的重印版，价格相同也互不影响。description 区分未填写、空字符串和文字 NULL。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "书目编号，唯一标识一条图书记录"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一；同名行是不同版本，仍是不同图书"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "图书分类"
+        },
+        {
+          "name": "publish_year",
+          "type": "INTEGER",
+          "description": "出版年份，公历四位年份"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "定价，整数元；0 表示开放获取的免费图书，不是价格缺失"
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "内容简介；SQL NULL 表示尚未填写，空字符串和文字 NULL 都是已填写的文本"
+        }
+      ],
+      "rows": [
+        [1, "数据库基础", "计算机", 2018, 45, "入门教材，附练习题"],
+        [2, "SQL 手册", "计算机", 2021, 59, "语法速查与实例"],
+        [3, "SQL 手册", "计算机", 2023, 65, "第二版，扩充查询章节"],
+        [4, "诗的练习", "文学", 2015, 39, null],
+        [5, "诗的练习", "文学", 2019, 39, "再版，新增注解"],
+        [6, "少年航海史", "历史", 2020, 0, "开放获取电子版"],
+        [7, "城市植物图鉴", "自然", 2021, 45, ""],
+        [8, "烹饪入门", "生活", 2017, 33, "NULL"],
+        [9, "烹饪入门", "生活", 2024, 39, "第三版，附视频讲解"],
+        [10, "城市植物图鉴", "自然", 2016, 33, null]
+      ]
+    }
+  ]
+}

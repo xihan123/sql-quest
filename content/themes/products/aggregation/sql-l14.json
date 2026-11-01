@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "aggregation",
+  "id": "sql-l14",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "分组统计",
+  "prerequisites": ["sql-l13"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "count",
+    "numeric-aggregation",
+    "column-alias",
+    "null",
+    "group-by"
+  ],
+  "introducedConcepts": ["group-by"],
+  "objective": "按类别统计商品记录数和已知库存价值。",
+  "statement": "按 products.category 分组，依次输出 category、product_count（记录数）、stock_value（price × stock 的总和，元）。免费、缺货商品都参与；某类全部价格未知时，stock_value 为 NULL。不要求行顺序；空表返回零行。",
+  "knowledge": [
+    "GROUP BY 把相同键值的输入行放进一组，聚合函数分别对每组计算；结果从“一行一件商品”变为“一行一个类别”。",
+    "SELECT 中所有非聚合的输出字段都列入 GROUP BY。不要依赖 SQLite 允许裸列的扩展，它不能保证拿到哪件商品的值。",
+    "COUNT(*) 计每组行数，SUM 忽略 NULL；如果组内所有乘积都为 NULL，和也是 NULL。",
+    "分组不会自动造出不存在的类别。与无 GROUP BY 的整体聚合不同，空输入的分组结果是零行；GROUP BY 本身不承诺行顺序。"
+  ],
+  "readableTables": ["products"],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按类别统计商品记录数和已知库存价值。\n",
+  "flowchart": {
+    "exampleSql": "SELECT category, COUNT(*) AS product_count, SUM(stock) AS total_stock FROM products GROUP BY category;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "每个类别一行",
+        "description": "示例按类别统计商品数和库存件数；题目要求商品数和库存价值。"
+      },
+      {
+        "id": "key",
+        "label": "按什么归组？\nGROUP BY category",
+        "description": "类别相同的输入行归为一组。结果从每商品一行变为每个实际存在的类别一行。"
+      },
+      {
+        "id": "metrics",
+        "label": "每组分别计算",
+        "description": "COUNT(*) 数商品记录，SUM(stock) 加库存件数。一个商品有多件库存也只给 COUNT(*) 增加 1。"
+      },
+      {
+        "id": "columns",
+        "label": "输出列与分组键一致",
+        "description": "category 是非聚合输出字段，所以出现在 GROUP BY 中；不要额外输出未分组的某件商品名称。"
+      },
+      {
+        "id": "empty",
+        "label": "空输入没有分组",
+        "description": "无商品就没有类别组，结果为零行；与没有 GROUP BY 的整表聚合不同。分组也不承诺行排序。"
+      },
+      {
+        "id": "value",
+        "label": "件数不等于金额",
+        "description": "示例的 total_stock 不读取 price。题目要求的价值需要逐行 price * stock；价格未知时不能用库存件数代替金额。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "key"
+      },
+      {
+        "from": "topic",
+        "to": "metrics"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "empty"
+      },
+      {
+        "from": "metrics",
+        "to": "value"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "结果每行代表一个类别，不再代表具体商品。"
+    },
+    {
+      "id": "syntax",
+      "text": "按 category 分组，在 SELECT 中对组内行计数并对乘积求和。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT category, COUNT(*) AS product_count, SUM(price * stock) AS stock_value FROM products GROUP BY ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT category, COUNT(*) AS product_count, SUM(price * stock) AS stock_value FROM products GROUP BY category;",
+      "explanation": "日用的未知价格商品仍计入商品数；礼品两条价格都未知，库存价值保留 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": ["category", "product_count", "stock_value"],
+        "rows": [
+          ["日用", 4, 100],
+          ["餐厨", 2, 40],
+          ["文具", 2, 60],
+          ["礼品", 2, null]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": ["category", "product_count", "stock_value"],
+        "rows": [
+          ["日用", 1, 0],
+          ["餐厨", 1, 40]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": ["category", "product_count", "stock_value"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "counts-only-known-price",
+      "sql": "SELECT category, COUNT(price) AS product_count, SUM(price * stock) AS stock_value FROM products GROUP BY category;"
+    },
+    {
+      "id": "wrong-grain",
+      "sql": "SELECT category, COUNT(*) AS product_count, SUM(price * stock) AS stock_value FROM products GROUP BY category, id;"
+    },
+    {
+      "id": "forces-zero",
+      "sql": "SELECT category, COUNT(*) AS product_count, COALESCE(SUM(price * stock), 0) AS stock_value FROM products GROUP BY category;"
+    }
+  ]
+}

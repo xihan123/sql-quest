@@ -1,0 +1,265 @@
+.puzzle {
+  --piece-edge: #a9bbdf;
+  --piece-fill: var(--surface);
+  --socket-fill: var(--surface);
+}
+.help,
+.boardHint,
+.status,
+.instructions {
+  color: var(--muted);
+  font-size: 14px;
+}
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 20px 0 12px;
+}
+.puzzle .heading h3 {
+  margin: 0;
+}
+.heading > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.puzzle .pool,
+.puzzle .order {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px 10px;
+  list-style: none;
+  padding: 0 10px 0 0;
+  margin: 0;
+}
+.puzzle .pool > li,
+.puzzle .order > li {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+}
+.puzzle .piece {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  min-height: 54px;
+  padding: 10px 16px 10px 22px;
+  border: 1px solid var(--piece-edge);
+  border-radius: 5px;
+  background: var(--piece-fill);
+  color: var(--text);
+  text-align: left;
+  box-shadow: 0 3px 0 var(--border);
+  cursor: grab;
+  transition:
+    background-color 120ms,
+    box-shadow 120ms;
+}
+/* The matching socket and tab communicate connection, never SQL validity. */
+.piece::before,
+.piece::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 18px;
+  transform: translateY(-50%);
+  border: 1px solid var(--piece-edge);
+  border-left: 0;
+  border-radius: 0 12px 12px 0;
+  pointer-events: none;
+}
+.piece::before {
+  left: -1px;
+  background: var(--socket-fill);
+}
+.piece::after {
+  right: -10px;
+  background: var(--piece-fill);
+}
+.piece code {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--editor-font-size);
+}
+.pieceHint {
+  flex-shrink: 0;
+  color: var(--primary);
+  font: 18px var(--mono);
+}
+.puzzle .piece:disabled {
+  --piece-edge: var(--border);
+  --piece-fill: var(--page);
+  color: var(--muted);
+  box-shadow: none;
+  cursor: default;
+}
+.piece:disabled .pieceHint {
+  color: var(--muted);
+  font:
+    12px 'Noto Sans SC',
+    'Microsoft YaHei',
+    sans-serif;
+}
+.puzzle .piece:hover:not(:disabled),
+.puzzle .piece[aria-pressed='true'] {
+  --piece-edge: var(--primary);
+  --piece-fill: var(--soft-blue);
+  z-index: 1;
+}
+.puzzle .piece[aria-pressed='true'] {
+  box-shadow: 0 3px 0 var(--primary);
+}
+.piece:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 5px;
+  z-index: 2;
+}
+.piece[data-dragging='true'] {
+  opacity: 0.45;
+}
+.assembly {
+  --socket-fill: var(--page);
+  margin-top: 22px;
+  padding: 16px;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.assembly[data-drag-over='true'] {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+.assembly .heading {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+.puzzle .order {
+  gap: 16px 6px;
+  min-height: 84px;
+}
+.puzzle .order:empty {
+  display: none;
+}
+.position {
+  align-self: flex-start;
+  margin-top: 2px;
+  color: var(--muted);
+  font: 12px/1.7 var(--mono);
+}
+.piece[aria-pressed='true'] .position {
+  color: var(--primary);
+}
+.order [data-drop-before='true']::before,
+.order [data-drop-after='true']::after {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: -6px;
+  bottom: -6px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--primary);
+  z-index: 3;
+}
+.order [data-drop-after='true']::after {
+  left: auto;
+  right: -13px;
+}
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 16px 8px 28px;
+  color: var(--muted);
+  text-align: center;
+}
+.empty > span:last-child {
+  font-size: 14px;
+}
+.emptyPiece {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 48px;
+  margin-bottom: 8px;
+  border: 1px dashed var(--piece-edge);
+  border-radius: 5px;
+  color: var(--primary);
+  font: 24px var(--mono);
+}
+.boardHint {
+  margin-top: 12px;
+}
+.selectionTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.selectionLabel {
+  color: var(--muted);
+  font-size: 12px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.selectionTools .actions {
+  margin: 0;
+}
+.selectionTools button {
+  padding: 8px 10px;
+}
+.status {
+  min-height: 24px;
+}
+.instructions {
+  margin-top: 8px;
+}
+.instructions p {
+  padding: 8px 0;
+}
+.referenceOrder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+@media (max-width: 760px) {
+  .help,
+  .boardHint,
+  .status,
+  .instructions,
+  .empty > span:last-child {
+    font-size: 16px;
+  }
+  .assembly {
+    padding: 12px;
+  }
+  .selectionTools {
+    display: block;
+  }
+  .selectionTools .actions {
+    margin-top: 8px;
+  }
+  .selectionTools button {
+    flex: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .piece {
+    transition: none;
+  }
+}

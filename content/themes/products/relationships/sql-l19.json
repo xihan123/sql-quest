@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "relationships",
+  "id": "sql-l19",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "一对多连接",
+  "prerequisites": ["sql-l18"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "inner-join",
+    "where",
+    "column-alias",
+    "join-cardinality"
+  ],
+  "introducedConcepts": ["join-cardinality"],
+  "objective": "沿订单、明细和商品的关系展开到一行一条明细。",
+  "statement": "查询已支付订单的全部明细，依次输出 order_id、item_id、product_name、quantity、unit_price。编号分别取 orders.id、order_items.id，名称取 products.name；数量和历史单价取 order_items，单价单位为元。每条明细一行，免费明细也保留，不按商品或订单合并。不要求行顺序。",
+  "knowledge": [
+    "一张订单可以有多条明细，orders 连接 order_items 后，订单信息会在每条明细上重复；这不是应删除的重复行。",
+    "链式连接分别用 o.id = i.order_id 与 i.product_id = p.id。每个 ON 只表达对应的关系，不能把订单编号接到商品编号上。",
+    "一条明细的 quantity 可以大于 1，但本关仍一条明细输出一行，不按件数复制行。",
+    "products.price 是当前标价；order_items.unit_price 是历史成交价，可能不同。本关读取历史单价，为后续计算成交金额做准备。"
+  ],
+  "readableTables": ["orders", "order_items", "products"],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 沿订单、明细和商品的关系展开到一行一条明细。\n",
+  "flowchart": {
+    "exampleSql": "SELECT o.id AS order_id, i.id AS item_id, p.name AS product_name, i.unit_price FROM orders AS o INNER JOIN order_items AS i ON o.id = i.order_id INNER JOIN products AS p ON i.product_id = p.id WHERE o.status = 'paid';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "每条明细一行",
+        "description": "示例展示已支付订单的明细与历史单价；题目还要求数量。"
+      },
+      {
+        "id": "order-item",
+        "label": "订单接明细\no.id = i.order_id",
+        "description": "一张订单可匹配多条明细，每条明细各形成一行，因此同一 order_id 可能重复。"
+      },
+      {
+        "id": "item-product",
+        "label": "明细接商品\ni.product_id = p.id",
+        "description": "每条明细按商品编号找到名称。两个 ON 分别表达不同关系，不能拿订单编号去匹配商品编号。"
+      },
+      {
+        "id": "grain",
+        "label": "每条明细一行\nitem_id 区分",
+        "description": "quantity 大于 1 不会自动复制成多行；本关不对展开的多条明细去重，也不把同商品的不同明细合并。"
+      },
+      {
+        "id": "price",
+        "label": "单价的来源\ni.unit_price",
+        "description": "历史成交价取明细，不取 products 当前 price。0 元明细仍是真实记录，不能因为免费而排除。"
+      },
+      {
+        "id": "scope",
+        "label": "只保留 paid 订单",
+        "description": "WHERE 判断订单状态，不是看商品是否免费。示例不聚合、不排序，item_id 用于区分每条明细。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "order-item"
+      },
+      {
+        "from": "topic",
+        "to": "item-product"
+      },
+      {
+        "from": "topic",
+        "to": "grain"
+      },
+      {
+        "from": "topic",
+        "to": "price"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "每条明细输出一行，再沿订单和商品外键补全信息。"
+    },
+    {
+      "id": "syntax",
+      "text": "连接订单到明细，再连接明细到商品；只筛选已支付订单。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT o.id AS order_id, i.id AS item_id, p.name AS product_name, i.quantity, i.unit_price FROM orders AS o INNER JOIN order_items AS i ON ____ INNER JOIN products AS p ON ____ WHERE o.status = 'paid';"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT o.id AS order_id, i.id AS item_id, p.name AS product_name, i.quantity, i.unit_price FROM orders AS o INNER JOIN order_items AS i ON o.id = i.order_id INNER JOIN products AS p ON i.product_id = p.id WHERE o.status = 'paid';",
+      "explanation": "订单按明细展开后，编号 101 有两条、102 有两条；赠品的历史价格 0 不被排除。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "item_id",
+          "product_name",
+          "quantity",
+          "unit_price"
+        ],
+        "rows": [
+          [101, 1001, "陶瓷杯", 2, 25],
+          [101, 1002, "笔记本", 1, 50],
+          [102, 1003, "帆布袋", 1, 50],
+          [104, 1005, "陶瓷杯", 1, 30],
+          [104, 1006, "帆布袋", 2, 60],
+          [106, 1008, "笔记本", 2, 50],
+          [107, 1009, "帆布袋", 1, 100],
+          [102, 1010, "赠品", 1, 0]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "item_id",
+          "product_name",
+          "quantity",
+          "unit_price"
+        ],
+        "rows": [
+          [202, 2002, "笔记本", 1, 100],
+          [203, 2003, "陶瓷杯", 1, 40],
+          [204, 2004, "帆布袋", 1, 40]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "item_id",
+          "product_name",
+          "quantity",
+          "unit_price"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": [
+          "order_id",
+          "item_id",
+          "product_name",
+          "quantity",
+          "unit_price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "uses-current-price",
+      "sql": "SELECT o.id AS order_id, i.id AS item_id, p.name AS product_name, i.quantity, p.price AS unit_price FROM orders AS o INNER JOIN order_items AS i ON o.id = i.order_id INNER JOIN products AS p ON i.product_id = p.id WHERE o.status = 'paid';"
+    },
+    {
+      "id": "collapses-order",
+      "sql": "SELECT o.id AS order_id, MIN(i.id) AS item_id, MIN(p.name) AS product_name, SUM(i.quantity) AS quantity, MIN(i.unit_price) AS unit_price FROM orders AS o INNER JOIN order_items AS i ON o.id = i.order_id INNER JOIN products AS p ON i.product_id = p.id WHERE o.status = 'paid' GROUP BY o.id;"
+    },
+    {
+      "id": "drops-free-items",
+      "sql": "SELECT o.id AS order_id, i.id AS item_id, p.name AS product_name, i.quantity, i.unit_price FROM orders AS o INNER JOIN order_items AS i ON o.id = i.order_id INNER JOIN products AS p ON i.product_id = p.id WHERE o.status = 'paid' AND i.unit_price > 0;"
+    }
+  ]
+}

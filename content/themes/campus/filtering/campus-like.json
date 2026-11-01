@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "filtering",
+  "id": "campus-like",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "文本匹配",
+  "prerequisites": ["campus-combine"],
+  "concepts": ["select", "select-columns", "where", "like"],
+  "introducedConcepts": ["like"],
+  "objective": "用 LIKE 与通配符按课程名开头匹配课程。",
+  "statement": "查询名称以“大学”开头的课程，依次输出 id、name、category。名称只有“大学”也符合条件。保留不同课程，不要求行顺序。",
+  "knowledge": [
+    "LIKE 使用单引号内的模式匹配文本。% 匹配零个或多个字符，_ 匹配恰好一个字符。",
+    "'大学%' 要求以“大学”开头；'%大学' 要求以“大学”结尾。",
+    "SQLite 默认 LIKE 对 ASCII 字母不区分大小写，对非 ASCII 字符不普遍做大小写转换。即使没有通配符，也不能笼统地把 LIKE 当作 =。"
+  ],
+  "readableTables": ["courses"],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 LIKE 与通配符按课程名开头匹配课程。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, name, category FROM courses WHERE name LIKE '数据%';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "按模式匹配课程名",
+        "description": "示例匹配以“数据”开头的课程名；题目要求的前缀是“大学”。"
+      },
+      {
+        "id": "pattern",
+        "label": "% 代表任意内容\n'数据%'",
+        "description": "% 可以是零个或多个任意字符；它放在“数据”后面，表示课程名以“数据”开头，之后的内容不限。"
+      },
+      {
+        "id": "anchor",
+        "label": "位置决定匹配端",
+        "description": "LIKE '%数据' 匹配以“数据”结尾的课程名；把通配符写错一端，选出的就是完全不同的记录。"
+      },
+      {
+        "id": "exact",
+        "label": "不是等值比较",
+        "description": "LIKE '数据结构' 只匹配课程名恰好是“数据结构”的记录，会漏掉“数据库基础”。等值 = 与 LIKE 是两种判断。"
+      },
+      {
+        "id": "output",
+        "label": "同名课程各自输出",
+        "description": "文本匹配不合并记录；名称相同但编号不同的课程各输出一行，输出列由 SELECT 决定。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "pattern"
+      },
+      {
+        "from": "topic",
+        "to": "anchor"
+      },
+      {
+        "from": "topic",
+        "to": "exact"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "“大学”必须是课程名的前两个字，后面的内容不限。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE name LIKE '大学%'；% 放在要匹配的字后面表示开头匹配。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, category FROM courses WHERE name LIKE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, category FROM courses WHERE name LIKE '大学%';",
+      "explanation": "模式要求名称以“大学”开头，% 允许其后有任意数量的字符，包括零个。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": ["id", "name", "category"],
+        "rows": [
+          [104, "大学语文", "人文"],
+          [107, "大学物理", "理学"]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": ["id", "name", "category"],
+        "rows": []
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": ["id", "name", "category"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "matches-anywhere",
+      "sql": "SELECT id, name, category FROM courses WHERE name LIKE '%学%';"
+    },
+    {
+      "id": "exact-match",
+      "sql": "SELECT id, name, category FROM courses WHERE name = '大学';"
+    }
+  ]
+}

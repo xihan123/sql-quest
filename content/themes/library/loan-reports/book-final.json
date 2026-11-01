@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "loan-reports",
+  "id": "book-final",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "综合查询",
+  "prerequisites": ["book-loan-report"],
+  "concepts": [
+    "select",
+    "count",
+    "group-by",
+    "inner-join",
+    "join-cardinality",
+    "order-by",
+    "limit"
+  ],
+  "introducedConcepts": [],
+  "objective": "按图书统计借阅次数，取次数最多的前两本。",
+  "statement": "查询借阅次数最多的前 2 本图书，依次输出 book_id、title、loan_count。次数按全部借阅记录数计算，不区分是否归还；从未借出的图书不参与。按次数降序、book_id 升序取前 2 行，同次数不增加名额。不足 2 本符合条件时按实际数量输出。",
+  "knowledge": [
+    "连接图书与借阅记录，按 b.id、b.title 分组。同名但编号不同的图书分别计数。",
+    "COUNT(br.id) 统计全部借阅记录，不按归还状态筛选。",
+    "先 ORDER BY loan_count DESC, b.id ASC，再 LIMIT 2。没有借阅记录时返回零行。"
+  ],
+  "readableTables": ["books", "borrow_records"],
+  "previewFixtureId": "library-loans-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出借阅次数最多的前 2 本馆藏图书。\n",
+  "flowchart": {
+    "exampleSql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS loan_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.id, b.title ORDER BY loan_count DESC, b.id ASC LIMIT 2;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "借阅次数前两名",
+        "description": "按借阅次数降序、图书编号升序排列，再取前两行。"
+      },
+      {
+        "id": "join",
+        "label": "连接明细\nbr.book_id = b.id",
+        "description": "每条借阅匹配对应图书；没有借阅记录的图书不出现在内连接结果中。"
+      },
+      {
+        "id": "count",
+        "label": "按书计数\nCOUNT(br.id)",
+        "description": "数全部借阅明细，不区分归还状态；分组身份是馆藏编号，同名书分开计数。"
+      },
+      {
+        "id": "order",
+        "label": "排序\n次数降序，编号升序",
+        "description": "先比借阅次数；次数相同时编号小的在前，榜单顺序完全确定。"
+      },
+      {
+        "id": "limit",
+        "label": "截取\nLIMIT 2",
+        "description": "只保留排序后的前 2 行；截点落在并列次数中间时，由次序键决定谁入选。"
+      },
+      {
+        "id": "scope",
+        "label": "并列落选怎么办？\n不输出",
+        "description": "与截点同次数但编号靠后的图书不进入榜单；这是题意的一部分，不是数据错误。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "join"
+      },
+      {
+        "from": "topic",
+        "to": "count"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      },
+      {
+        "from": "topic",
+        "to": "limit"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "count",
+        "to": "order"
+      },
+      {
+        "from": "order",
+        "to": "limit"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先按书分组数出借阅次数，再按次数降序、编号升序排列，最后 LIMIT 截取前 2 行。"
+    },
+    {
+      "id": "syntax",
+      "text": "GROUP BY 分组后，用 ORDER BY 指定顺序，最后用 LIMIT 2 限制行数。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS loan_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.id, b.title ORDER BY loan_count DESC, b.id ASC ____ 2;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS loan_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.id, b.title ORDER BY loan_count DESC, b.id ASC LIMIT 2;",
+      "explanation": "连接明细后按馆藏分组计数；按次数降序、编号升序排列，LIMIT 2 截取前两行，并列截点由编号次序键决定。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "loans",
+      "fixtureId": "library-loans-v1",
+      "expected": {
+        "columns": ["book_id", "title", "loan_count"],
+        "rows": [
+          [101, "雾中灯塔", 4],
+          [103, "河流改道", 2]
+        ]
+      }
+    },
+    {
+      "id": "varied-loans",
+      "fixtureId": "library-loans-varied-v1",
+      "expected": {
+        "columns": ["book_id", "title", "loan_count"],
+        "rows": [
+          [101, "慢速列车", 2],
+          [102, "屋顶花园", 1]
+        ]
+      }
+    },
+    {
+      "id": "empty-loans",
+      "fixtureId": "library-loans-empty-v1",
+      "expected": {
+        "columns": ["book_id", "title", "loan_count"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-limit",
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS loan_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.id, b.title ORDER BY loan_count DESC, b.id ASC;"
+    },
+    {
+      "id": "takes-least-borrowed",
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS loan_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.id, b.title ORDER BY loan_count ASC, b.id ASC LIMIT 2;"
+    },
+    {
+      "id": "counts-unreturned-only",
+      "sql": "SELECT b.id AS book_id, b.title AS title, COUNT(br.id) AS loan_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id WHERE br.returned_on IS NULL GROUP BY b.id, b.title ORDER BY loan_count DESC, b.id ASC LIMIT 2;"
+    },
+    {
+      "id": "merges-same-name-books",
+      "sql": "SELECT b.title AS title, COUNT(br.id) AS loan_count FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id GROUP BY b.title ORDER BY loan_count DESC, b.title ASC LIMIT 2;"
+    }
+  ]
+}

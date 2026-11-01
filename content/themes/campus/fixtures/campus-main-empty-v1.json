@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "id": "campus-main-empty-v1",
+  "tables": [
+    {
+      "name": "students",
+      "description": "在校学生空表，结构与 campus-main-v1 相同，用于空结果用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "学号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "学生姓名，不保证唯一"
+        },
+        {
+          "name": "gender",
+          "type": "TEXT",
+          "description": "性别：男 / 女"
+        },
+        {
+          "name": "grade",
+          "type": "INTEGER",
+          "minimum": 1,
+          "description": "年级，1 至 4"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话，虚构号码；NULL 表示未登记"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "teachers",
+      "description": "任课教师空表，结构与 campus-main-v1 相同，用于空结果用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "教师编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "教师姓名，虚构人物"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "职称：教授 / 副教授 / 讲师"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "courses",
+      "description": "开课课程空表，结构与 campus-main-v1 相同，用于空结果用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "课程编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "课程名称，不保证唯一"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "课程分类：计算机 / 理学 / 人文 / 艺术"
+        },
+        {
+          "name": "credit",
+          "type": "REAL",
+          "minimum": 0,
+          "description": "学分"
+        },
+        {
+          "name": "teacher_id",
+          "type": "INTEGER",
+          "description": "任课教师编号，指向 teachers.id",
+          "references": {
+            "table": "teachers",
+            "column": "id"
+          }
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "enrollments",
+      "description": "选课记录空表，结构与 campus-main-v1 相同，用于空结果用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "选课记录编号"
+        },
+        {
+          "name": "student_id",
+          "type": "INTEGER",
+          "description": "选课学生编号，指向 students.id",
+          "references": {
+            "table": "students",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_id",
+          "type": "INTEGER",
+          "description": "课程编号，指向 courses.id",
+          "references": {
+            "table": "courses",
+            "column": "id"
+          }
+        },
+        {
+          "name": "score",
+          "type": "REAL",
+          "nullable": true,
+          "minimum": 0,
+          "description": "成绩，百分制；NULL 表示尚未公布"
+        }
+      ],
+      "rows": []
+    }
+  ]
+}

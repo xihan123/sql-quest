@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest",
+  "themeId": "library",
+  "chapterId": "filtering",
+  "id": "book-combine",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "组合条件",
+  "prerequisites": ["book-where"],
+  "concepts": ["select", "where", "boolean-conditions"],
+  "introducedConcepts": ["boolean-conditions"],
+  "objective": "用 AND / OR 与括号组合分类和价格条件，理解优先级。",
+  "statement": "输出文学类或生活类中定价不超过 40 元的图书，依次输出 id、title、price。包括恰好 40 元的图书；不合并记录，不要求行顺序。没有符合条件的图书时输出零行及上述列名。",
+  "knowledge": [
+    "AND 表示两个条件同时成立，OR 表示任一条件成立；AND 的优先级高于 OR，不加括号时会先算 AND。",
+    "本任务想表达“（文学 OR 生活）AND 不超过 40 元”，必须用括号把两个分类括起来；去掉括号会变成“文学，或生活且不超过 40 元”，多选出不受价格限制的文学图书。",
+    "与边界比较时注意 <= 与 < 的区别；每个条件的比较对象写完整，例如 category = '文学'。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-loan-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 AND / OR 与括号组合分类和价格条件，理解优先级。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, title, price FROM books WHERE (category = '编程' OR category = '生活') AND price <= 40;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "组合条件的结构",
+        "description": "固定示例查“编程或生活类中不超过 40 元”。本关任务把分类换成文学和生活，条件结构与优先级处理完全相同。"
+      },
+      {
+        "id": "or",
+        "label": "两个分类\nOR 任一成立",
+        "description": "category = '编程' OR category = '生活' 表示分类是两者之一；每个等值比较都要写完整字段名。"
+      },
+      {
+        "id": "and",
+        "label": "再与价格相交\nAND price <= 40",
+        "description": "AND 表示分类和价格两个要求都要满足；<= 包含恰好 40 元。"
+      },
+      {
+        "id": "priority",
+        "label": "括号决定先算谁",
+        "description": "AND 优先级高于 OR：无括号时“文学 OR 生活 AND <= 40”会先算生活且不超过 40，多选出不受价格限制的文学图书。"
+      },
+      {
+        "id": "output",
+        "label": "输出三列",
+        "description": "SELECT 仍决定输出列；组合条件只决定哪些行进入结果，不改变列，也不合并重复书名。"
+      }
+    ],
+    "edges": [
+      { "from": "topic", "to": "or" },
+      { "from": "topic", "to": "and" },
+      { "from": "topic", "to": "priority" },
+      { "from": "topic", "to": "output" }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先用括号把两个分类括成一组，再和价格条件相交。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE（分类 OR 分类）AND price <= 40；AND 优先级高于 OR，括号不能省。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, title, price FROM books WHERE (category = ____ OR category = ____) AND price ____ 40;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, title, price FROM books WHERE (category = '文学' OR category = '生活') AND price <= 40;",
+      "explanation": "括号把两个分类合并为一组再与价格相交；45 元的文学图书被价格条件排除。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "library-loan-v1",
+      "expected": {
+        "columns": ["id", "title", "price"],
+        "rows": [
+          [5, "家常菜谱", 0],
+          [7, "散文集", 38],
+          [10, "旅游指南", 40]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "library-loan-varied-v1",
+      "expected": {
+        "columns": ["id", "title", "price"],
+        "rows": [[26, "手记", 30]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "library-loan-empty-v1",
+      "expected": {
+        "columns": ["id", "title", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "missing-brackets",
+      "sql": "SELECT id, title, price FROM books WHERE category = '文学' OR category = '生活' AND price <= 40;"
+    },
+    {
+      "id": "excludes-boundary",
+      "sql": "SELECT id, title, price FROM books WHERE (category = '文学' OR category = '生活') AND price < 40;"
+    }
+  ]
+}

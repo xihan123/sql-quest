@@ -1,0 +1,4 @@
+interface:
+  display_name: 'SQL 关卡制作'
+  short_description: '按统一 JSON 契约制作主题路线、关卡、数据夹具与判题内容'
+  default_prompt: '使用 $sql-course-author，按项目设计和 Schema 制作指定主题的关卡，并只做必要的内容核对。'

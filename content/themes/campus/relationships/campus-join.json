@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "relationships",
+  "id": "campus-join",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "内连接",
+  "prerequisites": ["campus-group"],
+  "concepts": ["select", "select-columns", "where", "inner-join"],
+  "introducedConcepts": ["inner-join"],
+  "objective": "按外键用 INNER JOIN 连接选课记录与课程，明确同名列来自哪张表。",
+  "statement": "查询成绩未公布的选课记录及课程名，依次输出 enrollment_id（enrollments.id）、student_id、course_name（courses.name）。按 enrollments.course_id = courses.id 连接，每条符合条件的选课记录一行，不要求行顺序。",
+  "knowledge": [
+    "两张表通过外键关联：选课记录的 course_id 指向课程的主键 id。写法为 FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id。",
+    "AS e / AS c 是表别名，只在当前查询中使用；e.id 与 c.id 指向不同表的同名列，必须明确来源。",
+    "INNER JOIN 只保留满足 ON 关联条件的组合行；一条选课记录只匹配一门课程，同一课程被多人选择会出现多行，这是正确的一对多结果，不需要去重。",
+    "先按编号连接，再用 WHERE 筛未公布成绩；不要用 e.id = c.id 连接两个不同业务的编号，也不能省略关联条件形成所有行的组合。"
+  ],
+  "readableTables": ["enrollments", "courses"],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 连接选课记录与课程，列出成绩尚未公布的选课。\n",
+  "flowchart": {
+    "exampleSql": "SELECT e.id AS enrollment_id, c.name AS course_name FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id WHERE e.score >= 85;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "连接按关系，不按列同名",
+        "description": "示例查询成绩不低于 85 的记录并补上课程名；题目要求未公布成绩，且多输出 student_id。"
+      },
+      {
+        "id": "aliases",
+        "label": "两张表各有简称\ne、c",
+        "description": "e 是 enrollments 的表别名，c 是 courses 的表别名。e.id 是选课记录编号，c.id 是课程编号，不是同一个字段。"
+      },
+      {
+        "id": "match",
+        "label": "真正的对应关系\ne.course_id = c.id",
+        "description": "用选课记录的外键找课程主键。不能改成 e.id = c.id，也不能省掉 ON 后形成所有行的任意组合。"
+      },
+      {
+        "id": "inner",
+        "label": "INNER JOIN 只保留匹配",
+        "description": "满足关联条件的组合才输出；没有选课记录的课程不会凭空出现。同一课程的多条选课记录会分别输出。"
+      },
+      {
+        "id": "output",
+        "label": "筛成绩，再说明输出",
+        "description": "WHERE 选符合条件的记录；SELECT 中 e.id AS enrollment_id 设置结果列名，与 FROM 中的表别名职责不同。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "aliases"
+      },
+      {
+        "from": "topic",
+        "to": "match"
+      },
+      {
+        "from": "topic",
+        "to": "inner"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "用选课记录的 course_id 找到课程，每条记录仍输出一行。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 e.course_id = c.id 作 ON 条件，再用 WHERE score IS NULL 筛选。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT e.id AS enrollment_id, e.student_id, c.name AS course_name FROM enrollments AS e INNER JOIN courses AS c ON ____ WHERE e.score IS NULL;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT e.id AS enrollment_id, e.student_id, c.name AS course_name FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id WHERE e.score IS NULL;",
+      "explanation": "关联键找对课程，选课记录编号仍取自 enrollments；每条未公布成绩的记录一行。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": ["enrollment_id", "student_id", "course_name"],
+        "rows": [
+          [19, 8, "数据库基础"],
+          [21, 8, "音乐欣赏"],
+          [24, 4, "程序设计"]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": ["enrollment_id", "student_id", "course_name"],
+        "rows": [[33, 13, "数据库基础"]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": ["enrollment_id", "student_id", "course_name"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "joins-unrelated-ids",
+      "sql": "SELECT e.id AS enrollment_id, e.student_id, c.name AS course_name FROM enrollments AS e INNER JOIN courses AS c ON e.id = c.id WHERE e.score IS NULL;"
+    },
+    {
+      "id": "cartesian-pairs",
+      "sql": "SELECT e.id AS enrollment_id, e.student_id, c.name AS course_name FROM enrollments AS e INNER JOIN courses AS c ON 1 = 1 WHERE e.score IS NULL;"
+    }
+  ]
+}

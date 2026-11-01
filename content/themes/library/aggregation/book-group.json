@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "aggregation",
+  "id": "book-group",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "分组统计",
+  "prerequisites": ["book-agg"],
+  "concepts": ["select", "count", "numeric-aggregation", "group-by"],
+  "introducedConcepts": ["group-by"],
+  "objective": "按分类统计图书记录数，每个分类一行。",
+  "statement": "按 books.category 分组，依次输出 category、book_count（该分类的记录数）。0 元图书也计入。不要求行顺序；空表返回零行。",
+  "knowledge": [
+    "GROUP BY category 把同一分类的记录放在一组，COUNT(*) 分别统计每组的行数。",
+    "本课程将非聚合输出字段列入 GROUP BY，不依赖 SQLite 从组内任取裸列值的行为。",
+    "空表没有分组，返回零行；GROUP BY 不保证结果行顺序。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计每个分类的书目数量。\n",
+  "flowchart": {
+    "exampleSql": "SELECT category, COUNT(*) AS book_count FROM books GROUP BY category;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "按分类分组计数",
+        "description": "按分类分组，再分别统计每组的记录数。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "每本书的 category 决定它进入哪个组；分组不筛行，所有行都参与。"
+      },
+      {
+        "id": "group",
+        "label": "怎么分组？\nGROUP BY category",
+        "description": "category 相同的记录归为一组；结果从每本书一行变为每个分类一行。"
+      },
+      {
+        "id": "aggregate",
+        "label": "每组算什么？\nCOUNT(*)",
+        "description": "COUNT(*) 对每组分别数行数；SELECT 里的 category 是分组列，每组取本组的值。"
+      },
+      {
+        "id": "rule",
+        "label": "列怎么放？\n非聚合列进 GROUP BY",
+        "description": "非聚合输出列必须出现在 GROUP BY 里；把没分组的列放进来会让结果含义不明。"
+      },
+      {
+        "id": "empty",
+        "label": "空表怎么办？\n零行",
+        "description": "没有行就没有组；分组统计对空表输出零行，与整表计数的一行 0 不同。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "group"
+      },
+      {
+        "from": "topic",
+        "to": "aggregate"
+      },
+      {
+        "from": "topic",
+        "to": "rule"
+      },
+      {
+        "from": "topic",
+        "to": "empty"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "每个分类输出一行，计数的是该分类下的图书记录。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT 分组列, 聚合函数 FROM 表 GROUP BY 分组列; 非聚合列都要写进 GROUP BY。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT category, ____(*) AS book_count FROM books GROUP BY ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT category, COUNT(*) AS book_count FROM books GROUP BY category;",
+      "explanation": "按 category 分组，每组用 COUNT(*) 数行数；每个分类一行，空表时没有分组结果。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["category", "book_count"],
+        "rows": [
+          ["计算机", 3],
+          ["文学", 2],
+          ["历史", 1],
+          ["自然", 2],
+          ["生活", 2]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["category", "book_count"],
+        "rows": [
+          ["自然", 2],
+          ["生活", 1],
+          ["文学", 2],
+          ["历史", 1]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["category", "book_count"],
+        "rows": [
+          ["文学", 2],
+          ["计算机", 1],
+          ["生活", 1]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["category", "book_count"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "mixes-column-with-count",
+      "sql": "SELECT category, COUNT(*) AS book_count FROM books;"
+    },
+    {
+      "id": "groups-by-title",
+      "sql": "SELECT title, COUNT(*) AS book_count FROM books GROUP BY title;"
+    },
+    {
+      "id": "keeps-category-only",
+      "sql": "SELECT category FROM books GROUP BY category;"
+    },
+    {
+      "id": "counts-without-group",
+      "sql": "SELECT COUNT(*) AS book_count FROM books;"
+    }
+  ]
+}

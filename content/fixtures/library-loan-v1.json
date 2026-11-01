@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "id": "library-loan-v1",
+  "tables": [
+    {
+      "name": "books",
+      "description": "馆藏图书，每行一种图书。书名与作者可能重复，价格未录入的图书价格列为 NULL。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "图书编号"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一"
+        },
+        {
+          "name": "author",
+          "type": "TEXT",
+          "description": "作者姓名，虚构人物"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "分类：编程 / 少儿 / 生活 / 文学"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "nullable": true,
+          "minimum": 0,
+          "description": "定价，整数元；NULL 表示尚未录入价格"
+        }
+      ],
+      "rows": [
+        [1, "数据库入门", "林可", "编程", 45],
+        [2, "SQL 手册", "林可", "编程", 59],
+        [3, "童话集", "苏晓", "少儿", 25],
+        [4, "童话集", "苏晓", "少儿", 25],
+        [5, "家常菜谱", "周禾", "生活", 0],
+        [6, "诗词选", "温宁", "文学", 45],
+        [7, "散文集", "温宁", "文学", 38],
+        [8, "编程进阶", "林可", "编程", 48],
+        [9, "手工课", "苏晓", "少儿", 20],
+        [10, "旅游指南", "郑帆", "生活", 40]
+      ]
+    },
+    {
+      "name": "readers",
+      "description": "注册读者，每行一位读者。姓名可能相同，以编号区分；没有借阅记录的读者也保留在此表。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "读者编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "读者姓名，不保证唯一"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话，虚构号码；NULL 表示未登记"
+        }
+      ],
+      "rows": [
+        [1, "陈一", "13800000001"],
+        [2, "王二", null],
+        [3, "陈一", "13800000003"],
+        [4, "刘四", "13800000004"],
+        [5, "张三", null],
+        [6, "何六", "13800000006"]
+      ]
+    },
+    {
+      "name": "borrows",
+      "description": "借阅记录，一行一次借出。returned_at 为 NULL 表示尚未归还；一位读者可有多条记录，一种图书可被多次借出。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "借阅记录编号"
+        },
+        {
+          "name": "book_id",
+          "type": "INTEGER",
+          "description": "借出图书编号，指向 books.id",
+          "references": {
+            "table": "books",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reader_id",
+          "type": "INTEGER",
+          "description": "借阅读者编号，指向 readers.id",
+          "references": {
+            "table": "readers",
+            "column": "id"
+          }
+        },
+        {
+          "name": "borrowed_at",
+          "type": "TEXT",
+          "description": "借出日期，YYYY-MM-DD"
+        },
+        {
+          "name": "returned_at",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "归还日期，YYYY-MM-DD；NULL 表示尚未归还"
+        }
+      ],
+      "rows": [
+        [1, 1, 1, "2024-01-05", "2024-01-12"],
+        [2, 2, 1, "2024-01-08", null],
+        [3, 1, 2, "2024-01-15", "2024-01-20"],
+        [4, 3, 4, "2024-02-01", "2024-02-10"],
+        [5, 5, 1, "2024-02-05", "2024-02-14"],
+        [6, 4, 5, "2024-02-10", "2024-02-18"],
+        [7, 5, 2, "2024-02-12", null],
+        [8, 6, 4, "2024-03-02", "2024-03-08"],
+        [9, 8, 1, "2024-03-05", "2024-03-15"],
+        [10, 8, 5, "2024-03-08", null],
+        [11, 8, 2, "2024-03-10", "2024-03-20"],
+        [12, 8, 4, "2024-03-12", null],
+        [13, 9, 4, "2024-03-19", "2024-03-26"],
+        [14, 2, 4, "2024-04-01", "2024-04-08"],
+        [15, 6, 1, "2024-04-03", null],
+        [16, 1, 5, "2024-04-10", null],
+        [17, 3, 2, "2024-04-15", "2024-04-22"],
+        [18, 9, 5, "2024-05-02", "2024-05-10"]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "books_price_order",
+      "table": "books",
+      "columns": [
+        {
+          "name": "price",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

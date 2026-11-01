@@ -1,0 +1,100 @@
+:root {
+  font-family: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  font-synthesis: none;
+  color: #242b35;
+  background: #f7f8fa;
+  --text: #242b35;
+  --muted: #626d7c;
+  --border: #e0e5ec;
+  --primary: #2855cc;
+  --soft-blue: #edf2fc;
+  --surface: #fff;
+  --page: #f7f8fa;
+  --editor-font-size: 14px;
+  --mono: 'IBM Plex Mono', Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 280px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1,
+h2 {
+  font-weight: 400;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+button,
+select,
+summary {
+  min-height: 44px;
+  min-width: 44px;
+  font: inherit;
+}
+button,
+select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  background: var(--surface);
+}
+button,
+summary {
+  cursor: pointer;
+}
+button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+button:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+summary {
+  padding: 10px 0;
+}
+code,
+pre {
+  font-family: var(--mono);
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  padding: 12px;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+@media (max-width: 760px) {
+  :root {
+    --editor-font-size: 16px;
+  }
+  pre {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "id": "library-loan-varied-v1",
+  "tables": [
+    {
+      "name": "books",
+      "description": "馆藏图书变体数据：包含价格边界 0 与 40、未知价格和重复书名，用于边界用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "图书编号"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一"
+        },
+        {
+          "name": "author",
+          "type": "TEXT",
+          "description": "作者姓名，虚构人物"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "分类：编程 / 少儿 / 生活 / 文学"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "nullable": true,
+          "minimum": 0,
+          "description": "定价，整数元；NULL 表示尚未录入价格"
+        }
+      ],
+      "rows": [
+        [25, "手工课", "苏晓", "少儿", 40],
+        [24, "菜谱大全", "周禾", "生活", 60],
+        [26, "手记", "温宁", "文学", 30],
+        [21, "SQL 手册", "林可", "编程", 40],
+        [22, "童话集", "苏晓", "少儿", 0],
+        [23, "散文集", "温宁", "文学", null]
+      ]
+    },
+    {
+      "name": "readers",
+      "description": "注册读者变体数据：两位读者同名，用于同名不同身份的用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "读者编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "读者姓名，不保证唯一"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话，虚构号码；NULL 表示未登记"
+        }
+      ],
+      "rows": [
+        [11, "张三", null],
+        [12, "张三", "13900000012"],
+        [13, "李四", "13900000013"]
+      ]
+    },
+    {
+      "name": "borrows",
+      "description": "借阅记录变体数据：包含未归还、空串归还日期和文本 NULL 归还日期；空串与文本 NULL 是已录入的值，不是未归还。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "借阅记录编号"
+        },
+        {
+          "name": "book_id",
+          "type": "INTEGER",
+          "description": "借出图书编号，指向 books.id",
+          "references": {
+            "table": "books",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reader_id",
+          "type": "INTEGER",
+          "description": "借阅读者编号，指向 readers.id",
+          "references": {
+            "table": "readers",
+            "column": "id"
+          }
+        },
+        {
+          "name": "borrowed_at",
+          "type": "TEXT",
+          "description": "借出日期，YYYY-MM-DD"
+        },
+        {
+          "name": "returned_at",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "归还日期，YYYY-MM-DD；NULL 表示尚未归还，空串与文本 NULL 属于录入异常"
+        }
+      ],
+      "rows": [
+        [31, 21, 11, "2024-06-01", "2024-06-05"],
+        [32, 21, 12, "2024-06-03", null],
+        [33, 22, 13, "2024-06-05", "2024-06-09"],
+        [34, 23, 11, "2024-06-08", null],
+        [35, 24, 13, "2024-06-10", "2024-06-15"],
+        [36, 24, 11, "2024-06-12", null],
+        [37, 25, 12, "2024-06-15", "2024-06-20"],
+        [38, 21, 13, "2024-06-18", null],
+        [39, 22, 13, "2024-06-22", ""],
+        [40, 25, 11, "2024-06-25", "NULL"]
+      ]
+    }
+  ]
+}

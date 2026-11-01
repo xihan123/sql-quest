@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "filtering",
+  "id": "book-null",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "空值判断",
+  "prerequisites": ["book-like"],
+  "concepts": ["select", "where", "null"],
+  "introducedConcepts": ["null"],
+  "objective": "用 IS NULL 找到缺失值，区分 NULL、空字符串与文字 NULL。",
+  "statement": "查询 description 为 SQL NULL 的图书，依次输出 title、publish_year、description。空字符串 '' 和文本 'NULL' 不符合条件。不要求行顺序。",
+  "knowledge": [
+    "本关用 SQL NULL 表示简介未填写，它与空字符串 ''、文本 'NULL' 是三种不同的值。",
+    "= NULL 和 <> NULL 的结果不为真，不能用于筛出空值。用 IS NULL 判断空值，用 IS NOT NULL 判断非空值。",
+    "筛选后仍按原值输出 description，不把 NULL 换成空字符串。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出简介尚未填写的图书。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title, publish_year, description FROM books WHERE description IS NULL;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "找到缺失的简介",
+        "description": "用 IS NULL 区分 SQL 空值与文本。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "description 中有 SQL NULL、空字符串和文本 'NULL'，只有 SQL NULL 表示本关的未填写。"
+      },
+      {
+        "id": "condition",
+        "label": "怎么判断缺失？\nIS NULL",
+        "description": "IS NULL 为真当且仅当这一格是 SQL NULL；用 = NULL 永远不匹配，因为与 NULL 的比较结果不是「真」。"
+      },
+      {
+        "id": "distinguish",
+        "label": "别的「空」算吗？\n不算",
+        "description": "空字符串 '' 和文字 'NULL' 都是已填写的文本，有值可比较，不算尚未填写。"
+      },
+      {
+        "id": "result",
+        "label": "结果长什么样？\n空值照常输出",
+        "description": "入选图书的 description 在结果里显示为 NULL；其他字段（书名、年份）照常输出。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n行未保证",
+        "description": "IS NULL 不排序；命中的图书逐行输出三列。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "condition"
+      },
+      {
+        "from": "topic",
+        "to": "distinguish"
+      },
+      {
+        "from": "topic",
+        "to": "result"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "只查 SQL NULL，不查空字符串或写着 NULL 的文本。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE 列 IS NULL; 判断缺失用 IS NULL，不要用 = NULL。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, publish_year, description FROM books WHERE description ____ ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, publish_year, description FROM books WHERE description IS NULL;",
+      "explanation": "IS NULL 只匹配 description 为 SQL NULL 的行；空字符串与文字 NULL 是已填写文本，不会入选。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["title", "publish_year", "description"],
+        "rows": [
+          ["诗的练习", 2015, null],
+          ["城市植物图鉴", 2016, null]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["title", "publish_year", "description"],
+        "rows": [
+          ["星图手册", 2021, null],
+          ["民谣收集记", 2012, null]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["title", "publish_year", "description"],
+        "rows": [["数字小史", 2021, null]]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["title", "publish_year", "description"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "uses-equals-null",
+      "sql": "SELECT title, publish_year, description FROM books WHERE description = NULL;"
+    },
+    {
+      "id": "treats-empty-as-null",
+      "sql": "SELECT title, publish_year, description FROM books WHERE description = '';"
+    },
+    {
+      "id": "treats-text-null",
+      "sql": "SELECT title, publish_year, description FROM books WHERE description = 'NULL';"
+    },
+    {
+      "id": "reverses-condition",
+      "sql": "SELECT title, publish_year, description FROM books WHERE description IS NOT NULL;"
+    }
+  ]
+}

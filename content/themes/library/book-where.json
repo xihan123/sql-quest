@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest",
+  "themeId": "library",
+  "chapterId": "filtering",
+  "id": "book-where",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "比较条件",
+  "prerequisites": ["book-list"],
+  "concepts": ["select", "where"],
+  "introducedConcepts": ["where"],
+  "objective": "用 WHERE 按价格筛选图书，区分大于与大于等于。",
+  "statement": "从 books 输出定价不低于 40 元的图书，依次输出 id、title、price，保持原列名。包括恰好 40 元的图书；不合并记录，不要求行顺序。没有符合条件的图书时输出零行及上述列名。",
+  "knowledge": [
+    "WHERE 放在 FROM 后，用条件决定哪些行进入结果；SELECT 的字段列表仍决定输出列。",
+    "比较运算包括 =、<>（不等于）、>、>=、<、<=。不低于包含边界，应区别于严格大于；数值直接书写，不加引号。",
+    "例如 WHERE category = '编程' 查某一分类，而 WHERE price < 40 查低于 40 元的图书。本关不按分类筛选。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-loan-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 WHERE 按价格筛选图书，区分大于与大于等于。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, title, price FROM books WHERE price < 30;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "用比较条件筛行",
+        "description": "固定示例查“低于 30 元”，用它理解比较符号与边界。本关实际任务是“不低于 40 元”，不可直接照搬示例条件。"
+      },
+      {
+        "id": "rows",
+        "label": "筛哪些行？\nWHERE price < 30",
+        "description": "逐条判断图书价格，只有条件为真的行进入结果。字段列表不决定价格范围。"
+      },
+      {
+        "id": "boundary",
+        "label": "边界是否包含？\n< 不包含等于",
+        "description": "恰好 30 元不符合本示例；<= 才包含等于。> 与 >= 也有相同的边界区别。"
+      },
+      {
+        "id": "scope",
+        "label": "是否检查其他字段？\n没有额外条件",
+        "description": "示例只比较 price，不应额外排除某个分类或作者的记录。0 元是正常价格，也参与比较。"
+      },
+      {
+        "id": "output",
+        "label": "保留哪些列？\nid、title、price",
+        "description": "SELECT 指定这三列及顺序；WHERE 去掉的是不符合条件的行，不是其他字段的值。没有符合行时保留列名并输出零行。"
+      }
+    ],
+    "edges": [
+      { "from": "topic", "to": "rows" },
+      { "from": "topic", "to": "boundary" },
+      { "from": "topic", "to": "scope" },
+      { "from": "topic", "to": "output" }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先确定价格的包含边界，不要顺手排除 40 元的图书。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 FROM books 后添加 WHERE，使用包含等号的下界比较。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, title, price FROM books WHERE price ____ 40;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, title, price FROM books WHERE price >= 40;",
+      "explanation": ">= 保留恰好 40 元的图书，也不额外附加分类条件。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "library-loan-v1",
+      "expected": {
+        "columns": ["id", "title", "price"],
+        "rows": [
+          [1, "数据库入门", 45],
+          [2, "SQL 手册", 59],
+          [6, "诗词选", 45],
+          [8, "编程进阶", 48],
+          [10, "旅游指南", 40]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "library-loan-empty-v1",
+      "expected": {
+        "columns": ["id", "title", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "excludes-boundary",
+      "sql": "SELECT id, title, price FROM books WHERE price > 40;"
+    },
+    {
+      "id": "wrong-direction",
+      "sql": "SELECT id, title, price FROM books WHERE price <= 40;"
+    }
+  ]
+}

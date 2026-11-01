@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest",
+  "themeId": "library",
+  "chapterId": "first-query",
+  "id": "book-list",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看图书名称与价格",
+  "prerequisites": [],
+  "concepts": ["select"],
+  "introducedConcepts": ["select"],
+  "objective": "使用 SELECT 选择输出字段，用 FROM 指定表。",
+  "statement": "从 books 表输出全部图书的 title、price，按这个顺序输出两列。保留重复记录，不要求行顺序。",
+  "knowledge": [
+    "表中的每行是一条记录，每列是一个字段。",
+    "SELECT 指定输出字段，FROM 指定读取哪张表。",
+    "选择字段不等于筛选记录；相同名称和价格可以来自不同记录。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-basic-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 在下方查询图书名称和价格。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务要全部图书，只需要选择输出字段。"
+    },
+    {
+      "id": "syntax",
+      "text": "使用 SELECT 字段列表 FROM 表名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, price FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, price FROM books;",
+      "explanation": "按要求选出两列，保留全部记录及重复输出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "basic",
+      "fixtureId": "library-basic-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["数据库入门", 39],
+          ["SQL 手册", 59],
+          ["SQL 手册", 59]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "library-empty-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "drops-duplicates",
+      "sql": "SELECT DISTINCT title, price FROM books;"
+    },
+    {
+      "id": "filters-records",
+      "sql": "SELECT title, price FROM books WHERE price < 50;"
+    }
+  ]
+}

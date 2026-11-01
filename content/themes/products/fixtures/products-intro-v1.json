@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "products-intro-v1",
+  "tables": [
+    {
+      "name": "products",
+      "description": "虚构的商品目录，每行代表一个独立商品编号；名称和价格相同也可能是不同商品。所有字段均已填写。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "商品编号，唯一标识一条商品记录"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "商品名称，不保证唯一"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "商品类别"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "商品单价，单位为整数元；0 表示免费，不表示缺失"
+        },
+        {
+          "name": "stock",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "库存件数；0 表示暂时无库存，仍是目录中的商品"
+        }
+      ],
+      "rows": [
+        [1, "帆布袋", "日用", 25, 12],
+        [2, "陶瓷杯", "餐厨", 39, 8],
+        [3, "帆布袋", "日用", 25, 0],
+        [4, "体验装", "日用", 0, 30],
+        [5, "笔记本", "文具", 18, 20],
+        [6, "陶瓷杯", "餐厨", 49, 5]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "id": "campus-main-v1",
+  "tables": [
+    {
+      "name": "students",
+      "description": "在校学生，每行一名学生。姓名可能相同，以编号区分；没有选课记录的学生也保留在此表。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "学号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "学生姓名，不保证唯一"
+        },
+        {
+          "name": "gender",
+          "type": "TEXT",
+          "description": "性别：男 / 女"
+        },
+        {
+          "name": "grade",
+          "type": "INTEGER",
+          "minimum": 1,
+          "description": "年级，1 至 4"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话，虚构号码；NULL 表示未登记"
+        }
+      ],
+      "rows": [
+        [1, "李梅", "女", 1, "13700000001"],
+        [2, "王强", "男", 1, null],
+        [3, "李梅", "女", 2, "13700000003"],
+        [4, "张伟", "男", 2, "13700000004"],
+        [5, "赵敏", "女", 3, null],
+        [6, "刘洋", "男", 1, "13700000006"],
+        [7, "陈静", "女", 3, "13700000007"],
+        [8, "杨帆", "男", 2, null],
+        [9, "周婷", "女", 3, "13700000009"],
+        [10, "吴迪", "男", 1, null]
+      ]
+    },
+    {
+      "name": "teachers",
+      "description": "任课教师，每行一位教师。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "教师编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "教师姓名，虚构人物"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "职称：教授 / 副教授 / 讲师"
+        }
+      ],
+      "rows": [
+        [1, "孙德海", "教授"],
+        [2, "何雨", "副教授"],
+        [3, "马千里", "讲师"],
+        [4, "高远", "副教授"]
+      ]
+    },
+    {
+      "name": "courses",
+      "description": "开课课程，每行一门课程。课程名可能重复，以编号区分；没有学生选的课程也保留在此表。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "课程编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "课程名称，不保证唯一"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "课程分类：计算机 / 理学 / 人文 / 艺术"
+        },
+        {
+          "name": "credit",
+          "type": "REAL",
+          "minimum": 0,
+          "description": "学分"
+        },
+        {
+          "name": "teacher_id",
+          "type": "INTEGER",
+          "description": "任课教师编号，指向 teachers.id",
+          "references": {
+            "table": "teachers",
+            "column": "id"
+          }
+        }
+      ],
+      "rows": [
+        [101, "数据库基础", "计算机", 3, 1],
+        [102, "程序设计", "计算机", 4, 1],
+        [103, "高等数学", "理学", 5, 2],
+        [104, "大学语文", "人文", 2, 3],
+        [105, "数据结构", "计算机", 4, 2],
+        [106, "油画入门", "艺术", 1, 3],
+        [107, "大学物理", "理学", 4, 4],
+        [108, "音乐欣赏", "艺术", 1, 4],
+        [109, "英语写作", "人文", 2, 3],
+        [110, "人工智能导论", "计算机", 2, 1]
+      ]
+    },
+    {
+      "name": "enrollments",
+      "description": "选课记录，一行一条选课。score 为 NULL 表示成绩尚未公布；0 分是已公布的成绩，不是缺失。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "选课记录编号"
+        },
+        {
+          "name": "student_id",
+          "type": "INTEGER",
+          "description": "选课学生编号，指向 students.id",
+          "references": {
+            "table": "students",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_id",
+          "type": "INTEGER",
+          "description": "课程编号，指向 courses.id",
+          "references": {
+            "table": "courses",
+            "column": "id"
+          }
+        },
+        {
+          "name": "score",
+          "type": "REAL",
+          "nullable": true,
+          "minimum": 0,
+          "description": "成绩，百分制；NULL 表示尚未公布"
+        }
+      ],
+      "rows": [
+        [1, 1, 101, 85],
+        [2, 1, 103, 72],
+        [3, 1, 104, 90],
+        [4, 2, 101, 58],
+        [5, 2, 105, 76],
+        [6, 3, 101, 85],
+        [7, 3, 102, 64],
+        [8, 3, 103, 58],
+        [9, 4, 103, 91],
+        [10, 4, 107, 66],
+        [11, 5, 101, 45],
+        [12, 5, 104, 88],
+        [13, 5, 106, 92],
+        [14, 6, 102, 76],
+        [15, 6, 108, 81],
+        [16, 7, 106, 58],
+        [17, 7, 107, 85],
+        [18, 7, 109, 90],
+        [19, 8, 101, null],
+        [20, 8, 105, 69],
+        [21, 8, 108, null],
+        [22, 1, 102, 77],
+        [23, 2, 103, 83],
+        [24, 4, 102, null],
+        [25, 6, 101, 90],
+        [26, 7, 101, 70],
+        [27, 3, 109, 84]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "enrollments_score_order",
+      "table": "enrollments",
+      "columns": [
+        {
+          "name": "score",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

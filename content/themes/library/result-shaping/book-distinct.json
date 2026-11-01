@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "result-shaping",
+  "id": "book-distinct",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "去除重复",
+  "prerequisites": ["book-limit"],
+  "concepts": ["select", "where", "distinct"],
+  "introducedConcepts": ["distinct"],
+  "objective": "用 DISTINCT 对输出列的组合去重，理解去重不等于排序。",
+  "statement": "列出 books 中出现过的分类，只输出 category 一列，每个分类一次。不要求行顺序；空表返回零行。",
+  "knowledge": [
+    "DISTINCT 紧跟 SELECT，对全部输出列的组合去重。本关只输出 category，因此每个分类保留一行。",
+    "添加其他输出列会改变去重范围，例如 category、price 需要两列都相同才合并。",
+    "DISTINCT 不保证行顺序。需要排序时可以另加 ORDER BY，本关不要求。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "distinct",
+  "starterSql": "-- 列出目录中不重复的图书分类。\n",
+  "flowchart": {
+    "exampleSql": "SELECT DISTINCT category FROM books;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "列出不重复的分类",
+        "description": "对输出的 category 去重，每个分类保留一行。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "先取到每本书的 category，再对这一列的取值去重。"
+      },
+      {
+        "id": "distinct",
+        "label": "去重规则\nDISTINCT category",
+        "description": "输出列的组合相同就只保留一行；本关只有一列，等价于列出出现过的分类。"
+      },
+      {
+        "id": "count",
+        "label": "次数保留吗？\n不保留",
+        "description": "结果里每个分类一行，看不出它出现过几次；重复次数不是本关的输出。"
+      },
+      {
+        "id": "nosort",
+        "label": "去重后有序吗？\n没有保证",
+        "description": "DISTINCT 不保证行顺序；本关不要求排序，另加 ORDER BY 也不改变应有的分类集合。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪些列？\ncategory 一列",
+        "description": "去重作用于输出列的组合；多输出一列就可能多出「重复」的组合。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "distinct"
+      },
+      {
+        "from": "topic",
+        "to": "count"
+      },
+      {
+        "from": "topic",
+        "to": "nosort"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务是「出现过哪些分类」：每个分类一个值，重复的合并，不需要次数也不需要排序。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT DISTINCT 列 FROM 表; DISTINCT 紧跟在 SELECT 后面。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT ____ category FROM books;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT DISTINCT category FROM books;",
+      "explanation": "DISTINCT 对输出的 category 去重，每个出现过的分类恰好一行；不排序、不计数。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["category"],
+        "rows": [["计算机"], ["文学"], ["历史"], ["自然"], ["生活"]]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["category"],
+        "rows": [["自然"], ["生活"], ["文学"], ["历史"]]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["category"],
+        "rows": [["文学"], ["计算机"], ["生活"]]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["category"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-duplicates",
+      "sql": "SELECT category FROM books;"
+    },
+    {
+      "id": "distinct-wrong-column",
+      "sql": "SELECT DISTINCT title FROM books;"
+    },
+    {
+      "id": "keeps-only-one-row",
+      "sql": "SELECT DISTINCT category FROM books LIMIT 1;"
+    },
+    {
+      "id": "counts-instead",
+      "sql": "SELECT COUNT(DISTINCT category) AS category FROM books;"
+    }
+  ]
+}

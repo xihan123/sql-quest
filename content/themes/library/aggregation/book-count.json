@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "aggregation",
+  "id": "book-count",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "统计记录",
+  "prerequisites": ["book-distinct"],
+  "concepts": ["select", "count"],
+  "introducedConcepts": ["count"],
+  "objective": "用 COUNT(*) 统计行数，区分它与 COUNT(列) 的差别。",
+  "statement": "统计 books 的记录总数，输出一行一列，列名为 book_count。每条记录都计入，包括同名图书和 0 元图书；空表计为 0。",
+  "knowledge": [
+    "COUNT(*) 统计输入记录数；COUNT(列) 只统计该列非 NULL 的记录。",
+    "没有 GROUP BY 时，整表计数只输出一行，空表也返回一行 0。",
+    "用 AS 为聚合结果列命名。本关需要 book_count。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计图书目录的记录总数。\n",
+  "flowchart": {
+    "exampleSql": "SELECT COUNT(*) AS book_count FROM books;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "数一数有多少行",
+        "description": "COUNT(*) 统计全部书目记录，空表也返回一行计数。"
+      },
+      {
+        "id": "source",
+        "label": "统计什么？\nFROM books 的全部行",
+        "description": "没有 WHERE 时，books 的每一行都进入计数，包括免费图书和同名重印版。"
+      },
+      {
+        "id": "aggregate",
+        "label": "怎么数？\nCOUNT(*)",
+        "description": "COUNT(*) 数行数；COUNT(列) 只数该列非 NULL 的行，两者在有空值时会不同。"
+      },
+      {
+        "id": "result",
+        "label": "结果长什么样？\n一行一列",
+        "description": "无论表有多少行，计数结果只有一行；列名由 AS 指定为 book_count。"
+      },
+      {
+        "id": "empty",
+        "label": "空表怎么办？\n结果是 0",
+        "description": "没有分组的计数对空表输出一行 0，而不是零行或 NULL。"
+      },
+      {
+        "id": "order",
+        "label": "顺序还有意义吗？\n没有",
+        "description": "结果只有一行，行的顺序问题不存在；聚合不关心输入行的先后。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "aggregate"
+      },
+      {
+        "from": "topic",
+        "to": "result"
+      },
+      {
+        "from": "topic",
+        "to": "empty"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务是数全部记录：不是数某一列的值，也不是数不同的分类，而是数行。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT COUNT(*) AS 列名 FROM 表; AS 指定结果列名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT ____(*) AS book_count FROM books;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS book_count FROM books;",
+      "explanation": "COUNT(*) 统计 books 的全部行数；没有 WHERE，所有记录都计入，空表时结果为 0。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["book_count"],
+        "rows": [[10]]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["book_count"],
+        "rows": [[6]]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["book_count"],
+        "rows": [[0]]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "counts-nonnull-only",
+      "sql": "SELECT COUNT(description) AS book_count FROM books;"
+    },
+    {
+      "id": "counts-distinct-categories",
+      "sql": "SELECT COUNT(DISTINCT category) AS book_count FROM books;"
+    },
+    {
+      "id": "keeps-default-column-name",
+      "sql": "SELECT COUNT(*) FROM books;"
+    },
+    {
+      "id": "hardcodes-preview-count",
+      "sql": "SELECT 10 AS book_count FROM books;"
+    }
+  ]
+}

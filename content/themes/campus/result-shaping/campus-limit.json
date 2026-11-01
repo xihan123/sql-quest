@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "result-shaping",
+  "id": "campus-limit",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "限制条数",
+  "prerequisites": ["campus-order"],
+  "concepts": ["select", "select-columns", "order-by", "limit"],
+  "introducedConcepts": ["limit"],
+  "objective": "在排序后用 LIMIT 取成绩最高的几条记录，理解截点与并列。",
+  "statement": "将 enrollments 的全部记录按 score 降序、id 升序排列，取前 5 行，依次输出 id、student_id、score。NULL 成绩排在最后，但不排除这些记录；它们也可能进入前 5 行。同分不增加名额，不足 5 条时全部输出。",
+  "knowledge": [
+    "LIMIT n 限制输出行数。本关先用 ORDER BY 排序，再用 LIMIT 5 取前五行。",
+    "同分时按 id 升序决定先后。第 5 行之后的记录不输出，即使与第 5 行同分。",
+    "NULL 排在已知成绩之后，不是被过滤。已公布成绩不足 5 条时，NULL 记录也可能入选。",
+    "记录不足 5 条时只返回实际记录；空表返回零行。"
+  ],
+  "readableTables": ["enrollments"],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出成绩最高的 5 条选课记录。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, score FROM enrollments ORDER BY score DESC, id ASC LIMIT 2;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "先排序，再截取",
+        "description": "示例取排序后的前 2 条记录；题目取前 5 条，排序规则相同。"
+      },
+      {
+        "id": "order",
+        "label": "LIMIT 作用在排序结果上\nscore DESC, id ASC",
+        "description": "先确定完整行顺序，再保留前 N 行；没有 ORDER BY 的 LIMIT 取不到“最高”的记录。"
+      },
+      {
+        "id": "cut",
+        "label": "截点与并列",
+        "description": "同分记录按编号升序排在连续位置；截点落在同分组中间时编号更大的被截掉，并列不会自动扩容。"
+      },
+      {
+        "id": "null",
+        "label": "未公布成绩进不了前几名",
+        "description": "NULL 成绩排在最后，但没有被筛除。已知成绩不足所取条数时，NULL 记录也可能进入结果。"
+      },
+      {
+        "id": "few",
+        "label": "不足时输出实际行数",
+        "description": "记录不足 N 条时输出全部记录；空表输出零行。LIMIT 不是必须凑满的行数。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "order"
+      },
+      {
+        "from": "topic",
+        "to": "cut"
+      },
+      {
+        "from": "topic",
+        "to": "null"
+      },
+      {
+        "from": "topic",
+        "to": "few"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "沿用上一关的完整排序，再限定只保留前 5 行。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 ORDER BY score DESC, id ASC 之后写 LIMIT 5。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, student_id, score FROM enrollments ORDER BY score DESC, id ASC LIMIT ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, student_id, score FROM enrollments ORDER BY score DESC, id ASC LIMIT 5;",
+      "explanation": "先按成绩降序、编号升序确定顺序，再取前五行。LIMIT 只限制条数，不排除 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": ["id", "student_id", "score"],
+        "rows": [
+          [13, 5, 92],
+          [9, 4, 91],
+          [3, 1, 90],
+          [18, 7, 90],
+          [25, 6, 90]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": ["id", "student_id", "score"],
+        "rows": [
+          [34, 11, 100],
+          [31, 11, 60],
+          [32, 12, 60],
+          [36, 13, 60],
+          [35, 12, 0]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": ["id", "student_id", "score"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "limit-too-small",
+      "sql": "SELECT id, student_id, score FROM enrollments ORDER BY score DESC, id ASC LIMIT 4;"
+    },
+    {
+      "id": "limit-too-large",
+      "sql": "SELECT id, student_id, score FROM enrollments ORDER BY score DESC, id ASC LIMIT 6;"
+    },
+    {
+      "id": "no-order",
+      "sql": "SELECT id, student_id, score FROM enrollments LIMIT 5;"
+    }
+  ]
+}

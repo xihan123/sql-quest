@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "filtering",
+  "id": "campus-null",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "空值判断",
+  "prerequisites": ["campus-like"],
+  "concepts": ["select", "select-columns", "where", "null"],
+  "introducedConcepts": ["null"],
+  "objective": "用 IS NULL 找出成绩尚未公布的选课记录，区分 NULL 与 0 分。",
+  "statement": "查询 enrollments 中 score 为 SQL NULL（成绩未公布）的记录，依次输出 id、student_id、course_id。0 分是已公布的成绩，不符合条件。不要求行顺序。",
+  "knowledge": [
+    "本关用 NULL 表示成绩尚未公布，它不是 0，也不是空字符串。",
+    "与 NULL 用 = 或 <> 比较都得不到真。判断空值用 IS NULL，判断非空值用 IS NOT NULL。",
+    "0 分是已录入的成绩，不能用 score = 0 代替空值判断。"
+  ],
+  "readableTables": ["enrollments"],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 IS NULL 找出成绩尚未公布的选课记录，区分 NULL 与 0 分。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, student_id, score FROM enrollments WHERE score IS NULL;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "找出成绩未公布的记录",
+        "description": "示例查询未公布成绩的记录，输出 id、student_id、score；题目的第三列是 course_id。"
+      },
+      {
+        "id": "unknown",
+        "label": "NULL 是还没有值",
+        "description": "score 为 NULL 表示成绩尚未公布；它不是 0，也不是空字符串。"
+      },
+      {
+        "id": "syntax",
+        "label": "判断用 IS NULL",
+        "description": "score = NULL 选不出任何记录，因为与未知值比较得不到真；IS NULL 才是判断未知值的写法，IS NOT NULL 判断已知值。"
+      },
+      {
+        "id": "zero",
+        "label": "0 分是已知值",
+        "description": "0 分已经录入，属于已公布的成绩；IS NULL 不会选中它，用 score = 0 才能查到 0 分记录。"
+      },
+      {
+        "id": "output",
+        "label": "输出三列",
+        "description": "示例输出记录编号、学生编号和成绩，第三列均为 NULL。题目另要求课程编号，不要照搬示例的字段列表。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "unknown"
+      },
+      {
+        "from": "topic",
+        "to": "syntax"
+      },
+      {
+        "from": "topic",
+        "to": "zero"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "“尚未公布”对应成绩一栏还没有值。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE score IS NULL；不要写 score = NULL，也不要写成 0。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, student_id, course_id FROM enrollments WHERE score ____ ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, student_id, course_id FROM enrollments WHERE score IS NULL;",
+      "explanation": "IS NULL 选中成绩为未知值的记录；0 分记录是已知成绩，不会被选中。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": ["id", "student_id", "course_id"],
+        "rows": [
+          [19, 8, 101],
+          [21, 8, 108],
+          [24, 4, 102]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": ["id", "student_id", "course_id"],
+        "rows": [[33, 13, 112]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": ["id", "student_id", "course_id"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "equals-null",
+      "sql": "SELECT id, student_id, course_id FROM enrollments WHERE score = NULL;"
+    },
+    {
+      "id": "confuses-zero",
+      "sql": "SELECT id, student_id, course_id FROM enrollments WHERE score = 0;"
+    }
+  ]
+}

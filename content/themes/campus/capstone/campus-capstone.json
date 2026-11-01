@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "capstone",
+  "id": "campus-capstone",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "综合查询",
+  "prerequisites": ["campus-left-join"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "aggregate",
+    "group-by",
+    "order-by",
+    "limit",
+    "inner-join"
+  ],
+  "introducedConcepts": [],
+  "objective": "按课程统计选课记录数，取记录数最多的前两门。",
+  "statement": "统计有选课记录的课程，依次输出 course_id、course_name、enroll_count（选课记录数）。每条记录都计入，包括成绩未公布的记录；同名课程按编号分开统计。按记录数降序、course_id 升序取前 2 门，并列不增加名额。不足 2 门时输出实际数量，没有选课记录时返回零行。",
+  "knowledge": [
+    "按 enrollments.course_id = courses.id 连接，再按课程编号和名称分组。",
+    "COUNT(*) 统计选课记录数，不等于已出分记录数；本关不使用 COUNT(score)。",
+    "按记录数降序、课程编号升序排列，最后 LIMIT 2。同名课程和同记录数的课程都按编号区分。"
+  ],
+  "readableTables": ["enrollments", "courses"],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出选课记录数最多的前两门课程。\n",
+  "flowchart": {
+    "exampleSql": "SELECT c.id AS course_id, c.name AS course_name, COUNT(*) AS enroll_count FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id GROUP BY c.id, c.name ORDER BY enroll_count DESC, c.id ASC LIMIT 1;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "课程选课统计",
+        "description": "示例取选课记录最多的一门课程；题目要求前两门。"
+      },
+      {
+        "id": "scope",
+        "label": "按课程统计",
+        "description": "选课记录按 course_id 连接课程，再按课程编号和课程名分组；一门课程一组，同名不同编号的课程分成两组。"
+      },
+      {
+        "id": "count",
+        "label": "每组计数\nCOUNT(*)",
+        "description": "每条选课记录都让所在组计数加 1，成绩未公布同样计入；COUNT(score) 会漏掉未公布成绩的记录。"
+      },
+      {
+        "id": "top",
+        "label": "排序后取第一门",
+        "description": "示例按记录数降序、课程编号升序排列，再用 LIMIT 1 取第一门。题目应取前两门。"
+      },
+      {
+        "id": "zero",
+        "label": "零选课与空表",
+        "description": "INNER JOIN 让没有选课记录的课程自然不出现；没有选课记录时结果为零行。"
+      },
+      {
+        "id": "writing",
+        "label": "SQL 书写从 SELECT 开始",
+        "description": "此示例的书写顺序是 SELECT、FROM / JOIN、GROUP BY、ORDER BY、LIMIT。图中分支用于讲解，不是 SQL 的书写顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "count"
+      },
+      {
+        "from": "topic",
+        "to": "top"
+      },
+      {
+        "from": "topic",
+        "to": "zero"
+      },
+      {
+        "from": "top",
+        "to": "writing"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先按课程计数，再排序并取前两门。"
+    },
+    {
+      "id": "syntax",
+      "text": "GROUP BY c.id, c.name 后 ORDER BY enroll_count DESC, c.id ASC，再 LIMIT 2。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT c.id AS course_id, c.name AS course_name, COUNT(*) AS enroll_count FROM enrollments AS e INNER JOIN courses AS c ON ____ GROUP BY c.id, c.name ORDER BY enroll_count DESC, c.id ASC LIMIT ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, COUNT(*) AS enroll_count FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id GROUP BY c.id, c.name ORDER BY enroll_count DESC, c.id ASC LIMIT 2;",
+      "explanation": "预览中课程 101 有 7 条选课记录居首；102 与 103 同为 4 条，按编号只保留 102，103 被截点排除。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": ["course_id", "course_name", "enroll_count"],
+        "rows": [
+          [101, "数据库基础", 7],
+          [102, "程序设计", 4]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": ["course_id", "course_name", "enroll_count"],
+        "rows": [
+          [111, "高等数学", 4],
+          [112, "数据库基础", 2]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": ["course_id", "course_name", "enroll_count"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "expands-all-ties",
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, COUNT(*) AS enroll_count FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id GROUP BY c.id, c.name ORDER BY enroll_count DESC, c.id ASC LIMIT 3;"
+    },
+    {
+      "id": "wrong-tie-order",
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, COUNT(*) AS enroll_count FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id GROUP BY c.id, c.name ORDER BY enroll_count DESC, c.id DESC LIMIT 2;"
+    },
+    {
+      "id": "no-group-by",
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, COUNT(*) AS enroll_count FROM enrollments AS e INNER JOIN courses AS c ON e.course_id = c.id ORDER BY enroll_count DESC, c.id ASC LIMIT 2;"
+    }
+  ]
+}

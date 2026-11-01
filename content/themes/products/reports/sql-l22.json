@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "reports",
+  "id": "sql-l22",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "关联汇总",
+  "prerequisites": ["sql-l21"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "inner-join",
+    "join-cardinality",
+    "where",
+    "group-by",
+    "numeric-aggregation",
+    "column-alias"
+  ],
+  "introducedConcepts": [],
+  "objective": "按顾客身份汇总已支付明细的历史成交金额。",
+  "statement": "按顾客汇总已支付订单明细，依次输出 customer_id、customer_name、paid_total（成交总额，元）。金额逐条按 quantity × 历史 unit_price 累加，不使用当前商品价，也不去重相同金额。每位有已支付明细的顾客一行，同名顾客按编号区分；没有已支付明细的顾客不输出。不要求行顺序。",
+  "knowledge": [
+    "本关没有新语法：先用已学连接展开到明细，再按顾客重新分组。每位顾客输出一行，不是每张订单或每条明细一行。",
+    "金额先逐条计算 quantity * unit_price，再 SUM；单价不是整行金额，当前商品价也不是历史成交价。",
+    "分组键包含 c.id 和 c.name，前者确保同名顾客不合并，后者使所有非聚合输出字段都在 GROUP BY 中。",
+    "SUM(DISTINCT 金额) 会误删恰好同金额的不同明细。重复数值不等于业务重复；本关所有合法明细都应计入。"
+  ],
+  "readableTables": ["customers", "orders", "order_items", "products"],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按顾客身份汇总已支付明细的历史成交金额。\n",
+  "flowchart": {
+    "exampleSql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' AND c.id = 1 GROUP BY c.id, c.name;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "从明细重新汇总到顾客",
+        "description": "示例仅统计顾客 1 的已支付金额；题目统计所有有已支付明细的顾客。"
+      },
+      {
+        "id": "path",
+        "label": "连接路径\n顾客 → 订单 → 明细",
+        "description": "按 c.id = o.customer_id 和 o.id = i.order_id 连接。展开后的每行是一条明细，不能把重复的顾客信息误当重复业务。"
+      },
+      {
+        "id": "scope",
+        "label": "参与范围\npaid 且顾客编号为 1",
+        "description": "WHERE 限制订单状态和本示例的顾客编号。INNER JOIN 只统计实际有匹配明细的顾客，不造零匹配行。"
+      },
+      {
+        "id": "money",
+        "label": "逐条算历史金额\nquantity * unit_price",
+        "description": "先乘数量与历史单价，再 SUM。当前商品标价不参与；免费明细贡献 0 元而不是被删掉。"
+      },
+      {
+        "id": "identity",
+        "label": "按稳定顾客身份归组",
+        "description": "GROUP BY 同时列 c.id、c.name：编号区分同名顾客，姓名是需要输出的非聚合字段。结果中每位顾客一行。"
+      },
+      {
+        "id": "duplicates",
+        "label": "同金额仍需多次相加",
+        "description": "不同明细可能金额相同，SUM 仍应逐条累加。SUM(DISTINCT 金额) 会漏算，不是数据清理。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "path"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "money"
+      },
+      {
+        "from": "topic",
+        "to": "identity"
+      },
+      {
+        "from": "money",
+        "to": "duplicates"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "保持顾客到订单到明细的关系，最后回到一行一个顾客。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE 筛 paid，GROUP BY 顾客编号和姓名，SUM 内写数量乘历史单价。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(____) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name;",
+      "explanation": "顾客 1 的三条 50 元明细和一条 0 元明细累计 150 元；顾客 3 也叫林杉，但独立累计 30 + 120 = 150 元。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_total"],
+        "rows": [
+          [1, "林杉", 150],
+          [2, "周禾", 100],
+          [3, "林杉", 150],
+          [5, "许星", 100]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_total"],
+        "rows": [
+          [12, "陆宁", 100],
+          [13, "乔安", 80]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_total"],
+        "rows": []
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_total"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "merges-same-name",
+      "sql": "SELECT MIN(c.id) AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.name;"
+    },
+    {
+      "id": "current-not-historical",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * p.price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id INNER JOIN products AS p ON i.product_id = p.id WHERE o.status = 'paid' GROUP BY c.id, c.name;"
+    },
+    {
+      "id": "forgets-quantity",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name;"
+    },
+    {
+      "id": "drops-equal-amounts",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(DISTINCT i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id WHERE o.status = 'paid' GROUP BY c.id, c.name;"
+    },
+    {
+      "id": "includes-unpaid",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, SUM(i.quantity * i.unit_price) AS paid_total FROM customers AS c INNER JOIN orders AS o ON c.id = o.customer_id INNER JOIN order_items AS i ON o.id = i.order_id GROUP BY c.id, c.name;"
+    }
+  ]
+}

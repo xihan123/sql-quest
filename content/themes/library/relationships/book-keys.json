@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "relationships",
+  "id": "book-keys",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "认识关联键",
+  "prerequisites": ["book-report"],
+  "concepts": ["select", "where", "relational-keys"],
+  "introducedConcepts": ["relational-keys"],
+  "objective": "认识主键、外键与一对多关系，本关不要求 JOIN。",
+  "statement": "数据区有 books 和 authors 两张表。本关只查询 books，依次输出全部图书的 id、title、author_id。author_id 指向 authors.id。不要求连接两张表，也不要求行顺序。",
+  "knowledge": [
+    "本例中，books.id 和 authors.id 分别是图书、作者的主键，用于唯一标识各自表中的记录。",
+    "books.author_id 是外键，引用 authors.id。一个作者可以对应多本书；本例每本书对应一位作者。",
+    "姓名和书名都可能重复，应通过编号识别记录，不能用名字代替关联键。"
+  ],
+  "readableTables": ["books", "authors"],
+  "previewFixtureId": "library-loans-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 列出每本馆藏图书的编号、书名与作者编号。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, title, author_id FROM books;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "看清两张表的关系",
+        "description": "通过作者编号理解图书与作者的关系，本例仍是单表查询。"
+      },
+      {
+        "id": "primary",
+        "label": "主键\nauthors.id 与 books.id",
+        "description": "每张表的主键唯一标识一行；编号相同的两行不可能是同一张表里的两行。"
+      },
+      {
+        "id": "foreign",
+        "label": "外键\nbooks.author_id",
+        "description": "author_id 存放 authors.id 的取值；查 authors 表就能把编号换成作者姓名（下一关用 JOIN 完成）。"
+      },
+      {
+        "id": "cardinality",
+        "label": "一对多\n一位作者多本书",
+        "description": "同一 author_id 可以出现多次（白榆有两本书）；每本书只有一个作者编号。"
+      },
+      {
+        "id": "identity",
+        "label": "同名不同身份\n两位沈临",
+        "description": "姓名可能重复，编号不会重复；判断「是不是同一作者」只看编号。"
+      },
+      {
+        "id": "scope",
+        "label": "本关查什么？\n只查 books",
+        "description": "本关不需要连接：输出 books 自己的三列，观察外键的取值即可。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "primary"
+      },
+      {
+        "from": "topic",
+        "to": "foreign"
+      },
+      {
+        "from": "topic",
+        "to": "cardinality"
+      },
+      {
+        "from": "topic",
+        "to": "identity"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "本关只查 books 一张表：把三列原样列出来，重点观察 author_id 这一列的含义。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT 列1, 列2, 列3 FROM 表; 三个列名保持表中的原名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, ____, author_id FROM books;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, title, author_id FROM books;",
+      "explanation": "列出 books 的编号、书名与作者编号；author_id 的每个取值都能在 authors.id 中找到，这就是关联键的作用。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "loans",
+      "fixtureId": "library-loans-v1",
+      "expected": {
+        "columns": ["id", "title", "author_id"],
+        "rows": [
+          [101, "雾中灯塔", 1],
+          [102, "雾中灯塔", 6],
+          [103, "河流改道", 2],
+          [104, "秋日食谱", 4],
+          [105, "桥梁简史", 3],
+          [106, "静物写生", 5],
+          [107, "声音的形状", 2],
+          [108, "候鸟旅馆", 3]
+        ]
+      }
+    },
+    {
+      "id": "varied-loans",
+      "fixtureId": "library-loans-varied-v1",
+      "expected": {
+        "columns": ["id", "title", "author_id"],
+        "rows": [
+          [101, "慢速列车", 1],
+          [102, "屋顶花园", 2],
+          [103, "慢速列车", 3],
+          [104, "纸船", 2]
+        ]
+      }
+    },
+    {
+      "id": "empty-loans",
+      "fixtureId": "library-loans-empty-v1",
+      "expected": {
+        "columns": ["id", "title", "author_id"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-foreign-key-column",
+      "sql": "SELECT id, title FROM books;"
+    },
+    {
+      "id": "queries-wrong-table",
+      "sql": "SELECT id, name, country FROM authors;"
+    },
+    {
+      "id": "keeps-one-author",
+      "sql": "SELECT id, title, author_id FROM books WHERE author_id = 1;"
+    }
+  ]
+}

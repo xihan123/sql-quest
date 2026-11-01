@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "first-query",
+  "id": "book-list",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看图书名称与价格",
+  "prerequisites": [],
+  "concepts": ["select"],
+  "introducedConcepts": ["select"],
+  "objective": "使用 SELECT 选择输出字段，用 FROM 指定表。",
+  "statement": "从 books 表输出全部图书的 title、price 两列，按此顺序保留原列名。每条记录输出一行，名称和价格相同的记录也要保留。不要求行顺序。",
+  "knowledge": [
+    "表中的每行是一条记录，每列是一个字段。",
+    "SELECT 指定输出字段，FROM 指定读取哪张表。",
+    "选择字段不等于筛选记录；相同名称和价格可以来自不同记录。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-basic-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 在下方查询图书名称和价格。\n",
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "source",
+        "sql": "FROM books"
+      },
+      {
+        "id": "price",
+        "sql": "price"
+      },
+      {
+        "id": "select",
+        "sql": "SELECT"
+      },
+      {
+        "id": "title",
+        "sql": "title"
+      },
+      {
+        "id": "comma",
+        "sql": ","
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      },
+      {
+        "id": "identifier",
+        "sql": "id"
+      }
+    ],
+    "solutionOrder": ["select", "title", "comma", "price", "source", "end"]
+  },
+  "flowchart": {
+    "exampleSql": "SELECT title, price FROM books;",
+    "nodes": [
+      {
+        "id": "query",
+        "label": "读懂这条查询",
+        "description": "查询图书的名称和价格。各分支说明数据来源、输出列、重复记录和行顺序，不表示执行步骤。"
+      },
+      {
+        "id": "source",
+        "label": "从哪里读？\nFROM books",
+        "description": "FROM books 指定数据来源是 books 表。逻辑上先确定数据来源，再选择字段；但 SQL 书写时 SELECT 在 FROM 前面。"
+      },
+      {
+        "id": "projection",
+        "label": "选哪些列？\nSELECT title, price",
+        "description": "输出 title、price 两列，列的先后按字段的书写顺序排列，不输出 id。SELECT 在这里选择字段，而不是筛选记录。"
+      },
+      {
+        "id": "records",
+        "label": "保留哪些记录？\n全部，包含重复输出",
+        "description": "这个示例没有筛选条件，也没有去重。每条图书记录都有自己的输出；即使名称与价格相同，也不会自动合并为一条。"
+      },
+      {
+        "id": "row-order",
+        "label": "行按什么顺序？\n没有保证",
+        "description": "这个示例没有指定行顺序。不要把预览中的插入顺序理解为查询始终保证的输出顺序。列的先后与行的先后是两回事。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "query",
+        "to": "source",
+        "label": "数据来源"
+      },
+      {
+        "from": "query",
+        "to": "projection",
+        "label": "输出字段"
+      },
+      {
+        "from": "query",
+        "to": "records",
+        "label": "记录保留"
+      },
+      {
+        "from": "query",
+        "to": "row-order",
+        "label": "行顺序"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务要全部图书，只需要选择输出字段。"
+    },
+    {
+      "id": "syntax",
+      "text": "使用 SELECT 字段列表 FROM 表名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, price FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, price FROM books;",
+      "explanation": "按要求选出两列，保留全部记录及重复输出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "basic",
+      "fixtureId": "library-basic-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["数据库入门", 39],
+          ["SQL 手册", 59],
+          ["SQL 手册", 59]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "library-empty-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "drops-duplicates",
+      "sql": "SELECT DISTINCT title, price FROM books;"
+    },
+    {
+      "id": "filters-records",
+      "sql": "SELECT title, price FROM books WHERE price < 50;"
+    }
+  ]
+}

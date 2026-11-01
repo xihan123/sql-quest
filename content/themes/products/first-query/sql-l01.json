@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "first-query",
+  "id": "sql-l01",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看数据",
+  "prerequisites": [],
+  "concepts": ["select"],
+  "introducedConcepts": ["select"],
+  "objective": "认识表、行和列，用 SELECT * FROM 读取整张商品表。",
+  "statement": "查看 products 表的全部记录，依次输出 id、name、category、price、stock，保留原列名。price 单位为元，stock 单位为件。免费、缺货和同名商品都要保留。不要求行顺序；空表返回零行，仍保留列名。",
+  "knowledge": [
+    "products 每行代表一个商品，每列描述一项属性。id 用于区分商品，名称相同不代表同一商品。",
+    "SELECT * FROM 表名; 按表结构中的列顺序输出全部字段，不筛选记录，也不修改原表。",
+    "SQL 使用半角标点；关键字通常大写，末尾可用分号结束。本练习每次只执行一条查询。",
+    "没有 ORDER BY 时，查询不保证行顺序。空表没有结果行，但仍有列名。"
+  ],
+  "readableTables": ["products"],
+  "previewFixtureId": "products-intro-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看商品表的全部行和全部列。\n",
+  "flowchart": {
+    "exampleSql": "SELECT * FROM products;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "认识商品表",
+        "description": "SELECT * 读取商品表的全部字段。各分支分别说明表、列和记录。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM products",
+        "description": "products 是商品表；FROM 指定来源，不会创建或修改它。预览中的表结构是理解星号的依据。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪些列？\nSELECT *",
+        "description": "* 表示按表结构顺序输出 id、name、category、price、stock 五列，不是只输出名称。"
+      },
+      {
+        "id": "identity",
+        "label": "一行代表什么？\n一个商品编号",
+        "description": "id 区分商品；名称和价格相同的两条记录仍是两行。不能把同名商品合并。"
+      },
+      {
+        "id": "scope",
+        "label": "哪些商品保留？\n全部记录",
+        "description": "这条示例没有筛选条件，免费和无库存商品都保留。若表为空，结果是零行，但仍有五个列名。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n列有顺序，行未保证",
+        "description": "星号的列顺序来自表结构；示例没有指定行排序，不能要求查询照抄预览中的行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "identity"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先确认数据来自哪张表。任务要求全部字段和全部商品，不需要删列或排除记录。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 SELECT * 表示全部字段，再用 FROM 指定表名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____; 把空白替换为商品表名。"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM products;",
+      "explanation": "FROM 指定商品表，* 输出表结构中的全部五列；每条商品记录都保留，包括免费商品和暂时无库存的商品。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "products-intro-v1",
+      "expected": {
+        "columns": ["id", "name", "category", "price", "stock"],
+        "rows": [
+          [1, "帆布袋", "日用", 25, 12],
+          [2, "陶瓷杯", "餐厨", 39, 8],
+          [3, "帆布袋", "日用", 25, 0],
+          [4, "体验装", "日用", 0, 30],
+          [5, "笔记本", "文具", 18, 20],
+          [6, "陶瓷杯", "餐厨", 49, 5]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "products-intro-varied-v1",
+      "expected": {
+        "columns": ["id", "name", "category", "price", "stock"],
+        "rows": [
+          [11, "书签", "文具", 6, 0],
+          [12, "收纳盒", "日用", 32, 7],
+          [13, "书签", "文具", 6, 15],
+          [14, "试用装", "日用", 0, 0]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "products-intro-empty-v1",
+      "expected": {
+        "columns": ["id", "name", "category", "price", "stock"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-fields",
+      "sql": "SELECT id, name FROM products;"
+    },
+    {
+      "id": "omits-free-products",
+      "sql": "SELECT * FROM products WHERE price > 0;"
+    },
+    {
+      "id": "hardcodes-preview-identifiers",
+      "sql": "SELECT * FROM products WHERE id IN (1, 2, 3, 4, 5, 6);"
+    }
+  ],
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "source",
+        "sql": "FROM products"
+      },
+      {
+        "id": "identifier",
+        "sql": "id"
+      },
+      {
+        "id": "select",
+        "sql": "SELECT"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      },
+      {
+        "id": "all-columns",
+        "sql": "*"
+      }
+    ],
+    "solutionOrder": ["select", "all-columns", "source", "end"]
+  }
+}

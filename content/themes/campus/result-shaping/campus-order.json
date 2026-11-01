@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "result-shaping",
+  "id": "campus-order",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "排序结果",
+  "prerequisites": ["campus-null"],
+  "concepts": ["select", "select-columns", "null", "order-by"],
+  "introducedConcepts": ["order-by"],
+  "objective": "按成绩降序、记录编号升序确定结果的完整行顺序。",
+  "statement": "输出 enrollments 的全部记录，依次为 id、student_id、score。按 score 降序、id 升序排列；NULL 成绩排在已公布成绩之后，多条 NULL 记录也按 id 升序。0 分和未公布成绩的记录都要保留。",
+  "knowledge": [
+    "ORDER BY 放在查询后部；ASC 是升序，DESC 是降序，每个排序字段单独指定方向。没有 ORDER BY 不能保证行顺序。",
+    "多个排序键以逗号分隔：先比较第一个键，相同才比较下一个。记录编号 id 唯一，作为最后一个键可以消除同分并列的不确定性。",
+    "SQLite 默认排序中 NULL 小于非 NULL，因此 ASC 时在前，DESC 时在后。本关不通过 WHERE 排除未公布成绩的记录。",
+    "索引、插入或预览顺序不能代替 ORDER BY；SELECT 的列顺序也不是行的排序规则。"
+  ],
+  "readableTables": ["enrollments"],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按成绩降序、记录编号升序确定结果的完整行顺序。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, score FROM enrollments ORDER BY score DESC, id ASC;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "让排序规则完整",
+        "description": "示例只输出编号和成绩，按成绩降序、编号升序排列；题目还要求 student_id。"
+      },
+      {
+        "id": "primary",
+        "label": "先比较成绩\nscore DESC",
+        "description": "DESC 表示从高到低，每个排序键的方向单独书写；SELECT 的字段先后不决定行排序。"
+      },
+      {
+        "id": "tie",
+        "label": "同分再比较编号\nid ASC",
+        "description": "只有成绩相同时才比较 id；记录编号唯一且升序，使同分记录的先后稳定。"
+      },
+      {
+        "id": "null",
+        "label": "未公布成绩排最后",
+        "description": "SQLite 默认把 NULL 看作小于非 NULL，成绩降序时未公布成绩位于末尾；多条未公布成绩仍按编号升序。"
+      },
+      {
+        "id": "scope",
+        "label": "排序不筛行",
+        "description": "没有 WHERE 或 LIMIT，0 分和未公布成绩的记录都参与。索引和预览顺序不能替代 ORDER BY。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "primary"
+      },
+      {
+        "from": "topic",
+        "to": "tie"
+      },
+      {
+        "from": "topic",
+        "to": "null"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先让成绩越高越靠前，再用唯一编号解决同分。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY score DESC, id ASC；方向分别属于各自字段。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, student_id, score FROM enrollments ORDER BY score ____, id ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, student_id, score FROM enrollments ORDER BY score DESC, id ASC;",
+      "explanation": "成绩降序把未公布成绩放在末尾；id 升序明确每个同分组及 NULL 组的顺序。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": ["id", "student_id", "score"],
+        "rows": [
+          [13, 5, 92],
+          [9, 4, 91],
+          [3, 1, 90],
+          [18, 7, 90],
+          [25, 6, 90],
+          [12, 5, 88],
+          [1, 1, 85],
+          [6, 3, 85],
+          [17, 7, 85],
+          [27, 3, 84],
+          [23, 2, 83],
+          [15, 6, 81],
+          [22, 1, 77],
+          [5, 2, 76],
+          [14, 6, 76],
+          [2, 1, 72],
+          [26, 7, 70],
+          [20, 8, 69],
+          [10, 4, 66],
+          [7, 3, 64],
+          [4, 2, 58],
+          [8, 3, 58],
+          [16, 7, 58],
+          [11, 5, 45],
+          [19, 8, null],
+          [21, 8, null],
+          [24, 4, null]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": ["id", "student_id", "score"],
+        "rows": [
+          [34, 11, 100],
+          [31, 11, 60],
+          [32, 12, 60],
+          [36, 13, 60],
+          [35, 12, 0],
+          [33, 13, null]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": ["id", "student_id", "score"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "wrong-tie-key",
+      "sql": "SELECT id, student_id, score FROM enrollments ORDER BY score DESC, student_id ASC;"
+    },
+    {
+      "id": "reversed-tie-key",
+      "sql": "SELECT id, student_id, score FROM enrollments ORDER BY score DESC, id DESC;"
+    },
+    {
+      "id": "no-order",
+      "sql": "SELECT id, student_id, score FROM enrollments;"
+    }
+  ]
+}

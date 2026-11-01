@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "result-shaping",
+  "id": "book-limit",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "限制条数",
+  "prerequisites": ["book-order"],
+  "concepts": ["select", "where", "order-by", "limit"],
+  "introducedConcepts": ["limit"],
+  "objective": "在排序后用 LIMIT 截取前几行，理解截点落在并列值中间时的取舍。",
+  "statement": "查询定价最高的前 3 本图书，依次输出 title、price。按 price 降序、id 升序排序后取前 3 行；同价也不增加名额。id 不输出。不足 3 本时全部输出，空表返回零行。",
+  "knowledge": [
+    "LIMIT n 限制输出行数。本关要取价格最高的图书，因此先用 ORDER BY 确定顺序，再写 LIMIT 3。",
+    "同价时由 id 升序决定先后；排在第 3 行之后的记录不输出，即使价格与第 3 行相同。",
+    "不写 ORDER BY 也能使用 LIMIT，但无法保证取到哪几行。记录不足 n 条时只返回实际记录。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出定价最高的前 3 本图书的名称与定价。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title, price FROM books ORDER BY price DESC, id ASC LIMIT 3;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "取定价最高的前三本",
+        "description": "先排序再取前 3 行，名额不随同价图书数量增加。"
+      },
+      {
+        "id": "sort",
+        "label": "先排序\nORDER BY price DESC, id ASC",
+        "description": "LIMIT 作用在排序结果上；先确定完整排列，才谈得上「前 3 行」。"
+      },
+      {
+        "id": "limit",
+        "label": "再截取\nLIMIT 3",
+        "description": "从排序结果的第一行开始保留 3 行；它不挑「值最大」的行，只保留排在前面的行。"
+      },
+      {
+        "id": "tie",
+        "label": "截点上的并列\n45 元两本只进一本",
+        "description": "同价 45 元的两本图书按 id 升序，编号小的进入前 3，另一本落选；截点行为必须写进题意。"
+      },
+      {
+        "id": "insufficient",
+        "label": "不足三本怎么办？\n全部输出",
+        "description": "目录不足 3 本时输出全部行，不报错；空表输出零行。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪些列？\ntitle 与 price",
+        "description": "LIMIT 只减少行数；输出列仍由 SELECT 决定，id 参与排序但不输出。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "sort"
+      },
+      {
+        "from": "topic",
+        "to": "limit"
+      },
+      {
+        "from": "topic",
+        "to": "tie"
+      },
+      {
+        "from": "topic",
+        "to": "insufficient"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先写出完整排序（价格降序、同价 id 升序），再在末尾加 LIMIT 截取前 3 行。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY ... LIMIT 3; LIMIT 写在排序之后，表示保留前 3 行。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, price FROM books ORDER BY price DESC, id ASC ____ ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, price FROM books ORDER BY price DESC, id ASC LIMIT 3;",
+      "explanation": "按价格降序、编号升序确定先后，再用 LIMIT 3 取前三行。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["SQL 手册", 65],
+          ["SQL 手册", 59],
+          ["数据库基础", 45]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["厨房里的化学", 52],
+          ["文字的故事", 52],
+          ["星图手册", 25]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["陶艺手册", 40],
+          ["童话铁路", 35],
+          ["数字小史", 35]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-order-by",
+      "sql": "SELECT title, price FROM books LIMIT 3;"
+    },
+    {
+      "id": "omits-limit",
+      "sql": "SELECT title, price FROM books ORDER BY price DESC, id ASC;"
+    },
+    {
+      "id": "reverses-direction",
+      "sql": "SELECT title, price FROM books ORDER BY price ASC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "off-by-one",
+      "sql": "SELECT title, price FROM books ORDER BY price DESC, id ASC LIMIT 2;"
+    }
+  ]
+}

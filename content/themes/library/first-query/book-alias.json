@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "first-query",
+  "id": "book-alias",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "列别名",
+  "prerequisites": ["book-browse"],
+  "concepts": ["select", "column-alias"],
+  "introducedConcepts": ["column-alias"],
+  "objective": "用 AS 为输出列另起名称，认识结果列名与表中字段名的区别。",
+  "statement": "从 books 表输出全部图书的 title、price，结果列依次命名为 book_title、list_price。保留重复记录，不要求行顺序。",
+  "knowledge": [
+    "列名 AS 别名 为结果列命名，例如 title AS book_title。",
+    "别名只改变结果表头，不修改原表字段或数据。多个输出列用逗号分隔，每列分别设置别名。",
+    "title 读取书名字段；'title' 是固定文本，两种写法的结果不同。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出书名与定价，并把两列改名为 book_title 和 list_price。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title AS book_title, price AS list_price FROM books;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "给输出列改名",
+        "description": "用 AS 给结果列命名，原表字段和数据不变。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "数据来自 books 表；FROM 指定来源，不会修改表中的原始字段名。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪两列？\ntitle 与 price",
+        "description": "每本书输出书名和定价两个值；列的先后顺序按 SELECT 书写顺序。"
+      },
+      {
+        "id": "rename",
+        "label": "列名怎么改？\nAS book_title / list_price",
+        "description": "AS 只改变结果表头：第一列叫 book_title，第二列叫 list_price；表中的字段名不变。"
+      },
+      {
+        "id": "scope",
+        "label": "哪些图书保留？\n全部记录",
+        "description": "这条示例没有筛选条件，全部图书都输出，包括同名重印版；若目录为空，结果是零行，但仍有两个列名。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n列有顺序，行未保证",
+        "description": "别名不改数据的排列；示例没有指定行排序，不能要求查询照抄预览中的行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "rename"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先想清楚要输出哪两列、结果列名分别叫什么；数据和上一关一样是全部图书。"
+    },
+    {
+      "id": "syntax",
+      "text": "在每个输出列后面写 AS 新列名，多个输出列用逗号分隔，最后用 FROM books 指定表。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title AS ____, price AS ____ FROM books;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title AS book_title, price AS list_price FROM books;",
+      "explanation": "输出每本书的 title 与 price，并用 AS 把结果列名改为 book_title 和 list_price；全部图书保留，不改表本身。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["book_title", "list_price"],
+        "rows": [
+          ["数据库基础", 45],
+          ["SQL 手册", 59],
+          ["SQL 手册", 65],
+          ["诗的练习", 39],
+          ["诗的练习", 39],
+          ["少年航海史", 0],
+          ["城市植物图鉴", 45],
+          ["烹饪入门", 33],
+          ["烹饪入门", 39],
+          ["城市植物图鉴", 33]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["book_title", "list_price"],
+        "rows": [
+          ["星图手册", 0],
+          ["厨房里的化学", 52],
+          ["民谣收集记", 18],
+          ["民谣收集记", 18],
+          ["星图手册", 25],
+          ["文字的故事", 52]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["book_title", "list_price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-original-names",
+      "sql": "SELECT title, price FROM books;"
+    },
+    {
+      "id": "aliases-only-first",
+      "sql": "SELECT title AS book_title, price FROM books;"
+    },
+    {
+      "id": "swaps-columns",
+      "sql": "SELECT price AS book_title, title AS list_price FROM books;"
+    },
+    {
+      "id": "filters-records",
+      "sql": "SELECT title AS book_title, price AS list_price FROM books WHERE price < 50;"
+    }
+  ]
+}

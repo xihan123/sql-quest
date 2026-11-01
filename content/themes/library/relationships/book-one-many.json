@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "relationships",
+  "id": "book-one-many",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "一对多借阅",
+  "prerequisites": ["book-join"],
+  "concepts": [
+    "select",
+    "where",
+    "relational-keys",
+    "inner-join",
+    "join-cardinality"
+  ],
+  "introducedConcepts": ["join-cardinality"],
+  "objective": "连接一对多的两张表，理解明细展开带来的行数变化。",
+  "statement": "连接 borrow_records 与 books，按 borrow_records.book_id = books.id 配对。依次输出 record_id（借阅记录编号）、title（书名），每次借阅一行。同一本书被借多次时分别输出；未被借过的图书不输出。不要求行顺序。",
+  "knowledge": [
+    "一本书可以有多条借阅记录，因此书名可能在连接结果中出现多次。每行代表一次借阅，不应合并。",
+    "borrow_records.book_id 引用 books.id。本例外键非空，每条借阅恰好匹配一本书。",
+    "INNER JOIN 只输出匹配行，没有借阅记录的图书不会出现。"
+  ],
+  "readableTables": ["books", "borrow_records"],
+  "previewFixtureId": "library-loans-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出每次借阅的记录编号与书名。\n",
+  "flowchart": {
+    "exampleSql": "SELECT br.id AS record_id, b.title AS title FROM borrow_records AS br JOIN books AS b ON br.book_id = b.id;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "从明细连接书目",
+        "description": "每次借阅匹配一本书，结果仍是每条借阅一行。"
+      },
+      {
+        "id": "source",
+        "label": "从哪边出发？\nFROM borrow_records",
+        "description": "每条借阅记录都要出现在结果里；从明细表出发，逐条寻找它的书。"
+      },
+      {
+        "id": "condition",
+        "label": "怎么配对？\nON br.book_id = b.id",
+        "description": "明细行的 book_id 等于书目行的 id 时配对；借阅记录不会悬空。"
+      },
+      {
+        "id": "expansion",
+        "label": "行数怎么变？\n一本书多行",
+        "description": "同一本书被借多次，书名就重复多次；重复的是书名，借阅记录编号各不相同。"
+      },
+      {
+        "id": "unmatched",
+        "label": "没借出的书呢？\n不出现",
+        "description": "内连接按明细展开；没有借阅记录的图书没有行，结果里看不到它。"
+      },
+      {
+        "id": "result",
+        "label": "输出什么？\nrecord_id 与 title",
+        "description": "一行一条借阅：记录编号加书名；不要按书去重。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "condition"
+      },
+      {
+        "from": "topic",
+        "to": "expansion"
+      },
+      {
+        "from": "topic",
+        "to": "unmatched"
+      },
+      {
+        "from": "topic",
+        "to": "result"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "从借阅明细出发连接书目表：每条借阅一行，重复的书名是明细展开，不要去重。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM borrow_records AS br JOIN books AS b ON br.book_id = b.id; 用别名引用两表的列。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT br.id AS record_id, b.title AS title FROM borrow_records AS br JOIN books AS b ON ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT br.id AS record_id, b.title AS title FROM borrow_records AS br JOIN books AS b ON br.book_id = b.id;",
+      "explanation": "从借阅明细出发按外键配对书目；每次借阅输出一行，书名随明细重复，未借出的图书不出现。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "loans",
+      "fixtureId": "library-loans-v1",
+      "expected": {
+        "columns": ["record_id", "title"],
+        "rows": [
+          [201, "雾中灯塔"],
+          [202, "雾中灯塔"],
+          [203, "雾中灯塔"],
+          [204, "河流改道"],
+          [205, "河流改道"],
+          [206, "秋日食谱"],
+          [207, "桥梁简史"],
+          [208, "桥梁简史"],
+          [209, "静物写生"],
+          [210, "雾中灯塔"],
+          [211, "声音的形状"],
+          [212, "静物写生"],
+          [213, "雾中灯塔"]
+        ]
+      }
+    },
+    {
+      "id": "varied-loans",
+      "fixtureId": "library-loans-varied-v1",
+      "expected": {
+        "columns": ["record_id", "title"],
+        "rows": [
+          [301, "慢速列车"],
+          [302, "慢速列车"],
+          [303, "屋顶花园"],
+          [304, "慢速列车"]
+        ]
+      }
+    },
+    {
+      "id": "empty-loans",
+      "fixtureId": "library-loans-empty-v1",
+      "expected": {
+        "columns": ["record_id", "title"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "collapses-expansion",
+      "sql": "SELECT DISTINCT b.title AS title FROM borrow_records AS br JOIN books AS b ON br.book_id = b.id;"
+    },
+    {
+      "id": "merges-loans-per-book",
+      "sql": "SELECT b.title AS title, br.id AS record_id FROM borrow_records AS br JOIN books AS b ON br.book_id = b.id GROUP BY b.title;"
+    },
+    {
+      "id": "keeps-only-returned",
+      "sql": "SELECT br.id AS record_id, b.title AS title FROM borrow_records AS br JOIN books AS b ON br.book_id = b.id WHERE br.returned_on IS NOT NULL;"
+    },
+    {
+      "id": "omits-record-id",
+      "sql": "SELECT b.title AS title FROM borrow_records AS br JOIN books AS b ON br.book_id = b.id;"
+    }
+  ]
+}

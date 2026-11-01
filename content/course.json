@@ -1,0 +1,854 @@
+{
+  "schemaVersion": 1,
+  "id": "sql-quest-v1",
+  "revision": 1,
+  "title": "SQL 入门",
+  "objective": "在图书、商品和选课数据中练习 SQL 查询。",
+  "dialect": "sqlite",
+  "themes": [
+    {
+      "id": "library",
+      "title": "图书目录",
+      "chapters": [
+        {
+          "id": "first-query",
+          "title": "认识查询",
+          "lessons": [
+            {
+              "id": "book-list",
+              "title": "选择图书字段",
+              "prerequisites": [],
+              "path": "themes/library/first-query/book-list.json"
+            },
+            {
+              "id": "book-browse",
+              "title": "查看全部图书",
+              "prerequisites": ["book-list"],
+              "path": "themes/library/first-query/book-browse.json"
+            },
+            {
+              "id": "book-alias",
+              "title": "列别名",
+              "prerequisites": ["book-browse"],
+              "path": "themes/library/first-query/book-alias.json"
+            }
+          ]
+        },
+        {
+          "id": "filtering",
+          "title": "条件筛选",
+          "lessons": [
+            {
+              "id": "book-compare",
+              "title": "比较条件",
+              "prerequisites": ["book-alias"],
+              "path": "themes/library/filtering/book-compare.json"
+            },
+            {
+              "id": "book-and-or",
+              "title": "组合条件",
+              "prerequisites": ["book-compare"],
+              "path": "themes/library/filtering/book-and-or.json"
+            },
+            {
+              "id": "book-in",
+              "title": "多个可选值",
+              "prerequisites": ["book-and-or"],
+              "path": "themes/library/filtering/book-in.json"
+            },
+            {
+              "id": "book-like",
+              "title": "文本匹配",
+              "prerequisites": ["book-in"],
+              "path": "themes/library/filtering/book-like.json"
+            },
+            {
+              "id": "book-null",
+              "title": "空值判断",
+              "prerequisites": ["book-like"],
+              "path": "themes/library/filtering/book-null.json"
+            }
+          ]
+        },
+        {
+          "id": "result-shaping",
+          "title": "排序与去重",
+          "lessons": [
+            {
+              "id": "book-order",
+              "title": "排序结果",
+              "prerequisites": ["book-null"],
+              "path": "themes/library/result-shaping/book-order.json"
+            },
+            {
+              "id": "book-limit",
+              "title": "限制条数",
+              "prerequisites": ["book-order"],
+              "path": "themes/library/result-shaping/book-limit.json"
+            },
+            {
+              "id": "book-distinct",
+              "title": "去除重复",
+              "prerequisites": ["book-limit"],
+              "path": "themes/library/result-shaping/book-distinct.json"
+            }
+          ]
+        },
+        {
+          "id": "aggregation",
+          "title": "聚合与分组",
+          "lessons": [
+            {
+              "id": "book-count",
+              "title": "统计记录",
+              "prerequisites": ["book-distinct"],
+              "path": "themes/library/aggregation/book-count.json"
+            },
+            {
+              "id": "book-agg",
+              "title": "数值聚合",
+              "prerequisites": ["book-count"],
+              "path": "themes/library/aggregation/book-agg.json"
+            },
+            {
+              "id": "book-group",
+              "title": "分组统计",
+              "prerequisites": ["book-agg"],
+              "path": "themes/library/aggregation/book-group.json"
+            },
+            {
+              "id": "book-having",
+              "title": "筛选分组",
+              "prerequisites": ["book-group"],
+              "path": "themes/library/aggregation/book-having.json"
+            },
+            {
+              "id": "book-report",
+              "title": "分类统计报告",
+              "prerequisites": ["book-having"],
+              "path": "themes/library/aggregation/book-report.json"
+            }
+          ]
+        },
+        {
+          "id": "relationships",
+          "title": "认识关联",
+          "lessons": [
+            {
+              "id": "book-keys",
+              "title": "认识关联键",
+              "prerequisites": ["book-report"],
+              "path": "themes/library/relationships/book-keys.json"
+            },
+            {
+              "id": "book-join",
+              "title": "内连接",
+              "prerequisites": ["book-keys"],
+              "path": "themes/library/relationships/book-join.json"
+            },
+            {
+              "id": "book-one-many",
+              "title": "一对多借阅",
+              "prerequisites": ["book-join"],
+              "path": "themes/library/relationships/book-one-many.json"
+            },
+            {
+              "id": "book-left-join",
+              "title": "左连接",
+              "prerequisites": ["book-one-many"],
+              "path": "themes/library/relationships/book-left-join.json"
+            }
+          ]
+        },
+        {
+          "id": "loan-reports",
+          "title": "借阅综合",
+          "lessons": [
+            {
+              "id": "book-author-report",
+              "title": "关联汇总",
+              "prerequisites": ["book-left-join"],
+              "path": "themes/library/loan-reports/book-author-report.json"
+            },
+            {
+              "id": "book-loan-report",
+              "title": "未归还图书",
+              "prerequisites": ["book-author-report"],
+              "path": "themes/library/loan-reports/book-loan-report.json"
+            },
+            {
+              "id": "book-final",
+              "title": "综合查询",
+              "prerequisites": ["book-loan-report"],
+              "path": "themes/library/loan-reports/book-final.json"
+            }
+          ]
+        }
+      ],
+      "concepts": [
+        {
+          "id": "select",
+          "title": "SELECT / FROM",
+          "introducedAt": "book-list"
+        },
+        {
+          "id": "column-alias",
+          "title": "AS 与输出列名",
+          "introducedAt": "book-alias"
+        },
+        {
+          "id": "where",
+          "title": "WHERE 与比较运算",
+          "introducedAt": "book-compare"
+        },
+        {
+          "id": "boolean-conditions",
+          "title": "AND / OR、括号和优先级",
+          "introducedAt": "book-and-or"
+        },
+        {
+          "id": "in",
+          "title": "IN 值列表",
+          "introducedAt": "book-in"
+        },
+        {
+          "id": "like",
+          "title": "LIKE 与通配符",
+          "introducedAt": "book-like"
+        },
+        {
+          "id": "null",
+          "title": "NULL、IS NULL / IS NOT NULL",
+          "introducedAt": "book-null"
+        },
+        {
+          "id": "order-by",
+          "title": "ORDER BY 与次排序键",
+          "introducedAt": "book-order"
+        },
+        {
+          "id": "limit",
+          "title": "排序后 LIMIT",
+          "introducedAt": "book-limit"
+        },
+        {
+          "id": "distinct",
+          "title": "DISTINCT 对输出列组合去重",
+          "introducedAt": "book-distinct"
+        },
+        {
+          "id": "count",
+          "title": "COUNT(*) 与 COUNT(column)",
+          "introducedAt": "book-count"
+        },
+        {
+          "id": "numeric-aggregation",
+          "title": "SUM / AVG",
+          "introducedAt": "book-agg"
+        },
+        {
+          "id": "group-by",
+          "title": "GROUP BY 与结果粒度",
+          "introducedAt": "book-group"
+        },
+        {
+          "id": "having",
+          "title": "HAVING 与 WHERE",
+          "introducedAt": "book-having"
+        },
+        {
+          "id": "relational-keys",
+          "title": "主键、外键与一对多关系",
+          "introducedAt": "book-keys"
+        },
+        {
+          "id": "inner-join",
+          "title": "INNER JOIN、表别名与同名列消歧",
+          "introducedAt": "book-join"
+        },
+        {
+          "id": "join-cardinality",
+          "title": "一对多连接与明细展开",
+          "introducedAt": "book-one-many"
+        },
+        {
+          "id": "left-join",
+          "title": "LEFT JOIN 与未匹配 NULL",
+          "introducedAt": "book-left-join"
+        }
+      ]
+    },
+    {
+      "id": "products",
+      "title": "商品目录",
+      "chapters": [
+        {
+          "id": "first-query",
+          "title": "认识查询",
+          "lessons": [
+            {
+              "id": "sql-l01",
+              "title": "查看数据",
+              "prerequisites": [],
+              "path": "themes/products/first-query/sql-l01.json"
+            },
+            {
+              "id": "sql-l02",
+              "title": "选择字段",
+              "prerequisites": ["sql-l01"],
+              "path": "themes/products/first-query/sql-l02.json"
+            },
+            {
+              "id": "sql-l03",
+              "title": "列别名",
+              "prerequisites": ["sql-l02"],
+              "path": "themes/products/first-query/sql-l03.json"
+            }
+          ]
+        },
+        {
+          "id": "filtering",
+          "title": "条件筛选",
+          "lessons": [
+            {
+              "id": "sql-l04",
+              "title": "比较条件",
+              "prerequisites": ["sql-l03"],
+              "path": "themes/products/filtering/sql-l04.json"
+            },
+            {
+              "id": "sql-l05",
+              "title": "组合条件",
+              "prerequisites": ["sql-l04"],
+              "path": "themes/products/filtering/sql-l05.json"
+            },
+            {
+              "id": "sql-l06",
+              "title": "多个可选值",
+              "prerequisites": ["sql-l05"],
+              "path": "themes/products/filtering/sql-l06.json"
+            },
+            {
+              "id": "sql-l07",
+              "title": "文本匹配",
+              "prerequisites": ["sql-l06"],
+              "path": "themes/products/filtering/sql-l07.json"
+            },
+            {
+              "id": "sql-l08",
+              "title": "空值判断",
+              "prerequisites": ["sql-l07"],
+              "path": "themes/products/filtering/sql-l08.json"
+            }
+          ]
+        },
+        {
+          "id": "result-shaping",
+          "title": "排序与去重",
+          "lessons": [
+            {
+              "id": "sql-l09",
+              "title": "排序结果",
+              "prerequisites": ["sql-l08"],
+              "path": "themes/products/result-shaping/sql-l09.json"
+            },
+            {
+              "id": "sql-l10",
+              "title": "限制条数",
+              "prerequisites": ["sql-l09"],
+              "path": "themes/products/result-shaping/sql-l10.json"
+            },
+            {
+              "id": "sql-l11",
+              "title": "去除重复",
+              "prerequisites": ["sql-l10"],
+              "path": "themes/products/result-shaping/sql-l11.json"
+            }
+          ]
+        },
+        {
+          "id": "aggregation",
+          "title": "聚合与分组",
+          "lessons": [
+            {
+              "id": "sql-l12",
+              "title": "统计记录",
+              "prerequisites": ["sql-l11"],
+              "path": "themes/products/aggregation/sql-l12.json"
+            },
+            {
+              "id": "sql-l13",
+              "title": "数值聚合",
+              "prerequisites": ["sql-l12"],
+              "path": "themes/products/aggregation/sql-l13.json"
+            },
+            {
+              "id": "sql-l14",
+              "title": "分组统计",
+              "prerequisites": ["sql-l13"],
+              "path": "themes/products/aggregation/sql-l14.json"
+            },
+            {
+              "id": "sql-l15",
+              "title": "筛选分组",
+              "prerequisites": ["sql-l14"],
+              "path": "themes/products/aggregation/sql-l15.json"
+            },
+            {
+              "id": "sql-l16",
+              "title": "分类统计报告",
+              "prerequisites": ["sql-l15"],
+              "path": "themes/products/aggregation/sql-l16.json"
+            }
+          ]
+        },
+        {
+          "id": "relationships",
+          "title": "认识关联",
+          "lessons": [
+            {
+              "id": "sql-l17",
+              "title": "认识关联键",
+              "prerequisites": ["sql-l16"],
+              "path": "themes/products/relationships/sql-l17.json"
+            },
+            {
+              "id": "sql-l18",
+              "title": "内连接",
+              "prerequisites": ["sql-l17"],
+              "path": "themes/products/relationships/sql-l18.json"
+            },
+            {
+              "id": "sql-l19",
+              "title": "一对多连接",
+              "prerequisites": ["sql-l18"],
+              "path": "themes/products/relationships/sql-l19.json"
+            },
+            {
+              "id": "sql-l20",
+              "title": "左连接",
+              "prerequisites": ["sql-l19"],
+              "path": "themes/products/relationships/sql-l20.json"
+            },
+            {
+              "id": "sql-l21",
+              "title": "连接与筛选",
+              "prerequisites": ["sql-l20"],
+              "path": "themes/products/relationships/sql-l21.json"
+            }
+          ]
+        },
+        {
+          "id": "reports",
+          "title": "关联综合查询",
+          "lessons": [
+            {
+              "id": "sql-l22",
+              "title": "关联汇总",
+              "prerequisites": ["sql-l21"],
+              "path": "themes/products/reports/sql-l22.json"
+            },
+            {
+              "id": "sql-l23",
+              "title": "未匹配项",
+              "prerequisites": ["sql-l22"],
+              "path": "themes/products/reports/sql-l23.json"
+            },
+            {
+              "id": "sql-l24",
+              "title": "综合查询",
+              "prerequisites": ["sql-l23"],
+              "path": "themes/products/reports/sql-l24.json"
+            }
+          ]
+        }
+      ],
+      "concepts": [
+        {
+          "id": "select",
+          "title": "表、行、列与 SELECT / FROM",
+          "introducedAt": "sql-l01"
+        },
+        {
+          "id": "select-columns",
+          "title": "选择字段，不筛选记录",
+          "introducedAt": "sql-l02"
+        },
+        {
+          "id": "column-alias",
+          "title": "AS 与输出列名",
+          "introducedAt": "sql-l03"
+        },
+        {
+          "id": "where",
+          "title": "WHERE 与比较运算",
+          "introducedAt": "sql-l04"
+        },
+        {
+          "id": "boolean-conditions",
+          "title": "AND / OR、括号和优先级",
+          "introducedAt": "sql-l05"
+        },
+        {
+          "id": "in",
+          "title": "IN 值列表",
+          "introducedAt": "sql-l06"
+        },
+        {
+          "id": "like",
+          "title": "LIKE 与通配符",
+          "introducedAt": "sql-l07"
+        },
+        {
+          "id": "null",
+          "title": "NULL、IS NULL / IS NOT NULL",
+          "introducedAt": "sql-l08"
+        },
+        {
+          "id": "order-by",
+          "title": "ORDER BY 与次排序键",
+          "introducedAt": "sql-l09"
+        },
+        {
+          "id": "limit",
+          "title": "排序后 LIMIT",
+          "introducedAt": "sql-l10"
+        },
+        {
+          "id": "distinct",
+          "title": "DISTINCT 对输出列组合去重",
+          "introducedAt": "sql-l11"
+        },
+        {
+          "id": "count",
+          "title": "COUNT(*) 与 COUNT(column)",
+          "introducedAt": "sql-l12"
+        },
+        {
+          "id": "numeric-aggregation",
+          "title": "单行表达式、SUM / AVG",
+          "introducedAt": "sql-l13"
+        },
+        {
+          "id": "group-by",
+          "title": "GROUP BY 与结果粒度",
+          "introducedAt": "sql-l14"
+        },
+        {
+          "id": "having",
+          "title": "HAVING 与 WHERE",
+          "introducedAt": "sql-l15"
+        },
+        {
+          "id": "relational-keys",
+          "title": "主键、外键与一对多关系",
+          "introducedAt": "sql-l17"
+        },
+        {
+          "id": "inner-join",
+          "title": "INNER JOIN、表别名与同名列消歧",
+          "introducedAt": "sql-l18"
+        },
+        {
+          "id": "join-cardinality",
+          "title": "一对多展开与链式连接",
+          "introducedAt": "sql-l19"
+        },
+        {
+          "id": "left-join",
+          "title": "LEFT JOIN 与未匹配 NULL",
+          "introducedAt": "sql-l20"
+        },
+        {
+          "id": "join-filter",
+          "title": "ON / WHERE 的差异",
+          "introducedAt": "sql-l21"
+        }
+      ]
+    },
+    {
+      "id": "campus",
+      "title": "校园选课",
+      "chapters": [
+        {
+          "id": "first-query",
+          "title": "认识查询",
+          "lessons": [
+            {
+              "id": "campus-view",
+              "title": "查看数据",
+              "prerequisites": [],
+              "path": "themes/campus/first-query/campus-view.json"
+            },
+            {
+              "id": "campus-columns",
+              "title": "选择字段",
+              "prerequisites": ["campus-view"],
+              "path": "themes/campus/first-query/campus-columns.json"
+            }
+          ]
+        },
+        {
+          "id": "filtering",
+          "title": "条件筛选",
+          "lessons": [
+            {
+              "id": "campus-where",
+              "title": "比较条件",
+              "prerequisites": ["campus-columns"],
+              "path": "themes/campus/filtering/campus-where.json"
+            },
+            {
+              "id": "campus-combine",
+              "title": "组合条件",
+              "prerequisites": ["campus-where"],
+              "path": "themes/campus/filtering/campus-combine.json"
+            },
+            {
+              "id": "campus-like",
+              "title": "文本匹配",
+              "prerequisites": ["campus-combine"],
+              "path": "themes/campus/filtering/campus-like.json"
+            },
+            {
+              "id": "campus-null",
+              "title": "空值判断",
+              "prerequisites": ["campus-like"],
+              "path": "themes/campus/filtering/campus-null.json"
+            }
+          ]
+        },
+        {
+          "id": "result-shaping",
+          "title": "排序与截取",
+          "lessons": [
+            {
+              "id": "campus-order",
+              "title": "排序结果",
+              "prerequisites": ["campus-null"],
+              "path": "themes/campus/result-shaping/campus-order.json"
+            },
+            {
+              "id": "campus-limit",
+              "title": "限制条数",
+              "prerequisites": ["campus-order"],
+              "path": "themes/campus/result-shaping/campus-limit.json"
+            }
+          ]
+        },
+        {
+          "id": "aggregation",
+          "title": "聚合与分组",
+          "lessons": [
+            {
+              "id": "campus-aggregate",
+              "title": "聚合统计",
+              "prerequisites": ["campus-limit"],
+              "path": "themes/campus/aggregation/campus-aggregate.json"
+            },
+            {
+              "id": "campus-group",
+              "title": "分组统计",
+              "prerequisites": ["campus-aggregate"],
+              "path": "themes/campus/aggregation/campus-group.json"
+            }
+          ]
+        },
+        {
+          "id": "relationships",
+          "title": "认识关联",
+          "lessons": [
+            {
+              "id": "campus-join",
+              "title": "内连接",
+              "prerequisites": ["campus-group"],
+              "path": "themes/campus/relationships/campus-join.json"
+            },
+            {
+              "id": "campus-left-join",
+              "title": "左连接",
+              "prerequisites": ["campus-join"],
+              "path": "themes/campus/relationships/campus-left-join.json"
+            }
+          ]
+        },
+        {
+          "id": "capstone",
+          "title": "综合应用",
+          "lessons": [
+            {
+              "id": "campus-capstone",
+              "title": "综合查询",
+              "prerequisites": ["campus-left-join"],
+              "path": "themes/campus/capstone/campus-capstone.json"
+            }
+          ]
+        }
+      ],
+      "concepts": [
+        {
+          "id": "select",
+          "title": "表、行、列与 SELECT / FROM",
+          "introducedAt": "campus-view"
+        },
+        {
+          "id": "select-columns",
+          "title": "选择字段，不筛选记录",
+          "introducedAt": "campus-columns"
+        },
+        {
+          "id": "where",
+          "title": "WHERE 与比较运算",
+          "introducedAt": "campus-where"
+        },
+        {
+          "id": "boolean-conditions",
+          "title": "AND / OR、括号和优先级",
+          "introducedAt": "campus-combine"
+        },
+        {
+          "id": "like",
+          "title": "LIKE 与通配符",
+          "introducedAt": "campus-like"
+        },
+        {
+          "id": "null",
+          "title": "NULL、IS NULL / IS NOT NULL",
+          "introducedAt": "campus-null"
+        },
+        {
+          "id": "order-by",
+          "title": "ORDER BY 与次排序键",
+          "introducedAt": "campus-order"
+        },
+        {
+          "id": "limit",
+          "title": "排序后 LIMIT",
+          "introducedAt": "campus-limit"
+        },
+        {
+          "id": "aggregate",
+          "title": "COUNT / SUM / AVG 聚合函数",
+          "introducedAt": "campus-aggregate"
+        },
+        {
+          "id": "group-by",
+          "title": "GROUP BY 与结果粒度",
+          "introducedAt": "campus-group"
+        },
+        {
+          "id": "inner-join",
+          "title": "INNER JOIN、表别名与同名列消歧",
+          "introducedAt": "campus-join"
+        },
+        {
+          "id": "left-join",
+          "title": "LEFT JOIN 与未匹配 NULL",
+          "introducedAt": "campus-left-join"
+        }
+      ]
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "library-basic-v1",
+      "path": "themes/library/fixtures/library-basic-v1.json"
+    },
+    {
+      "id": "library-empty-v1",
+      "path": "themes/library/fixtures/library-empty-v1.json"
+    },
+    {
+      "id": "library-catalog-v1",
+      "path": "themes/library/fixtures/library-catalog-v1.json"
+    },
+    {
+      "id": "library-catalog-varied-v1",
+      "path": "themes/library/fixtures/library-catalog-varied-v1.json"
+    },
+    {
+      "id": "library-catalog-small-v1",
+      "path": "themes/library/fixtures/library-catalog-small-v1.json"
+    },
+    {
+      "id": "library-catalog-empty-v1",
+      "path": "themes/library/fixtures/library-catalog-empty-v1.json"
+    },
+    {
+      "id": "library-loans-v1",
+      "path": "themes/library/fixtures/library-loans-v1.json"
+    },
+    {
+      "id": "library-loans-varied-v1",
+      "path": "themes/library/fixtures/library-loans-varied-v1.json"
+    },
+    {
+      "id": "library-loans-empty-v1",
+      "path": "themes/library/fixtures/library-loans-empty-v1.json"
+    },
+    {
+      "id": "products-intro-v1",
+      "path": "themes/products/fixtures/products-intro-v1.json"
+    },
+    {
+      "id": "products-intro-varied-v1",
+      "path": "themes/products/fixtures/products-intro-varied-v1.json"
+    },
+    {
+      "id": "products-intro-empty-v1",
+      "path": "themes/products/fixtures/products-intro-empty-v1.json"
+    },
+    {
+      "id": "products-pattern-v1",
+      "path": "themes/products/fixtures/products-pattern-v1.json"
+    },
+    {
+      "id": "products-catalog-v1",
+      "path": "themes/products/fixtures/products-catalog-v1.json"
+    },
+    {
+      "id": "products-catalog-small-v1",
+      "path": "themes/products/fixtures/products-catalog-small-v1.json"
+    },
+    {
+      "id": "products-catalog-unknown-v1",
+      "path": "themes/products/fixtures/products-catalog-unknown-v1.json"
+    },
+    {
+      "id": "products-catalog-empty-v1",
+      "path": "themes/products/fixtures/products-catalog-empty-v1.json"
+    },
+    {
+      "id": "products-report-v1",
+      "path": "themes/products/fixtures/products-report-v1.json"
+    },
+    {
+      "id": "products-orders-v1",
+      "path": "themes/products/fixtures/products-orders-v1.json"
+    },
+    {
+      "id": "products-orders-varied-v1",
+      "path": "themes/products/fixtures/products-orders-varied-v1.json"
+    },
+    {
+      "id": "products-orders-unpaid-v1",
+      "path": "themes/products/fixtures/products-orders-unpaid-v1.json"
+    },
+    {
+      "id": "products-orders-empty-v1",
+      "path": "themes/products/fixtures/products-orders-empty-v1.json"
+    },
+    {
+      "id": "campus-main-v1",
+      "path": "themes/campus/fixtures/campus-main-v1.json"
+    },
+    {
+      "id": "campus-main-varied-v1",
+      "path": "themes/campus/fixtures/campus-main-varied-v1.json"
+    },
+    {
+      "id": "campus-main-empty-v1",
+      "path": "themes/campus/fixtures/campus-main-empty-v1.json"
+    }
+  ]
+}

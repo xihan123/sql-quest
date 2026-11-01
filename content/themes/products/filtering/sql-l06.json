@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "filtering",
+  "id": "sql-l06",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "多个可选值",
+  "prerequisites": ["sql-l05"],
+  "concepts": ["select", "select-columns", "where", "in"],
+  "introducedConcepts": ["in"],
+  "objective": "用 IN 表达字段可以取多个指定值。",
+  "statement": "查询类别为“日用”或“餐厨”的商品，依次输出 id、name、category。免费和缺货商品也保留，不要求行顺序。",
+  "knowledge": [
+    "IN 用括号包住候选值，以半角逗号分隔，例如 category IN ('日用', '餐厨')。",
+    "对于本关非 NULL 的类别，IN 等价于多个等值条件用 OR 连接；不是要求字段同时等于多个值。",
+    "NOT IN 表示不属于列表，是相反的范围。本关只按类别筛选，不追加价格或库存条件。"
+  ],
+  "readableTables": ["products"],
+  "previewFixtureId": "products-intro-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 IN 表达字段可以取多个指定值。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, name, category FROM products WHERE category IN ('文具', '餐厨');",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "IN 表达候选集合",
+        "description": "示例用 IN 选择文具、餐厨商品；题目要求的类别是日用、餐厨。"
+      },
+      {
+        "id": "list",
+        "label": "列表怎么写？\nIN (值一, 值二)",
+        "description": "半角括号包住候选值，半角逗号分隔；文具、餐厨是带单引号的文本值，不是字段名。"
+      },
+      {
+        "id": "any",
+        "label": "命中任意一个即可",
+        "description": "对于这里非 NULL 的 category，属于列表相当于 category 等于文具，或者等于餐厨。不是同时等于两者。"
+      },
+      {
+        "id": "scope",
+        "label": "只筛类别，不附加条件",
+        "description": "没有库存或价格限制，同类的缺货和免费商品仍属于候选集合。"
+      },
+      {
+        "id": "opposite",
+        "label": "NOT IN 是相反范围",
+        "description": "在本例非 NULL 字段和非 NULL 列表中，NOT IN 会选择列表之外的类别，不能用来完成“属于”任务。"
+      },
+      {
+        "id": "output",
+        "label": "输出编号、名称、类别",
+        "description": "每条匹配商品各输出一行，不去重、不保证行顺序。无匹配记录则是有列名的零行结果。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "list"
+      },
+      {
+        "from": "topic",
+        "to": "any"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "opposite"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "要的是两类的并集，而不是排除这两类。"
+    },
+    {
+      "id": "syntax",
+      "text": "写 WHERE 字段 IN (值一, 值二)，文本值分别加单引号。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, category FROM products WHERE category IN (____, ____);"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, category FROM products WHERE category IN ('日用', '餐厨');",
+      "explanation": "IN 保留任意一个列出的类别，库存为零的同类商品仍满足条件。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-intro-v1",
+      "expected": {
+        "columns": ["id", "name", "category"],
+        "rows": [
+          [1, "帆布袋", "日用"],
+          [2, "陶瓷杯", "餐厨"],
+          [3, "帆布袋", "日用"],
+          [4, "体验装", "日用"],
+          [6, "陶瓷杯", "餐厨"]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-intro-varied-v1",
+      "expected": {
+        "columns": ["id", "name", "category"],
+        "rows": [
+          [12, "收纳盒", "日用"],
+          [14, "试用装", "日用"]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-intro-empty-v1",
+      "expected": {
+        "columns": ["id", "name", "category"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "opposite-set",
+      "sql": "SELECT id, name, category FROM products WHERE category NOT IN ('日用', '餐厨');"
+    },
+    {
+      "id": "one-value-only",
+      "sql": "SELECT id, name, category FROM products WHERE category IN ('日用');"
+    }
+  ]
+}

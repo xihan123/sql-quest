@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "sql-quest",
+  "revision": 1,
+  "title": "SQL 入门",
+  "objective": "通过小数据集学习只读查询。",
+  "dialect": "sqlite",
+  "themes": [
+    {
+      "id": "library",
+      "title": "图书目录",
+      "chapters": [
+        {
+          "id": "first-query",
+          "title": "认识查询",
+          "lessons": [
+            {
+              "id": "book-list",
+              "title": "选择图书字段",
+              "prerequisites": [],
+              "path": "themes/library/book-list.json"
+            }
+          ]
+        }
+      ],
+      "concepts": [
+        {
+          "id": "select",
+          "title": "SELECT / FROM",
+          "introducedAt": "book-list"
+        }
+      ]
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "library-basic-v1",
+      "path": "fixtures/library-basic-v1.json"
+    },
+    {
+      "id": "library-empty-v1",
+      "path": "fixtures/library-empty-v1.json"
+    }
+  ]
+}

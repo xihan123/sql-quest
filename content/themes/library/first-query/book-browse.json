@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "first-query",
+  "id": "book-browse",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "查看全部图书",
+  "prerequisites": ["book-list"],
+  "concepts": ["select"],
+  "introducedConcepts": [],
+  "objective": "用 SELECT * 查看图书表的全部字段。",
+  "statement": "查看 books 表的全部记录，依次输出 id、title、category、publish_year、price、description，保留原列名。同名图书、0 元图书和简介为 NULL 的图书都要输出。不要求行顺序；空表返回零行，仍保留列名。",
+  "knowledge": [
+    "本关的 books 表比第一关多了分类、出版年份和简介三个字段。每行是一条书目记录，id 用于区分记录。",
+    "SELECT * FROM 表名; 按表结构中的列顺序输出全部字段，不筛选记录，也不修改原表。",
+    "description 为 NULL 表示简介未填写；空字符串 '' 和文本 'NULL' 都不是 SQL NULL。price 为 0 表示免费，不是价格缺失。",
+    "没有 ORDER BY 时，查询不保证行顺序。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看图书目录的全部行和全部列。\n",
+  "flowchart": {
+    "exampleSql": "SELECT * FROM books;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "认识图书目录",
+        "description": "SELECT * 读取图书表的全部字段。各分支分别说明表、列和记录。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "books 是图书目录表；FROM 指定来源，不会创建或修改它。预览中的表结构是理解星号的依据。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪些列？\nSELECT *",
+        "description": "* 表示按表结构顺序输出 id、title、category、publish_year、price、description 六列，不是只输出书名。"
+      },
+      {
+        "id": "identity",
+        "label": "一行代表什么？\n一条书目记录",
+        "description": "id 区分图书记录；同名书是不同版本，仍然是不同的行。不能把同名图书合并。"
+      },
+      {
+        "id": "scope",
+        "label": "哪些图书保留？\n全部记录",
+        "description": "这条示例没有筛选条件，免费图书和简介未填写的图书都保留。若目录为空，结果是零行，但仍有六个列名。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n列有顺序，行未保证",
+        "description": "星号的列顺序来自表结构；示例没有指定行排序，不能要求查询照抄预览中的行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "identity"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先确认数据来自哪张表。任务要求全部字段和全部图书，不需要删列或排除记录。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 SELECT * 表示全部字段，再用 FROM 指定表名 books。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM books;",
+      "explanation": "FROM 指定图书表，* 输出表结构中的全部六列；每条书目记录都保留，包括免费图书和简介未填写的图书。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "title",
+          "category",
+          "publish_year",
+          "price",
+          "description"
+        ],
+        "rows": [
+          [1, "数据库基础", "计算机", 2018, 45, "入门教材，附练习题"],
+          [2, "SQL 手册", "计算机", 2021, 59, "语法速查与实例"],
+          [3, "SQL 手册", "计算机", 2023, 65, "第二版，扩充查询章节"],
+          [4, "诗的练习", "文学", 2015, 39, null],
+          [5, "诗的练习", "文学", 2019, 39, "再版，新增注解"],
+          [6, "少年航海史", "历史", 2020, 0, "开放获取电子版"],
+          [7, "城市植物图鉴", "自然", 2021, 45, ""],
+          [8, "烹饪入门", "生活", 2017, 33, "NULL"],
+          [9, "烹饪入门", "生活", 2024, 39, "第三版，附视频讲解"],
+          [10, "城市植物图鉴", "自然", 2016, 33, null]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "title",
+          "category",
+          "publish_year",
+          "price",
+          "description"
+        ],
+        "rows": [
+          [11, "星图手册", "自然", 2021, 0, null],
+          [12, "厨房里的化学", "生活", 2023, 52, "修订说明"],
+          [13, "民谣收集记", "文学", 2012, 18, null],
+          [14, "民谣收集记", "文学", 2012, 18, "重印说明"],
+          [15, "星图手册", "自然", 2010, 25, ""],
+          [16, "文字的故事", "历史", 2023, 52, "NULL"]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "title",
+          "category",
+          "publish_year",
+          "price",
+          "description"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-fields",
+      "sql": "SELECT id, title FROM books;"
+    },
+    {
+      "id": "excludes-open-access",
+      "sql": "SELECT * FROM books WHERE price > 0;"
+    },
+    {
+      "id": "hardcodes-preview-identifiers",
+      "sql": "SELECT * FROM books WHERE id IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10);"
+    }
+  ]
+}

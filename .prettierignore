@@ -1,0 +1,11 @@
+node_modules/
+dist/
+src/contracts/generated/
+package-lock.json
+public/fonts/
+AGENTS.md
+docs/design.md
+skills/
+public/content/
+test-results/
+playwright-report/

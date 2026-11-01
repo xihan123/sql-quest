@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "reports",
+  "id": "sql-l23",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "未匹配项",
+  "prerequisites": ["sql-l22"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "left-join",
+    "join-filter",
+    "count",
+    "group-by",
+    "having",
+    "column-alias"
+  ],
+  "introducedConcepts": [],
+  "objective": "通过右表键计数找出没有已支付订单的顾客。",
+  "statement": "查询没有已支付订单的顾客，依次输出 customer_id、customer_name、paid_order_count，第三列为数值 0。完全无订单、只有待支付或取消订单的顾客都符合；有 paid 订单就不符合，与订单金额无关。同名顾客按编号区分，不要求行顺序。",
+  "knowledge": [
+    "复用“连接与筛选”一关的做法：从顾客左连接订单，只在 ON 中匹配 paid 订单，再按顾客编号和姓名分组。",
+    "COUNT(o.id) 只计真实匹配的订单键。COUNT(*) 还会计外连接产生的补 NULL 行，因此无匹配顾客也会得到 1。",
+    "HAVING COUNT(o.id) = 0 选择零匹配组。这里没有新语法，只组合 LEFT JOIN、按列计数与 HAVING。",
+    "判断的是订单存在与否，不是消费金额是否为 0。不能因为姓名相同、订单未支付或订单金额为零而改变编号和状态的口径。"
+  ],
+  "readableTables": ["customers", "orders"],
+  "previewFixtureId": "products-orders-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 通过右表键计数找出没有已支付订单的顾客。\n",
+  "flowchart": {
+    "exampleSql": "SELECT c.id AS customer_id, c.name AS customer_name, COUNT(o.id) AS paid_order_count FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id AND o.status = 'paid' GROUP BY c.id, c.name;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "先数匹配，再找零匹配",
+        "description": "示例列出所有顾客的已支付订单数；题目还需筛出计数为 0 的顾客。"
+      },
+      {
+        "id": "match",
+        "label": "保留顾客，只匹配 paid",
+        "description": "LEFT JOIN 的 ON 同时检查编号与状态；没有订单或只有非 paid 订单的顾客都保留补 NULL 行。"
+      },
+      {
+        "id": "count",
+        "label": "数真实订单键\nCOUNT(o.id)",
+        "description": "真实订单 id 非 NULL，补出来的 NULL 不被 COUNT(o.id) 计入。没有匹配时计数为数值 0。"
+      },
+      {
+        "id": "group",
+        "label": "顾客编号和姓名一起分组",
+        "description": "同名顾客不合并，各自得到统计结果。输出列名 paid_order_count 表示订单数，不是明细数或金额。"
+      },
+      {
+        "id": "zero",
+        "label": "再决定哪些组符合任务",
+        "description": "本示例尚无 HAVING，所有顾客都会出现；寻找零匹配时应检查每组计数，而不是单条明细金额是否为 0。"
+      },
+      {
+        "id": "star",
+        "label": "为何不能 COUNT(*)？",
+        "description": "外连接为未匹配顾客保留的一行也属于输入行，COUNT(*) 会把它计为 1；COUNT(o.id) 才能反映没有真实订单。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "match"
+      },
+      {
+        "from": "topic",
+        "to": "count"
+      },
+      {
+        "from": "topic",
+        "to": "group"
+      },
+      {
+        "from": "topic",
+        "to": "zero"
+      },
+      {
+        "from": "count",
+        "to": "star"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先保留所有顾客并只匹配 paid，再数右侧真正存在的订单。"
+    },
+    {
+      "id": "syntax",
+      "text": "计数对象应是右表非空主键，而不是星号；最后用 HAVING 筛 0。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT c.id AS customer_id, c.name AS customer_name, COUNT(o.id) AS paid_order_count FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id AND o.status = 'paid' GROUP BY c.id, c.name HAVING ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, COUNT(o.id) AS paid_order_count FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id AND o.status = 'paid' GROUP BY c.id, c.name HAVING COUNT(o.id) = 0;",
+      "explanation": "顾客 4 只有取消订单，顾客 6 没有订单，两者的 paid 匹配数都是 0；变化数据也覆盖只有待支付订单的情况。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-orders-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_order_count"],
+        "rows": [
+          [4, "陈果", 0],
+          [6, "温澄", 0]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-orders-varied-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_order_count"],
+        "rows": [
+          [11, "乔安", 0],
+          [14, "沈夏", 0]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-orders-unpaid-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_order_count"],
+        "rows": [
+          [21, "季青", 0],
+          [22, "唐宁", 0]
+        ]
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-orders-empty-v1",
+      "expected": {
+        "columns": ["customer_id", "customer_name", "paid_order_count"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "counts-placeholder",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, COUNT(*) AS paid_order_count FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id AND o.status = 'paid' GROUP BY c.id, c.name HAVING COUNT(*) = 0;"
+    },
+    {
+      "id": "tests-no-orders-at-all",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, COUNT(o.id) AS paid_order_count FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id GROUP BY c.id, c.name HAVING COUNT(o.id) = 0;"
+    },
+    {
+      "id": "filters-null-rows",
+      "sql": "SELECT c.id AS customer_id, c.name AS customer_name, COUNT(o.id) AS paid_order_count FROM customers AS c LEFT JOIN orders AS o ON c.id = o.customer_id WHERE o.status = 'paid' GROUP BY c.id, c.name HAVING COUNT(o.id) = 0;"
+    }
+  ]
+}

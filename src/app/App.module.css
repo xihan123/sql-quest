@@ -1,0 +1,405 @@
+.shell {
+  min-height: 100vh;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.brand h1 {
+  font: 22px var(--mono);
+  white-space: nowrap;
+}
+.brand span,
+.muted,
+.eyebrow {
+  color: var(--muted);
+}
+.recordStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.recordStatus span {
+  overflow-wrap: anywhere;
+}
+.recordStatus button {
+  flex-shrink: 0;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+}
+.navigation {
+  min-width: 0;
+  padding: 24px 16px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.navigation h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+.navigation label {
+  display: block;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.navigation select {
+  width: 100%;
+}
+.navigation h3 {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 28px;
+}
+.navigation ol {
+  list-style: none;
+  padding: 0;
+}
+.navigation li {
+  margin-bottom: 8px;
+}
+.navigation li button {
+  width: 100%;
+  text-align: left;
+  border-color: transparent;
+  color: var(--text);
+}
+.navigation button[aria-current] {
+  color: var(--primary);
+  background: var(--soft-blue);
+  border-color: var(--primary);
+}
+.navStatus {
+  display: block;
+  font-size: 12px;
+}
+.unopened {
+  display: block;
+  padding: 10px;
+  color: var(--muted);
+}
+.workspace {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  align-items: start;
+}
+.readColumn,
+.editColumn {
+  min-width: 0;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+.readColumn {
+  padding-right: 0;
+}
+.panel {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  padding: 20px;
+  overflow-wrap: anywhere;
+}
+.panel h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.panel h3 {
+  font-size: 16px;
+  margin: 24px 0 10px;
+}
+.panel h4 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+.panel p + p {
+  margin-top: 10px;
+}
+.panel ul {
+  padding-left: 22px;
+}
+.panel li {
+  margin-bottom: 8px;
+}
+.eyebrow {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.objective {
+  background: var(--soft-blue);
+  border-left: 3px solid var(--primary);
+  padding: 12px;
+  margin-top: 16px;
+}
+.prose {
+  white-space: pre-wrap;
+}
+.hint {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.hint button {
+  margin-top: 12px;
+}
+.sectionHeading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.editor {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 16px 0;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+.actions button[aria-pressed='true'] {
+  color: var(--primary);
+  background: var(--soft-blue);
+  border-color: var(--primary);
+}
+.primary {
+  color: white;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.badge,
+.success {
+  color: #24613e;
+  background: #eef7f0;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+.notice {
+  padding: 10px;
+  background: #fff7e6;
+  color: #754b12;
+  margin: 12px 0;
+}
+.snapshot {
+  margin: 16px 0;
+}
+.tableScroll {
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-top: 12px;
+}
+.tableScroll table {
+  border-collapse: collapse;
+  min-width: 100%;
+  text-align: left;
+  font-size: 14px;
+}
+.tableScroll th,
+.tableScroll td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.tableScroll th {
+  font: 14px var(--mono);
+  background: var(--page);
+}
+.tableScroll caption {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--muted);
+}
+.dataTable dd {
+  margin: 4px 0 14px;
+  color: var(--muted);
+}
+.dataTable dt {
+  font-size: 14px;
+}
+.empty,
+.loading {
+  padding: 16px;
+}
+.dialog {
+  width: min(640px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+.dialog::backdrop {
+  background: rgb(36 43 53 / 35%);
+}
+.dialog h2,
+.dialog p,
+.dialog fieldset {
+  margin-bottom: 16px;
+}
+.dialog select {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+.dialog fieldset {
+  min-width: 0;
+  border: 1px solid var(--border);
+}
+.dialog legend {
+  overflow-wrap: anywhere;
+}
+.importTools {
+  margin-top: 24px;
+  padding: 12px;
+}
+.importTools input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 8px 0;
+  font: inherit;
+}
+.importTools input::file-selector-button {
+  min-height: 44px;
+  font: inherit;
+}
+.download {
+  display: inline-block;
+  min-height: 44px;
+  padding: 10px;
+  color: var(--primary);
+}
+.mobileTabs,
+.menuToggle {
+  display: none;
+}
+@media (min-width: 761px) {
+  .editColumn {
+    position: sticky;
+    top: 0;
+    max-height: 100dvh;
+    overflow: auto;
+    scroll-padding-block: 16px;
+    align-content: start;
+  }
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .layout {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+  .panel {
+    padding: 14px;
+  }
+  .readColumn,
+  .editColumn {
+    padding: 10px;
+  }
+  .readColumn {
+    padding-right: 0;
+  }
+}
+@media (max-width: 760px) {
+  .header {
+    padding: 16px;
+    display: block;
+  }
+  .header > span {
+    display: block;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .recordStatus {
+    padding: 8px 16px;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 16px;
+  }
+  .layout,
+  .workspace,
+  .readColumn,
+  .editColumn {
+    display: block;
+  }
+  .navigation {
+    padding: 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .navigation h2,
+  .navigation > p {
+    display: none;
+  }
+  .menuToggle {
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+  }
+  .courseNav[data-open='false'] {
+    display: none;
+  }
+  .mobileTabs {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 8px 12px;
+    gap: 4px;
+    background: var(--page);
+    border-bottom: 1px solid var(--border);
+  }
+  .mobileTabs button {
+    flex: 1;
+  }
+  .mobileTabs button[aria-selected='true'] {
+    background: var(--soft-blue);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .readColumn,
+  .editColumn {
+    padding: 0 12px;
+  }
+  .panel {
+    padding: 16px;
+    margin: 12px 0;
+  }
+  .panel[data-active='false'] {
+    display: none;
+  }
+  .panel h4,
+  .tableScroll table,
+  .tableScroll th,
+  .dataTable dt {
+    font-size: 16px;
+  }
+  .navigation h3 {
+    font-size: 16px;
+  }
+}

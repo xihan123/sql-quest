@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "id": "library-loan-empty-v1",
+  "tables": [
+    {
+      "name": "books",
+      "description": "馆藏图书空表，结构与 library-loan-v1 相同，用于空结果用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "图书编号"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一"
+        },
+        {
+          "name": "author",
+          "type": "TEXT",
+          "description": "作者姓名，虚构人物"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "分类：编程 / 少儿 / 生活 / 文学"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "nullable": true,
+          "minimum": 0,
+          "description": "定价，整数元；NULL 表示尚未录入价格"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "readers",
+      "description": "注册读者空表，结构与 library-loan-v1 相同，用于空结果用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "读者编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "读者姓名，不保证唯一"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话，虚构号码；NULL 表示未登记"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "borrows",
+      "description": "借阅记录空表，结构与 library-loan-v1 相同，用于空结果用例。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "借阅记录编号"
+        },
+        {
+          "name": "book_id",
+          "type": "INTEGER",
+          "description": "借出图书编号，指向 books.id",
+          "references": {
+            "table": "books",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reader_id",
+          "type": "INTEGER",
+          "description": "借阅读者编号，指向 readers.id",
+          "references": {
+            "table": "readers",
+            "column": "id"
+          }
+        },
+        {
+          "name": "borrowed_at",
+          "type": "TEXT",
+          "description": "借出日期，YYYY-MM-DD"
+        },
+        {
+          "name": "returned_at",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "归还日期，YYYY-MM-DD；NULL 表示尚未归还"
+        }
+      ],
+      "rows": []
+    }
+  ]
+}

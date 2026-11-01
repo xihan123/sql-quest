@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "filtering",
+  "id": "book-compare",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "比较条件",
+  "prerequisites": ["book-alias"],
+  "concepts": ["select", "where"],
+  "introducedConcepts": ["where"],
+  "objective": "用 WHERE 加比较运算筛选行，区分严格大于与大于等于的边界。",
+  "statement": "从 books 表查询定价高于 40 元的图书，依次输出 title、price。恰好 40 元不符合条件。保留重复记录，不要求行顺序。",
+  "knowledge": [
+    "WHERE 写在 FROM 后，只保留条件为真的行；SELECT 决定输出哪些列。",
+    "比较运算包括 =、<>（不等于）、>、>=、<、<=。> 不包含边界值，>= 包含。",
+    "数值直接书写，文本值用单引号。筛选不修改原表，也不会自动去重或排序。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出定价高于 40 元的图书名称与价格。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title, price FROM books WHERE price > 40;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "按价格筛选图书",
+        "description": "用 WHERE 按价格筛选图书，注意是否包含 40 元。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "筛选前先有来源：books 的每一行都是候选，WHERE 逐行检查条件。"
+      },
+      {
+        "id": "condition",
+        "label": "留下哪些行？\nWHERE price > 40",
+        "description": "只有 price 大于 40 的行通过检查；条件不成立的行不进入结果。"
+      },
+      {
+        "id": "boundary",
+        "label": "边界算不算？\n40 元本身不算",
+        "description": "> 是严格大于，恰好 40 元的图书不入选；写成 >= 结果才会包含它。0 元图书同样不入选。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪些列？\ntitle 与 price",
+        "description": "WHERE 决定保留哪些行，SELECT 决定这些行输出哪些列。"
+      },
+      {
+        "id": "order",
+        "label": "结果如何排列？\n行未保证",
+        "description": "WHERE 不排序；同价图书各自成行，顺序不保证，也不能要求照抄预览。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "condition"
+      },
+      {
+        "from": "topic",
+        "to": "boundary"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "order"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "保留价格严格大于 40 的记录，再输出书名和价格。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT 列 FROM 表 WHERE 条件; 条件里用 > 表示严格大于，40 不包含在内。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, price FROM books WHERE price ____ 40;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, price FROM books WHERE price > 40;",
+      "explanation": "WHERE 逐行检查 price > 40，只保留严格大于 40 元的图书；同价图书各自成行，输出书名与定价两列。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["数据库基础", 45],
+          ["SQL 手册", 59],
+          ["SQL 手册", 65],
+          ["城市植物图鉴", 45]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["厨房里的化学", 52],
+          ["文字的故事", 52]
+        ]
+      }
+    },
+    {
+      "id": "small-boundary",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": []
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "reverses-direction",
+      "sql": "SELECT title, price FROM books WHERE price < 40;"
+    },
+    {
+      "id": "includes-boundary",
+      "sql": "SELECT title, price FROM books WHERE price >= 40;"
+    },
+    {
+      "id": "omits-columns",
+      "sql": "SELECT price FROM books WHERE price > 40;"
+    },
+    {
+      "id": "hardcodes-preview-identifiers",
+      "sql": "SELECT title, price FROM books WHERE id IN (1, 2, 3, 7);"
+    }
+  ],
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "select",
+        "sql": "SELECT"
+      },
+      {
+        "id": "title",
+        "sql": "title"
+      },
+      {
+        "id": "comma",
+        "sql": ","
+      },
+      {
+        "id": "price",
+        "sql": "price"
+      },
+      {
+        "id": "source",
+        "sql": "FROM books"
+      },
+      {
+        "id": "condition",
+        "sql": "WHERE price > 40"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      },
+      {
+        "id": "all-columns",
+        "sql": "*"
+      },
+      {
+        "id": "publish-year",
+        "sql": "publish_year"
+      }
+    ],
+    "solutionOrder": [
+      "select",
+      "title",
+      "comma",
+      "price",
+      "source",
+      "condition",
+      "end"
+    ]
+  }
+}

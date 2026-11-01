@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "aggregation",
+  "id": "book-report",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "分类统计报告",
+  "prerequisites": ["book-having"],
+  "concepts": [
+    "select",
+    "where",
+    "count",
+    "numeric-aggregation",
+    "group-by",
+    "having"
+  ],
+  "introducedConcepts": [],
+  "objective": "先筛选图书，再按分类统计数量与定价总和。",
+  "statement": "只统计定价低于 60 元的图书，0 元图书也计入。按分类输出 category、book_count（记录数）、total_price（定价总和），只保留记录数不少于 2 的分类。不要求行顺序；没有符合条件的分类时返回零行。",
+  "knowledge": [
+    "WHERE price < 60 先确定参与统计的记录，60 元及以上的图书不参与计数或求和。",
+    "按 category 分组后，COUNT(*) 和 SUM(price) 分别计算组内记录数与定价总和。",
+    "HAVING 再筛选数量不少于 2 的组。SQL 书写顺序为 SELECT、FROM、WHERE、GROUP BY、HAVING。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计定价低于 60 元的图书：每个分类的数量与定价总和，只保留数量不少于 2 的分类。\n",
+  "flowchart": {
+    "exampleSql": "SELECT category, COUNT(*) AS book_count, SUM(price) AS total_price FROM books WHERE price < 60 GROUP BY category HAVING COUNT(*) >= 2;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "分类统计报告",
+        "description": "先筛价格，再按分类统计，最后筛选记录数不少于 2 的组。"
+      },
+      {
+        "id": "filter",
+        "label": "筛行\nWHERE price < 60",
+        "description": "先排除定价为 60 元及以上的图书，它们不参与后面的计数与求和。"
+      },
+      {
+        "id": "group",
+        "label": "分组\nGROUP BY category",
+        "description": "剩下的行按分类分组；每组的行数与定价总和就是报告里的两个数。"
+      },
+      {
+        "id": "having",
+        "label": "筛组\nHAVING COUNT(*) >= 2",
+        "description": "书目数量少于 2 的分类整体不进入报告；条件作用在组上。"
+      },
+      {
+        "id": "report",
+        "label": "输出三列\ncategory、book_count、total_price",
+        "description": "COUNT(*) 数组内行数，SUM(price) 对组内定价求和；两个聚合对同一组计算。"
+      },
+      {
+        "id": "sequence",
+        "label": "阶段的顺序\n筛行 → 分组 → 筛组",
+        "description": "WHERE 在分组前，HAVING 在分组后；调换位置要么语义错误，要么改变了统计口径。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "filter"
+      },
+      {
+        "from": "topic",
+        "to": "group"
+      },
+      {
+        "from": "topic",
+        "to": "having"
+      },
+      {
+        "from": "topic",
+        "to": "report"
+      },
+      {
+        "from": "topic",
+        "to": "sequence"
+      },
+      {
+        "from": "filter",
+        "to": "group"
+      },
+      {
+        "from": "group",
+        "to": "having"
+      },
+      {
+        "from": "having",
+        "to": "report"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "价格条件用于筛记录，数量条件用于筛组。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE ... GROUP BY ... HAVING ... 的顺序固定；COUNT(*) 与 SUM(price) 可以同时出现在 SELECT 中。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT category, ____(*) AS book_count, ____(price) AS total_price FROM books WHERE ____ GROUP BY category HAVING ____(*) >= 2;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT category, COUNT(*) AS book_count, SUM(price) AS total_price FROM books WHERE price < 60 GROUP BY category HAVING COUNT(*) >= 2;",
+      "explanation": "WHERE 圈定低价位图书；按分类分组后同时计算条数与定价总和；HAVING 只保留不少于 2 本的分类。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["category", "book_count", "total_price"],
+        "rows": [
+          ["计算机", 2, 104],
+          ["文学", 2, 78],
+          ["自然", 2, 78],
+          ["生活", 2, 72]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["category", "book_count", "total_price"],
+        "rows": [
+          ["自然", 2, 25],
+          ["文学", 2, 36]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["category", "book_count", "total_price"],
+        "rows": [["文学", 2, 65]]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["category", "book_count", "total_price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-where",
+      "sql": "SELECT category, COUNT(*) AS book_count, SUM(price) AS total_price FROM books GROUP BY category HAVING COUNT(*) >= 2;"
+    },
+    {
+      "id": "omits-having",
+      "sql": "SELECT category, COUNT(*) AS book_count, SUM(price) AS total_price FROM books WHERE price < 60 GROUP BY category;"
+    },
+    {
+      "id": "filters-in-wrong-clause",
+      "sql": "SELECT category, COUNT(*) AS book_count, SUM(price) AS total_price FROM books GROUP BY category HAVING MAX(price) < 60 AND COUNT(*) >= 2;"
+    },
+    {
+      "id": "uses-avg-instead-of-sum",
+      "sql": "SELECT category, COUNT(*) AS book_count, AVG(price) AS total_price FROM books WHERE price < 60 GROUP BY category HAVING COUNT(*) >= 2;"
+    }
+  ]
+}

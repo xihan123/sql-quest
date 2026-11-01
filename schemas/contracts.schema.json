@@ -1,0 +1,1670 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sql-quest.invalid/schemas/contracts.schema.json",
+  "title": "SqlQuestContract",
+  "description": "The sole SQL Quest machine contract. Generated TypeScript and standalone validators validate structure, not trusted content or protocol state.",
+  "$comment": "See design v2.3 sections 4-7. HTTP byte/deadline limits precede JSON decoding; cross-document references, local data invariants, SQL execution, protocol state and transactional record protection follow structural validation. All object types reject unknown properties; validation must not coerce, remove fields or apply defaults.",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/Course"
+    },
+    {
+      "$ref": "#/definitions/Lesson"
+    },
+    {
+      "$ref": "#/definitions/Fixture"
+    },
+    {
+      "$ref": "#/definitions/WorkerMessage"
+    },
+    {
+      "$ref": "#/definitions/LearningRecord"
+    },
+    {
+      "$ref": "#/definitions/RecordMetadata"
+    },
+    {
+      "$ref": "#/definitions/BackupPart"
+    }
+  ],
+  "definitions": {
+    "ContentId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\\s\\S])"
+    },
+    "Identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*(?![\\s\\S])"
+    },
+    "Token": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_-]+(?![\\s\\S])"
+    },
+    "Revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "Counter": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "SafeInteger": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "SafeNumber": {
+      "type": "number",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991,
+      "description": "Finite JSON number; integral REAL values must also be safe integers."
+    },
+    "Title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "\\S"
+    },
+    "Prose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000,
+      "pattern": "\\S"
+    },
+    "Description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "\\S"
+    },
+    "Sql": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20000,
+      "pattern": "\\S"
+    },
+    "SqlDraft": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 20000
+    },
+    "ContentPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?:[a-z0-9_-]+/)*[a-z0-9_-]+\\.json(?![\\s\\S])",
+      "description": "Source or published relative path. URL origin, directory, duplicate address, self-reference and release checks are semantic checks."
+    },
+    "Timestamp": {
+      "type": "string",
+      "minLength": 24,
+      "maxLength": 24,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "format": "date-time"
+    },
+    "InputMode": {
+      "type": "string",
+      "enum": ["text", "puzzle"]
+    },
+    "ExecutionMode": {
+      "type": "string",
+      "enum": ["run", "submit"]
+    },
+    "HintId": {
+      "type": "string",
+      "enum": ["idea", "syntax", "skeleton"]
+    },
+    "LessonIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "title": {
+          "$ref": "#/definitions/Title"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentId"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "path": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ContentPath"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["id", "title", "prerequisites", "path"]
+    },
+    "Chapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "title": {
+          "$ref": "#/definitions/Title"
+        },
+        "lessons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LessonIndex"
+          },
+          "minItems": 1,
+          "maxItems": 256
+        }
+      },
+      "required": ["id", "title", "lessons"]
+    },
+    "Concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "title": {
+          "$ref": "#/definitions/Title"
+        },
+        "introducedAt": {
+          "$ref": "#/definitions/ContentId"
+        }
+      },
+      "required": ["id", "title", "introducedAt"]
+    },
+    "Theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "title": {
+          "$ref": "#/definitions/Title"
+        },
+        "chapters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Chapter"
+          },
+          "minItems": 1,
+          "maxItems": 64
+        },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Concept"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        }
+      },
+      "required": ["id", "title", "chapters", "concepts"]
+    },
+    "FixtureIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "path": {
+          "$ref": "#/definitions/ContentPath"
+        }
+      },
+      "required": ["id", "path"]
+    },
+    "Course": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "revision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "title": {
+          "$ref": "#/definitions/Title"
+        },
+        "objective": {
+          "$ref": "#/definitions/Prose"
+        },
+        "dialect": {
+          "const": "sqlite",
+          "type": "string"
+        },
+        "themes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Theme"
+          },
+          "minItems": 1,
+          "maxItems": 64
+        },
+        "fixtures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FixtureIndex"
+          },
+          "minItems": 0,
+          "maxItems": 1024
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "revision",
+        "title",
+        "objective",
+        "dialect",
+        "themes",
+        "fixtures"
+      ],
+      "$comment": "Semantic: unique IDs in their scopes, earlier prerequisites, concept introduction, exact document registrations, release paths and complete snapshot. A root with all lesson paths null is structurally valid."
+    },
+    "Cell": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/SafeNumber"
+        },
+        {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 1048576
+        }
+      ]
+    },
+    "Row": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Cell"
+      },
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "QueryResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 256
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Row"
+          },
+          "minItems": 0,
+          "maxItems": 1000
+        }
+      },
+      "required": ["columns", "rows"],
+      "$comment": "Semantic: every row width equals columns.length. Preserve duplicate rows and column names. Byte budgets apply separately, before accepting a complete result."
+    },
+    "Tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99
+        },
+        "absTolerance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "relTolerance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": ["column", "absTolerance", "relTolerance"]
+    },
+    "ExactComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rowOrder": {
+          "type": "string",
+          "enum": ["ordered", "unordered"]
+        },
+        "columnNames": {
+          "const": "exact",
+          "type": "string"
+        },
+        "numbers": {
+          "const": "exact",
+          "type": "string"
+        }
+      },
+      "required": ["rowOrder", "columnNames", "numbers"]
+    },
+    "TolerantComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rowOrder": {
+          "type": "string",
+          "enum": ["ordered", "unordered"]
+        },
+        "columnNames": {
+          "const": "exact",
+          "type": "string"
+        },
+        "numbers": {
+          "const": "tolerant",
+          "type": "string"
+        },
+        "tolerances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tolerance"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "required": ["rowOrder", "columnNames", "numbers", "tolerances"],
+      "$comment": "Semantic: unique, in-range numeric output columns; author must justify tolerances."
+    },
+    "Comparison": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ExactComparison"
+        },
+        {
+          "$ref": "#/definitions/TolerantComparison"
+        }
+      ]
+    },
+    "IdeaHint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "const": "idea",
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/definitions/Prose"
+        }
+      },
+      "required": ["id", "text"]
+    },
+    "SyntaxHint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "const": "syntax",
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/definitions/Prose"
+        }
+      },
+      "required": ["id", "text"]
+    },
+    "SkeletonHint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "const": "skeleton",
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/definitions/Prose"
+        }
+      },
+      "required": ["id", "text"]
+    },
+    "Hints": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": [
+        {
+          "$ref": "#/definitions/IdeaHint"
+        },
+        {
+          "$ref": "#/definitions/SyntaxHint"
+        },
+        {
+          "$ref": "#/definitions/SkeletonHint"
+        }
+      ],
+      "additionalItems": false
+    },
+    "ReferenceSolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sql": {
+          "$ref": "#/definitions/Sql"
+        },
+        "explanation": {
+          "$ref": "#/definitions/Prose"
+        }
+      },
+      "required": ["sql", "explanation"]
+    },
+    "TestCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "fixtureId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "expected": {
+          "$ref": "#/definitions/QueryResult"
+        }
+      },
+      "required": ["id", "fixtureId", "expected"]
+    },
+    "ExpectedFailure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "sql": {
+          "$ref": "#/definitions/Sql"
+        }
+      },
+      "required": ["id", "sql"]
+    },
+    "FlowNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "label": {
+          "$ref": "#/definitions/Title"
+        },
+        "description": {
+          "$ref": "#/definitions/Description"
+        }
+      },
+      "required": ["id", "label", "description"]
+    },
+    "FlowEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "to": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "label": {
+          "$ref": "#/definitions/Title"
+        }
+      },
+      "required": ["from", "to"]
+    },
+    "Flowchart": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exampleSql": {
+          "$ref": "#/definitions/Sql"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FlowNode"
+          },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FlowEdge"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        }
+      },
+      "required": ["exampleSql", "nodes", "edges"],
+      "$comment": "Semantic: unique node IDs and directed edges, existing endpoints, no self-edge or directed cycle. Fixed example is checked using preview fixture and readable tables; graph text requires human review."
+    },
+    "SqlCard": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "sql": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "pattern": "\\S"
+        }
+      },
+      "required": ["id", "sql"]
+    },
+    "SqlPuzzle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SqlCard"
+          },
+          "minItems": 2,
+          "maxItems": 40
+        },
+        "solutionOrder": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentId"
+          },
+          "minItems": 1,
+          "maxItems": 40,
+          "uniqueItems": true
+        }
+      },
+      "required": ["cards", "solutionOrder"],
+      "$comment": "Semantic: unique card IDs, known reference order, intact SQL lexical boundaries; join original sql with one ASCII space and check total SQL length and all test cases. Never use solutionOrder for grading."
+    },
+    "Lesson": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "chapterId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "revision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "dialect": {
+          "const": "sqlite",
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["guided", "practice", "challenge"]
+        },
+        "title": {
+          "$ref": "#/definitions/Title"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentId"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentId"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "introducedConcepts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentId"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "objective": {
+          "$ref": "#/definitions/Prose"
+        },
+        "statement": {
+          "$ref": "#/definitions/Prose"
+        },
+        "knowledge": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Prose"
+          },
+          "minItems": 1,
+          "maxItems": 32
+        },
+        "readableTables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Identifier"
+          },
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "previewFixtureId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "duplicatePolicy": {
+          "type": "string",
+          "enum": ["preserve", "distinct"]
+        },
+        "starterSql": {
+          "$ref": "#/definitions/SqlDraft"
+        },
+        "hints": {
+          "$ref": "#/definitions/Hints"
+        },
+        "referenceSolutions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReferenceSolution"
+          },
+          "minItems": 1,
+          "maxItems": 16
+        },
+        "comparison": {
+          "$ref": "#/definitions/Comparison"
+        },
+        "tests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TestCase"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "expectedFailures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExpectedFailure"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "flowchart": {
+          "$ref": "#/definitions/Flowchart"
+        },
+        "sqlPuzzle": {
+          "$ref": "#/definitions/SqlPuzzle"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "courseId",
+        "themeId",
+        "chapterId",
+        "id",
+        "revision",
+        "dialect",
+        "mode",
+        "title",
+        "prerequisites",
+        "concepts",
+        "introducedConcepts",
+        "objective",
+        "statement",
+        "knowledge",
+        "readableTables",
+        "previewFixtureId",
+        "duplicatePolicy",
+        "starterSql",
+        "hints",
+        "referenceSolutions",
+        "comparison",
+        "tests",
+        "expectedFailures"
+      ],
+      "$comment": "Semantic: identity and prerequisites match root; concepts introduced no later than lesson; unique test/failure IDs; preview fixture occurs exactly once among tests; required fixtures expose compatible readable tables. SQL safety and teaching correctness are not structural validation."
+    },
+    "ForeignKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "table": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "column": {
+          "$ref": "#/definitions/Identifier"
+        }
+      },
+      "required": ["table", "column"]
+    },
+    "IntegerColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "description": {
+          "$ref": "#/definitions/Description"
+        },
+        "nullable": {
+          "type": "boolean",
+          "description": "Omitted means false; validators do not insert defaults."
+        },
+        "primaryKey": {
+          "type": "boolean"
+        },
+        "references": {
+          "$ref": "#/definitions/ForeignKey"
+        },
+        "type": {
+          "const": "INTEGER",
+          "type": "string"
+        },
+        "minimum": {
+          "$ref": "#/definitions/SafeInteger"
+        }
+      },
+      "required": ["name", "description", "type"],
+      "not": {
+        "type": "object",
+        "properties": {
+          "primaryKey": {
+            "const": true
+          },
+          "nullable": {
+            "const": true
+          }
+        },
+        "required": ["primaryKey", "nullable"]
+      }
+    },
+    "RealColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "description": {
+          "$ref": "#/definitions/Description"
+        },
+        "nullable": {
+          "type": "boolean",
+          "description": "Omitted means false; validators do not insert defaults."
+        },
+        "primaryKey": {
+          "type": "boolean"
+        },
+        "references": {
+          "$ref": "#/definitions/ForeignKey"
+        },
+        "type": {
+          "const": "REAL",
+          "type": "string"
+        },
+        "minimum": {
+          "$ref": "#/definitions/SafeNumber"
+        }
+      },
+      "required": ["name", "description", "type"],
+      "not": {
+        "type": "object",
+        "properties": {
+          "primaryKey": {
+            "const": true
+          },
+          "nullable": {
+            "const": true
+          }
+        },
+        "required": ["primaryKey", "nullable"]
+      }
+    },
+    "TextColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "description": {
+          "$ref": "#/definitions/Description"
+        },
+        "nullable": {
+          "type": "boolean",
+          "description": "Omitted means false; validators do not insert defaults."
+        },
+        "primaryKey": {
+          "type": "boolean"
+        },
+        "references": {
+          "$ref": "#/definitions/ForeignKey"
+        },
+        "type": {
+          "const": "TEXT",
+          "type": "string"
+        }
+      },
+      "required": ["name", "description", "type"],
+      "not": {
+        "type": "object",
+        "properties": {
+          "primaryKey": {
+            "const": true
+          },
+          "nullable": {
+            "const": true
+          }
+        },
+        "required": ["primaryKey", "nullable"]
+      }
+    },
+    "FixtureColumn": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/IntegerColumn"
+        },
+        {
+          "$ref": "#/definitions/RealColumn"
+        },
+        {
+          "$ref": "#/definitions/TextColumn"
+        }
+      ]
+    },
+    "FixtureTable": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "description": {
+          "$ref": "#/definitions/Description"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FixtureColumn"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Row"
+          },
+          "minItems": 0,
+          "maxItems": 5000
+        }
+      },
+      "required": ["name", "description", "columns", "rows"],
+      "$comment": "Semantic: unique columns, at most one non-null single-column primary key, row widths, exact column value types, nullability, minima and primary-key uniqueness."
+    },
+    "IndexColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["ASC", "DESC"]
+        }
+      },
+      "required": ["name", "direction"]
+    },
+    "FixtureIndexDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "table": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IndexColumn"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "required": ["name", "table", "columns"]
+    },
+    "Fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "id": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FixtureTable"
+          },
+          "minItems": 1,
+          "maxItems": 64
+        },
+        "indexes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FixtureIndexDefinition"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        }
+      },
+      "required": ["schemaVersion", "id", "tables"],
+      "$comment": "Semantic: immutable versioned ID, unique table/index names in SQLite namespace; total <=5000 rows, compiled SQL <=1 MiB; valid index columns; foreign keys reference same-type single-column primary keys and existing rows after all inserts. No raw initialization SQL."
+    },
+    "PrepareRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "prepare",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "requestId": {
+          "$ref": "#/definitions/Token"
+        },
+        "contentToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "rootRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "mode": {
+          "$ref": "#/definitions/ExecutionMode"
+        },
+        "inputMode": {
+          "$ref": "#/definitions/InputMode"
+        },
+        "sql": {
+          "$ref": "#/definitions/Sql"
+        },
+        "lesson": {
+          "$ref": "#/definitions/Lesson"
+        },
+        "fixtures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Fixture"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "type",
+        "schemaVersion",
+        "requestId",
+        "contentToken",
+        "rootRevision",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "lessonRevision",
+        "mode",
+        "inputMode",
+        "sql",
+        "lesson",
+        "fixtures"
+      ],
+      "$comment": "Semantic: immutable identity must match lesson; fixtures are exactly the execution closure for run (preview) or submit (all tests). No recordGeneration, URLs, root document, fetch or progress. Worker rechecks closure."
+    },
+    "ReadyResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "ready",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "requestId": {
+          "$ref": "#/definitions/Token"
+        },
+        "contentToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "rootRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonRevision": {
+          "$ref": "#/definitions/Revision"
+        }
+      },
+      "required": [
+        "type",
+        "schemaVersion",
+        "requestId",
+        "contentToken",
+        "rootRevision",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "lessonRevision"
+      ]
+    },
+    "RunCaseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "run-case",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "requestId": {
+          "$ref": "#/definitions/Token"
+        },
+        "contentToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "rootRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "caseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "caseIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99
+        }
+      },
+      "required": [
+        "type",
+        "schemaVersion",
+        "requestId",
+        "contentToken",
+        "rootRevision",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "lessonRevision",
+        "caseId",
+        "caseIndex"
+      ]
+    },
+    "RunCaseResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "case-result",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "requestId": {
+          "$ref": "#/definitions/Token"
+        },
+        "contentToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "rootRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "caseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "caseIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99
+        },
+        "mode": {
+          "const": "run",
+          "type": "string"
+        },
+        "outcome": {
+          "const": "executed",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/definitions/QueryResult"
+        }
+      },
+      "required": [
+        "type",
+        "schemaVersion",
+        "requestId",
+        "contentToken",
+        "rootRevision",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "lessonRevision",
+        "caseId",
+        "caseIndex",
+        "mode",
+        "outcome",
+        "result"
+      ]
+    },
+    "SubmitCaseResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "case-result",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "requestId": {
+          "$ref": "#/definitions/Token"
+        },
+        "contentToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "rootRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "caseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "caseIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99
+        },
+        "mode": {
+          "const": "submit",
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["passed", "mismatch"]
+        },
+        "result": {
+          "$ref": "#/definitions/QueryResult"
+        }
+      },
+      "required": [
+        "type",
+        "schemaVersion",
+        "requestId",
+        "contentToken",
+        "rootRevision",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "lessonRevision",
+        "caseId",
+        "caseIndex",
+        "mode",
+        "outcome",
+        "result"
+      ]
+    },
+    "WorkerErrorCode": {
+      "type": "string",
+      "enum": [
+        "invalid-request",
+        "protocol",
+        "engine-load",
+        "sql",
+        "forbidden",
+        "limit",
+        "comparison",
+        "internal"
+      ]
+    },
+    "PrepareError": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "error",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "requestId": {
+          "$ref": "#/definitions/Token"
+        },
+        "contentToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "rootRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "phase": {
+          "const": "prepare",
+          "type": "string"
+        },
+        "code": {
+          "$ref": "#/definitions/WorkerErrorCode"
+        },
+        "message": {
+          "$ref": "#/definitions/Description"
+        }
+      },
+      "required": [
+        "type",
+        "schemaVersion",
+        "requestId",
+        "contentToken",
+        "rootRevision",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "lessonRevision",
+        "phase",
+        "code",
+        "message"
+      ]
+    },
+    "CaseError": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "error",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "requestId": {
+          "$ref": "#/definitions/Token"
+        },
+        "contentToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "rootRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonRevision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "caseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "caseIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99
+        },
+        "phase": {
+          "const": "case",
+          "type": "string"
+        },
+        "code": {
+          "$ref": "#/definitions/WorkerErrorCode"
+        },
+        "message": {
+          "$ref": "#/definitions/Description"
+        }
+      },
+      "required": [
+        "type",
+        "schemaVersion",
+        "requestId",
+        "contentToken",
+        "rootRevision",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "lessonRevision",
+        "caseId",
+        "caseIndex",
+        "phase",
+        "code",
+        "message"
+      ]
+    },
+    "WorkerRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/PrepareRequest"
+        },
+        {
+          "$ref": "#/definitions/RunCaseRequest"
+        }
+      ]
+    },
+    "WorkerResponse": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ReadyResponse"
+        },
+        {
+          "$ref": "#/definitions/RunCaseResult"
+        },
+        {
+          "$ref": "#/definitions/SubmitCaseResult"
+        },
+        {
+          "$ref": "#/definitions/PrepareError"
+        },
+        {
+          "$ref": "#/definitions/CaseError"
+        }
+      ]
+    },
+    "WorkerMessage": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/WorkerRequest"
+        },
+        {
+          "$ref": "#/definitions/WorkerResponse"
+        }
+      ],
+      "$comment": "Structural shape only. Client verifies Worker instance, captured generation, identity, phase, dispatched case and index and monotonic deadlines before accepting responses; duplicates and stale messages cannot advance protocol."
+    },
+    "PuzzleDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cardOrder": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentId"
+          },
+          "minItems": 0,
+          "maxItems": 40,
+          "uniqueItems": true
+        },
+        "sql": {
+          "$ref": "#/definitions/SqlDraft"
+        }
+      },
+      "required": ["cardOrder", "sql"],
+      "$comment": "Atomic pair. Restore validates against exact lesson revision and shared join output. Unknown/mismatched historical cards are retained for view/export, not executed or silently repaired."
+    },
+    "LearningRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "courseId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "themeId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "lessonId": {
+          "$ref": "#/definitions/ContentId"
+        },
+        "revision": {
+          "$ref": "#/definitions/Revision"
+        },
+        "draftSql": {
+          "$ref": "#/definitions/SqlDraft"
+        },
+        "puzzleDraft": {
+          "$ref": "#/definitions/PuzzleDraft"
+        },
+        "inputMode": {
+          "$ref": "#/definitions/InputMode"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "viewedHintIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HintId"
+          },
+          "minItems": 0,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "reviewMarked": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "courseId",
+        "themeId",
+        "lessonId",
+        "revision",
+        "draftSql",
+        "inputMode",
+        "passed",
+        "viewedHintIds",
+        "reviewMarked"
+      ],
+      "if": {
+        "properties": {
+          "inputMode": {
+            "const": "puzzle"
+          }
+        },
+        "required": ["inputMode"]
+      },
+      "then": {
+        "properties": {
+          "puzzleDraft": {
+            "$ref": "#/definitions/PuzzleDraft"
+          }
+        },
+        "required": ["puzzleDraft"]
+      },
+      "$comment": "One revision slot, keyed by courseId/themeId/lessonId/revision. Both draft budgets are identical to execution SQL. Unknown courses and historical revisions remain valid. Ordinary saves patch changed fields only, never regress passed or replace other slots."
+    },
+    "RecordMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "recordSetVersion": {
+          "$ref": "#/definitions/Counter"
+        },
+        "recordGeneration": {
+          "$ref": "#/definitions/Counter"
+        }
+      },
+      "required": ["schemaVersion", "recordSetVersion", "recordGeneration"],
+      "$comment": "Local metadata only; not Worker or backup payload. Compare both counters inside transactions. Increment version on successful writes and generation only on whole replacement/clear; never synthesize after read failure."
+    },
+    "BackupPart": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "exportedAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "backupId": {
+          "$ref": "#/definitions/Token"
+        },
+        "partIndex": {
+          "$ref": "#/definitions/Revision"
+        },
+        "partCount": {
+          "$ref": "#/definitions/Revision"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LearningRecord"
+          },
+          "minItems": 0,
+          "maxItems": 10000
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "exportedAt",
+        "backupId",
+        "partIndex",
+        "partCount",
+        "records"
+      ],
+      "$comment": "Final UTF-8 JSON <=5 MiB per part, NOT per record set. Every legal slot plus header fits one part. Part size and group integrity are separate checks: common metadata, complete 1..partCount, no duplicate identity/revision, fixed snapshot. Import unknown/history slots without requiring current content. Never restore metadata counters from backup."
+    }
+  }
+}

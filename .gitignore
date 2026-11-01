@@ -1,0 +1,13 @@
+node_modules/
+.idea/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+*.local
+coverage/
+# Track course sources in content/; publish generated JSON through dist/content/.
+public/content/
+test-results/
+playwright-report/

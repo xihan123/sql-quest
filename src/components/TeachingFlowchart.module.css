@@ -1,0 +1,117 @@
+.teaching {
+  margin-top: 24px;
+  min-width: 0;
+}
+.caption {
+  margin: 12px 0;
+  border-left: 3px solid var(--primary);
+  background: var(--soft-blue);
+  padding: 10px;
+}
+.help {
+  color: var(--muted);
+}
+.teaching h4 {
+  margin: 16px 0 8px;
+  font-size: inherit;
+}
+.scroll {
+  overflow: auto;
+  max-width: 100%;
+  max-height: 480px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 12px 0;
+}
+.canvas {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  padding: 24px 16px;
+}
+.nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+.branch {
+  display: grid;
+  gap: 20px;
+  width: 180px;
+}
+.branch:first-child {
+  width: 148px;
+}
+.node {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-align: left;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  border-color: var(--primary);
+  border-radius: 6px;
+  background: var(--soft-blue);
+}
+.node[data-root='true'] {
+  background: var(--primary);
+  color: var(--surface);
+  text-align: center;
+  padding: 16px 12px;
+}
+.node[aria-pressed='true'] {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+.node:focus-visible {
+  outline-style: dashed;
+}
+.edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.edges > path {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+.edges > path[data-selected='true'] {
+  stroke-width: 4;
+}
+.selection,
+.failure {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--page);
+}
+.selection,
+.textNodes,
+.connections {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.textNodes {
+  padding-left: 28px;
+}
+@media (max-width: 760px) {
+  .canvas {
+    padding: 24px 8px;
+  }
+  .nodes {
+    gap: 20px;
+  }
+  .node {
+    padding-inline: 6px;
+  }
+  .branch {
+    width: 160px;
+  }
+  .branch:first-child {
+    width: 124px;
+  }
+}

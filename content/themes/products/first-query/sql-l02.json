@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "first-query",
+  "id": "sql-l02",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "选择字段",
+  "prerequisites": ["sql-l01"],
+  "concepts": ["select", "select-columns"],
+  "introducedConcepts": ["select-columns"],
+  "objective": "显式选择输出字段，区分减少输出列与筛选数据行。",
+  "statement": "从 products 输出全部商品的 name、price 两列，按此顺序保留原列名，价格单位为元。免费和缺货商品也要输出；名称、价格相同的记录各保留一行。不要求行顺序。",
+  "knowledge": [
+    "SELECT 后列出要输出的字段，用半角逗号分隔。列的先后由书写顺序决定。",
+    "选择列不等于筛选行。不输出 stock，也不意味着排除库存为 0 的商品。",
+    "不同商品可以有相同的名称和价格，本关仍各输出一行。"
+  ],
+  "readableTables": ["products"],
+  "previewFixtureId": "products-intro-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 只选择商品名称和价格，保留全部商品。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务缩小的是输出字段范围，不是商品范围。名称放在第一列，价格放在第二列。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 SELECT 后用半角逗号列出两个字段，FROM 仍指向 products。不要用 * 带出多余字段。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT name, ____ FROM products; 补上价格字段，不添加筛选或去重。"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT name, price FROM products;",
+      "explanation": "按顺序输出名称和价格，每条商品记录一行，包含重复的名称与价格组合。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "products-intro-v1",
+      "expected": {
+        "columns": ["name", "price"],
+        "rows": [
+          ["帆布袋", 25],
+          ["陶瓷杯", 39],
+          ["帆布袋", 25],
+          ["体验装", 0],
+          ["笔记本", 18],
+          ["陶瓷杯", 49]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "products-intro-varied-v1",
+      "expected": {
+        "columns": ["name", "price"],
+        "rows": [
+          ["书签", 6],
+          ["收纳盒", 32],
+          ["书签", 6],
+          ["试用装", 0]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "products-intro-empty-v1",
+      "expected": {
+        "columns": ["name", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-all-fields",
+      "sql": "SELECT * FROM products;"
+    },
+    {
+      "id": "reverses-output-columns",
+      "sql": "SELECT price, name FROM products;"
+    },
+    {
+      "id": "drops-duplicate-output",
+      "sql": "SELECT DISTINCT name, price FROM products;"
+    },
+    {
+      "id": "filters-out-of-stock",
+      "sql": "SELECT name, price FROM products WHERE stock > 0;"
+    }
+  ],
+  "flowchart": {
+    "exampleSql": "SELECT name, price FROM products;",
+    "nodes": [
+      {
+        "id": "source",
+        "label": "确定来源：FROM products",
+        "description": "读取商品表。本例没有筛选条件，包含每一条商品记录；库存为 0 或价格为 0 也不排除。"
+      },
+      {
+        "id": "projection",
+        "label": "选择输出列：SELECT name, price",
+        "description": "每条记录只输出名称和价格，列顺序按字段列表排列。不输出编号、类别和库存，不代表删除这些字段，也不代表筛掉记录。相同名称与价格仍按原记录保留重复次数。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "source",
+        "to": "projection",
+        "label": "逻辑上先确定来源，再选列；SQL 书写时 SELECT 在 FROM 前。本例不保证行顺序。"
+      }
+    ]
+  }
+}

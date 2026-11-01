@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "result-shaping",
+  "id": "book-order",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "排序结果",
+  "prerequisites": ["book-null"],
+  "concepts": ["select", "where", "order-by"],
+  "introducedConcepts": ["order-by"],
+  "objective": "用 ORDER BY 按列值排列结果，并用次序键决定同价图书的先后。",
+  "statement": "输出全部图书的 title、price，按 price 降序、同价时按 id 升序排列。id 只用于排序，不输出。保留重复记录。",
+  "knowledge": [
+    "ORDER BY 指定结果行的顺序；ASC 为升序，DESC 为降序，省略方向时默认 ASC。",
+    "多个排序字段用逗号分隔。先比较 price，相同再比较唯一编号 id，确定同价图书的先后。",
+    "本关的排序字段 id 可以不出现在 SELECT 中。排序不筛选记录，也不合并记录。"
+  ],
+  "readableTables": ["books"],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出全部图书的名称与定价，价格从高到低，同价按 id 从小到大。\n",
+  "flowchart": {
+    "exampleSql": "SELECT title, price FROM books ORDER BY price DESC, id ASC;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "让结果按价格排队",
+        "description": "先按价格降序，同价时再按编号升序。"
+      },
+      {
+        "id": "source",
+        "label": "从哪张表读？\nFROM books",
+        "description": "排序前先取到全部行；ORDER BY 不筛行、不改数据，只决定结果的排列。"
+      },
+      {
+        "id": "keys",
+        "label": "主排序键\nORDER BY price DESC",
+        "description": "第一个键是 price，DESC 表示从高到低；所有行先按它比较。"
+      },
+      {
+        "id": "tie",
+        "label": "同价怎么排？\n次序键 id ASC",
+        "description": "price 相同时按 id 从小到大；没有次序键时同价行的先后没有保证。"
+      },
+      {
+        "id": "columns",
+        "label": "输出哪些列？\ntitle 与 price",
+        "description": "id 只参与排序，不出现在结果里；输出列由 SELECT 决定。"
+      },
+      {
+        "id": "scope",
+        "label": "行数变了吗？\n不变",
+        "description": "排序保留全部行；判题按结果的行顺序比较，与无序查询不同。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "keys"
+      },
+      {
+        "from": "topic",
+        "to": "tie"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "本关有两个排序要求：先按价格从高到低，同价再按 id 从小到大；列仍然只输出书名和价格。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY 列1 方向, 列2 方向; DESC 表示降序，ASC 表示升序；多个排序键用逗号分隔。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT title, price FROM books ORDER BY price ____, id ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT title, price FROM books ORDER BY price DESC, id ASC;",
+      "explanation": "先按 price 降序；同价行按次序键 id 升序排列，同价图书的先后完全确定；id 参与排序但不输出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["SQL 手册", 65],
+          ["SQL 手册", 59],
+          ["数据库基础", 45],
+          ["城市植物图鉴", 45],
+          ["诗的练习", 39],
+          ["诗的练习", 39],
+          ["烹饪入门", 39],
+          ["烹饪入门", 33],
+          ["城市植物图鉴", 33],
+          ["少年航海史", 0]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["厨房里的化学", 52],
+          ["文字的故事", 52],
+          ["星图手册", 25],
+          ["民谣收集记", 18],
+          ["民谣收集记", 18],
+          ["星图手册", 0]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": [
+          ["陶艺手册", 40],
+          ["童话铁路", 35],
+          ["数字小史", 35],
+          ["童话铁路", 30]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": ["title", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-order-by",
+      "sql": "SELECT title, price FROM books;"
+    },
+    {
+      "id": "reverses-direction",
+      "sql": "SELECT title, price FROM books ORDER BY price ASC, id ASC;"
+    },
+    {
+      "id": "reverses-tie-order",
+      "sql": "SELECT title, price FROM books ORDER BY price DESC, id DESC;"
+    },
+    {
+      "id": "omits-columns",
+      "sql": "SELECT price FROM books ORDER BY price DESC, id ASC;"
+    }
+  ],
+  "sqlPuzzle": {
+    "cards": [
+      {
+        "id": "select",
+        "sql": "SELECT"
+      },
+      {
+        "id": "title",
+        "sql": "title"
+      },
+      {
+        "id": "comma",
+        "sql": ","
+      },
+      {
+        "id": "price",
+        "sql": "price"
+      },
+      {
+        "id": "source",
+        "sql": "FROM books"
+      },
+      {
+        "id": "order",
+        "sql": "ORDER BY price DESC,"
+      },
+      {
+        "id": "tie-break",
+        "sql": "id ASC"
+      },
+      {
+        "id": "end",
+        "sql": ";"
+      },
+      {
+        "id": "filter",
+        "sql": "WHERE price > 40"
+      },
+      {
+        "id": "all-columns",
+        "sql": "*"
+      }
+    ],
+    "solutionOrder": [
+      "select",
+      "title",
+      "comma",
+      "price",
+      "source",
+      "order",
+      "tie-break",
+      "end"
+    ]
+  }
+}
