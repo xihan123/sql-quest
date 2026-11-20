@@ -214,8 +214,6 @@ test('production SPA at a subpath loads local assets and new immutable JSON with
     });
     expect(errors).toEqual([]);
   } finally {
-    await new Promise<void>((done, reject) =>
-      server.httpServer.close((error) => (error ? reject(error) : done())),
-    );
+    await server.close();
   }
 });
