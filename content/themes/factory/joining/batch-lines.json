@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "joining",
+  "id": "batch-lines",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "查询生产批次及所属产线",
+  "prerequisites": ["line-groups"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "where-compare",
+    "inner-join"
+  ],
+  "introducedConcepts": ["inner-join"],
+  "objective": "用外键将批次与产线关联，再筛选产量。",
+  "statement": "列出生产数量不少于 300 件的批次及所属产线，依次输出 batch_id、product、line_name、quantity。正好 300 件也保留，每个批次一行。",
+  "knowledge": [
+    "batches.line_id 指向 production_lines.id；产线编号唯一，因此每个批次能关联一条产线。",
+    "b 和 pl 是表别名；两张表都有 id，b.id 是批次编号、pl.id 是产线编号，关联条件为 pl.id = b.line_id。",
+    "quantity >= 300 包含边界。ON 描述两表按什么键配对，WHERE 在配对后筛批次；对这个内连接，数量条件也可等价放进 ON，但分开写更容易看出关系和业务门槛。"
+  ],
+  "readableTables": ["batches", "production_lines"],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 关联批次与产线，只保留生产数量不少于 300 件的批次。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先根据 line_id 找到批次所属产线，再留下件数达到门槛的批次。"
+    },
+    {
+      "id": "syntax",
+      "text": "JOIN production_lines AS pl ON pl.id = b.line_id 配对，WHERE b.quantity >= 300 筛选。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT b.id AS batch_id, b.product, pl.name AS line_name, b.quantity FROM batches AS b JOIN production_lines AS pl ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT b.id AS batch_id, b.product, pl.name AS line_name, b.quantity FROM batches AS b JOIN production_lines AS pl ON pl.id = b.line_id WHERE b.quantity >= 300;",
+      "explanation": "内连接沿批次的 line_id 找到产线名称，再由 WHERE 保留不少于 300 件的批次。每个批次匹配唯一产线，所以一个批次输出一行。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": ["batch_id", "product", "line_name", "quantity"],
+        "rows": [
+          [1, "电机外壳", "一号装配线", 420],
+          [2, "电机外壳", "一号装配线", 300],
+          [3, "齿轮箱体", "二号装配线", 510],
+          [5, "电机外壳", "一号装配线", 380],
+          [7, "支架板", "冲压线", 640],
+          [10, "外壳涂层件", "涂装线", 720]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": ["batch_id", "product", "line_name", "quantity"],
+        "rows": [
+          [21, "液压阀体", "精密加工二线", 360],
+          [22, "电机端盖", "装配三线", 520],
+          [24, "电机端盖", "装配三线", 300],
+          [25, "液压阀体", "精密加工二线", 440],
+          [27, "喷涂外壳", "喷涂二线", 610]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": ["batch_id", "product", "line_name", "quantity"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "ignores-quantity",
+      "sql": "SELECT b.id AS batch_id, b.product, pl.name AS line_name, b.quantity FROM batches AS b JOIN production_lines AS pl ON pl.id = b.line_id;"
+    },
+    {
+      "id": "joins-on-wrong-key",
+      "sql": "SELECT b.id AS batch_id, b.product, pl.name AS line_name, b.quantity FROM batches AS b JOIN production_lines AS pl ON pl.id = b.id WHERE b.quantity >= 300;"
+    },
+    {
+      "id": "strict-greater",
+      "sql": "SELECT b.id AS batch_id, b.product, pl.name AS line_name, b.quantity FROM batches AS b JOIN production_lines AS pl ON pl.id = b.line_id WHERE b.quantity > 300;"
+    }
+  ]
+}

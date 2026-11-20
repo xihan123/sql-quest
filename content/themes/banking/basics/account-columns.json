@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "basics",
+  "id": "account-columns",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "余额字段与列别名",
+  "prerequisites": ["account-list"],
+  "concepts": ["select", "select-columns", "column-alias"],
+  "introducedConcepts": ["select-columns", "column-alias"],
+  "objective": "选取余额表需要的列，按报表要求命名。",
+  "statement": "从 accounts 做一份账户余额清单。依次取 id、balance、account_type，列名改为 account_id、balance_yuan、type_name。每个账户一行，行顺序不限。",
+  "knowledge": [
+    "这份清单按账户列出余额，因此取 id，不取 customer_id。选列只改变显示的字段，同一客户名下的账户仍分别输出。",
+    "SELECT 中用逗号分开各列，结果从左到右依照书写顺序。balance 放在 account_type 前，金额就显示在类型前面。",
+    "balance AS balance_yuan 把结果的列名写成带单位的形式；balance 本来就以整数元存储，不需要换算。原表的列名保持不变。"
+  ],
+  "readableTables": ["accounts"],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出账户编号、余额和账户类型，并使用题目要求的列名。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "一行写一个账户，不用客户编号。记得把余额列放在账户类型前面。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 SELECT 中用 列名 AS 别名 组成每一项，项与项之间加逗号。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id AS account_id, balance AS ____, account_type AS ____ FROM accounts;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id AS account_id, balance AS balance_yuan, account_type AS type_name FROM accounts;",
+      "explanation": "每行仍代表 accounts 的一个账户。AS 让账户编号、余额和账户类型显示为所需的表头，金额保持原值。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": ["account_id", "balance_yuan", "type_name"],
+        "rows": [
+          [1, 52000, "活期"],
+          [2, 50000, "定期"],
+          [3, 8000, "活期"],
+          [4, 120000, "理财"],
+          [5, 30000, "活期"],
+          [6, 20000, "定期"],
+          [7, 5000, "理财"],
+          [8, 66000, "活期"],
+          [9, 15000, "定期"],
+          [10, 3000, "活期"],
+          [11, 42000, "理财"],
+          [12, 9000, "定期"]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": ["account_id", "balance_yuan", "type_name"],
+        "rows": [
+          [31, 15000, "活期"],
+          [32, 50000, "定期"],
+          [33, 88000, "理财"],
+          [34, 30000, "定期"],
+          [35, 4000, "活期"],
+          [36, 60000, "理财"],
+          [37, 12000, "定期"],
+          [38, 25000, "理财"],
+          [39, 3000, "活期"],
+          [40, 20000, "定期"],
+          [41, 7000, "理财"]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": ["account_id", "balance_yuan", "type_name"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-original-names",
+      "sql": "SELECT id, balance, account_type FROM accounts;"
+    },
+    {
+      "id": "omits-type",
+      "sql": "SELECT id AS account_id, balance AS balance_yuan FROM accounts;"
+    }
+  ]
+}

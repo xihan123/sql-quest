@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "filtering",
+  "id": "unrated-batches",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "未评估不良率的批次",
+  "prerequisites": ["large-batches"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare",
+    "and-or-conditions",
+    "null-check"
+  ],
+  "introducedConcepts": ["and-or-conditions", "null-check"],
+  "objective": "组合生产日期边界和不良率空值判断。",
+  "statement": "找出 produced_at 不晚于 2025-04-30 且 defect_rate 为 SQL NULL（尚未评估）的批次，依次输出 id、product、produced_at。当天生产也算；数值 0 表示已评估为零不良，不算未评估。",
+  "knowledge": [
+    "produced_at 是固定 YYYY-MM-DD 文本，按此格式可比较先后；<= 包含 2025-04-30 当天的 7 号批次。",
+    "defect_rate 的 SQL NULL 表示尚未评估；REAL 数值 0 表示已测得零不良率，两者含义不同。",
+    "普通比较 defect_rate = NULL 的结果为未知，WHERE 不保留未知；IS NULL 是表达此空值条件的直接写法。两个条件需同时成立，用 AND。"
+  ],
+  "readableTables": ["batches"],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出日期不晚于 2025-04-30 且尚未评估不良率的批次。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "日期必须在截止日当天或更早，且不良率尚未评估；已测得 0 不属于未评估。"
+    },
+    {
+      "id": "syntax",
+      "text": "produced_at <= 日期用单引号，defect_rate IS NULL 判断缺值，再用 AND 连接。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, product, produced_at FROM batches WHERE produced_at <= '2025-04-30' AND ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, product, produced_at FROM batches WHERE produced_at <= '2025-04-30' AND defect_rate IS NULL;",
+      "explanation": "两个条件都要满足：日期不晚于截止日，且 defect_rate 是 SQL NULL。数值 0 是有效测量结果，不应并入未评估批次。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": ["id", "product", "produced_at"],
+        "rows": [
+          [4, "轴承座", "2025-03-27"],
+          [7, "支架板", "2025-04-30"]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": ["id", "product", "produced_at"],
+        "rows": [
+          [23, "液压阀体", "2025-01-20"],
+          [26, "焊合支架", "2025-04-30"]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": ["id", "product", "produced_at"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "rate-equals-null",
+      "sql": "SELECT id, product, produced_at FROM batches WHERE defect_rate = NULL AND produced_at <= '2025-04-30';"
+    },
+    {
+      "id": "ignores-date",
+      "sql": "SELECT id, product, produced_at FROM batches WHERE defect_rate IS NULL;"
+    },
+    {
+      "id": "rated-only",
+      "sql": "SELECT id, product, produced_at FROM batches WHERE produced_at <= '2025-04-30' AND defect_rate IS NOT NULL;"
+    },
+    {
+      "id": "zero-as-unrated",
+      "sql": "SELECT id, product, produced_at FROM batches WHERE produced_at <= '2025-04-30' AND (defect_rate IS NULL OR defect_rate = 0);"
+    }
+  ]
+}

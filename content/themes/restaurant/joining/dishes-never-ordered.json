@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "joining",
+  "id": "dishes-never-ordered",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "从未被点单的菜品",
+  "prerequisites": ["order-dishes"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null-check",
+    "left-join"
+  ],
+  "introducedConcepts": ["left-join"],
+  "objective": "用左连接和右表主键 NULL 找出没有订单明细的菜品。",
+  "statement": "找出从未出现在 order_items 中的菜品，依次输出 dish_id、dish_name；每道符合条件的菜一行。如果每道菜都出现在至少一条明细中，返回零行。",
+  "knowledge": [
+    "dishes 放在 LEFT JOIN 左侧，先保留每道菜；order_items.dish_id 指向 dishes.id。INNER JOIN 会在配对阶段直接删掉从未被点过的菜。",
+    "一份菜可出现在多条订单明细里，连接后会重复展开；这不表示菜品记录重复。本题只筛完全没有配对的菜。",
+    "未配对时右表主键 oi.id 被补为 SQL NULL，所以用 WHERE oi.id IS NULL 筛出。主键本身非 NULL；若把条件用于 ON，会改变哪些明细能配对，不能替代连接后的未匹配判断。"
+  ],
+  "readableTables": ["dishes", "order_items"],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出从未出现在订单明细中的菜品。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "保留每道菜及其可能的所有明细配对，再留下没有任何配对的菜。"
+    },
+    {
+      "id": "syntax",
+      "text": "LEFT JOIN 按 oi.dish_id = d.id 配对，连接后用 WHERE oi.id IS NULL 找未匹配项。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT d.id AS dish_id, d.name AS dish_name FROM dishes AS d LEFT JOIN order_items AS oi ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT d.id AS dish_id, d.name AS dish_name FROM dishes AS d LEFT JOIN order_items AS oi ON oi.dish_id = d.id WHERE oi.id IS NULL;",
+      "explanation": "左连接保留全部菜品，并按 dish_id 寻找明细。未匹配行的 oi.id 为 SQL NULL；连接后筛选它即可找出从未出现在任何明细中的菜。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": ["dish_id", "dish_name"],
+        "rows": [[5, "干锅花菜"]]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": ["dish_id", "dish_name"],
+        "rows": [[28, "豆浆"]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": ["dish_id", "dish_name"],
+        "rows": []
+      }
+    },
+    {
+      "id": "allseen",
+      "fixtureId": "restaurant-allseen-v2",
+      "expected": {
+        "columns": ["dish_id", "dish_name"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-join",
+      "sql": "SELECT d.id AS dish_id, d.name AS dish_name FROM dishes AS d JOIN order_items AS oi ON oi.dish_id = d.id WHERE oi.id IS NULL;"
+    },
+    {
+      "id": "condition-in-on",
+      "sql": "SELECT d.id AS dish_id, d.name AS dish_name FROM dishes AS d LEFT JOIN order_items AS oi ON oi.dish_id = d.id AND oi.id IS NULL;"
+    },
+    {
+      "id": "forgets-null-filter",
+      "sql": "SELECT d.id AS dish_id, d.name AS dish_name FROM dishes AS d LEFT JOIN order_items AS oi ON oi.dish_id = d.id;"
+    }
+  ]
+}

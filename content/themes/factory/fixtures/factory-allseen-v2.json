@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "id": "factory-allseen-v2",
+  "tables": [
+    {
+      "name": "production_lines",
+      "description": "生产线档案，一行一条产线。workshop 是所属车间，同一车间可有多条产线，名称相近时以 id 区分。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "产线编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "产线名称"
+        },
+        {
+          "name": "workshop",
+          "type": "TEXT",
+          "description": "所属车间"
+        }
+      ],
+      "rows": [
+        [51, "一号装配线", "总装车间"],
+        [52, "二号装配线", "总装车间"],
+        [53, "精密加工线", "机加工车间"],
+        [54, "冲压线", "冲压车间"],
+        [55, "涂装线", "涂装车间"]
+      ]
+    },
+    {
+      "name": "batches",
+      "description": "生产批次，一行一个批次。line_id 指向产线，product 是产品名称，produced_at 为 YYYY-MM-DD 文本，quantity 是生产件数，defect_rate 为不良率百分比（1.85 表示 1.85%，NULL 表示尚未评估）。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "批次编号"
+        },
+        {
+          "name": "line_id",
+          "type": "INTEGER",
+          "description": "产线编号，指向 production_lines.id",
+          "references": {
+            "table": "production_lines",
+            "column": "id"
+          }
+        },
+        {
+          "name": "product",
+          "type": "TEXT",
+          "description": "产品名称"
+        },
+        {
+          "name": "produced_at",
+          "type": "TEXT",
+          "description": "生产日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "生产数量，件"
+        },
+        {
+          "name": "defect_rate",
+          "type": "REAL",
+          "minimum": 0,
+          "nullable": true,
+          "description": "不良率，百分比数值，1.85 表示 1.85%；NULL 表示尚未评估"
+        }
+      ],
+      "rows": [
+        [61, 51, "电机外壳", "2025-03-04", 420, 1.85],
+        [62, 51, "电机外壳", "2025-03-18", 300, 2.4],
+        [63, 52, "齿轮箱体", "2025-03-18", 510, 0.9],
+        [64, 53, "轴承座", "2025-03-27", 260, null],
+        [65, 51, "电机外壳", "2025-04-02", 380, 1.2],
+        [66, 52, "齿轮箱体", "2025-04-02", 295, 3.1],
+        [67, 54, "支架板", "2025-04-30", 640, null],
+        [68, 52, "端盖", "2025-04-15", 180, 0.75],
+        [69, 53, "轴承座", "2025-04-28", 150, 2.05],
+        [70, 55, "外壳涂层件", "2025-05-06", 720, null],
+        [71, 55, "外壳涂层件", "2025-05-06", 90, 1.6]
+      ]
+    },
+    {
+      "name": "inspections",
+      "description": "检验记录，一行一次检验。batch_id 指向批次，inspector 为检验员，result 为合格 / 不合格 / 待复检，checked_at 为检验日期；同一批次可多次检验，也可能没有记录。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "检验记录编号"
+        },
+        {
+          "name": "batch_id",
+          "type": "INTEGER",
+          "description": "批次编号，指向 batches.id",
+          "references": {
+            "table": "batches",
+            "column": "id"
+          }
+        },
+        {
+          "name": "inspector",
+          "type": "TEXT",
+          "description": "检验员，虚构人物"
+        },
+        {
+          "name": "result",
+          "type": "TEXT",
+          "description": "检验结论：合格 / 不合格 / 待复检"
+        },
+        {
+          "name": "checked_at",
+          "type": "TEXT",
+          "description": "检验日期，固定为 YYYY-MM-DD 文本"
+        }
+      ],
+      "rows": [
+        [81, 61, "王立", "合格", "2025-03-05"],
+        [82, 61, "李娜", "不合格", "2025-03-06"],
+        [83, 62, "张伟", "合格", "2025-03-19"],
+        [84, 63, "张伟", "合格", "2025-03-19"],
+        [85, 63, "陈静", "待复检", "2025-03-20"],
+        [86, 64, "王立", "合格", "2025-03-28"],
+        [87, 65, "王立", "合格", "2025-04-03"],
+        [88, 66, "李娜", "不合格", "2025-04-03"],
+        [89, 67, "张伟", "合格", "2025-05-01"],
+        [90, 68, "张伟", "合格", "2025-04-16"],
+        [91, 69, "王立", "待复检", "2025-04-29"],
+        [92, 70, "李娜", "合格", "2025-05-07"],
+        [93, 71, "陈静", "不合格", "2025-05-08"]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "batches_produced_at",
+      "table": "batches",
+      "columns": [
+        {
+          "name": "produced_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

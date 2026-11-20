@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "summarizing",
+  "id": "department-groups",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "按科室统计就诊次数",
+  "prerequisites": ["visit-totals"],
+  "concepts": ["select", "aggregate", "group-by", "having"],
+  "introducedConcepts": ["group-by", "having"],
+  "objective": "按就诊科室汇总，用接诊次数筛选分组。",
+  "statement": "根据 visits 做一张科室报表。每个科室统计就诊次数和门诊费合计（元），只列出至少接诊 4 次的科室。依次输出 department、visit_count、total_fee，每科室一行，行顺序不限。",
+  "knowledge": [
+    "GROUP BY department 把 visits 中同一就诊科室的记录放在一起。SELECT 中原样显示 department，所以它也是分组列。",
+    "COUNT(*) 数该组有几次就诊，SUM(fee) 加总这些就诊的费用。同一患者在一个科室多次就诊，每次都计入。",
+    "WHERE 在分组前筛单条就诊。这里要等每组的次数算出来，才能用写在 GROUP BY 后的 HAVING 筛科室。皮肤科刚好 4 次，也应保留。",
+    "visits 为空时没有科室可分组；有记录但没有科室达到 4 次，报表同样返回零行。"
+  ],
+  "readableTables": ["visits"],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按科室统计，只保留就诊次数不少于 4 次的科室。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "一行对应一个科室。先数出每个科室有多少次就诊，再判断这一行是否应出现在报表里。"
+    },
+    {
+      "id": "syntax",
+      "text": "GROUP BY 后接科室字段，HAVING 中用 COUNT(*) 和 >= 写次数门槛。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT department, COUNT(*) AS visit_count, SUM(fee) AS total_fee FROM visits GROUP BY department HAVING ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT department, COUNT(*) AS visit_count, SUM(fee) AS total_fee FROM visits GROUP BY department HAVING COUNT(*) >= 4;",
+      "explanation": "预览数据里，外科有 3 次就诊，虽然费用共 1230 元，仍达不到次数门槛。内科的 5 次和皮肤科的 4 次都符合。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": ["department", "visit_count", "total_fee"],
+        "rows": [
+          ["内科", 5, 1180],
+          ["皮肤科", 4, 990]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": ["department", "visit_count", "total_fee"],
+        "rows": [
+          ["内科", 5, 1040],
+          ["外科", 4, 1420]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": ["department", "visit_count", "total_fee"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "no-having",
+      "sql": "SELECT department, COUNT(*) AS visit_count, SUM(fee) AS total_fee FROM visits GROUP BY department;"
+    },
+    {
+      "id": "filters-by-total-fee",
+      "sql": "SELECT department, COUNT(*) AS visit_count, SUM(fee) AS total_fee FROM visits GROUP BY department HAVING SUM(fee) >= 1200;"
+    },
+    {
+      "id": "strict-greater-than-four",
+      "sql": "SELECT department, COUNT(*) AS visit_count, SUM(fee) AS total_fee FROM visits GROUP BY department HAVING COUNT(*) > 4;"
+    }
+  ]
+}

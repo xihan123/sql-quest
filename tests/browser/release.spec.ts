@@ -10,7 +10,8 @@ import { sourceContent } from '../content-helpers.ts';
 test('production SPA at a subpath loads local assets and new immutable JSON without rebuilding or replacing an open snapshot', async ({
   page,
 }) => {
-  test.setTimeout(90_000);
+  // 逐关运行参考解法与保存等待的耗时随内容增长（当前 114 关），预留更长超时。
+  test.setTimeout(300_000);
   const output = resolve('test-results/release-build');
   const source = resolve('test-results/release-source');
   await build({ build: { outDir: output, emptyOutDir: false } });
@@ -77,6 +78,7 @@ test('production SPA at a subpath loads local assets and new immutable JSON with
       await page
         .getByRole('button', { name: index.title, exact: true })
         .click();
+      // 逐关只跑首条参考解法以控制时长；全部解法由 content.spec 的全量审计覆盖。
       await editor.fill(solution.sql);
       await page.getByRole('button', { name: '运行', exact: true }).click();
       await expect(

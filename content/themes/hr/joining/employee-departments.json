@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "joining",
+  "id": "employee-departments",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "查询员工及所在部门",
+  "prerequisites": ["department-groups"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "where-compare",
+    "inner-join"
+  ],
+  "introducedConcepts": ["inner-join"],
+  "objective": "用员工外键连接部门表并按月薪筛选。",
+  "statement": "列出 salary 不低于 9000 元的员工，输出 employee_id（employees.id）、employee_name、department_name、salary；9000 元也保留，同部门员工各占一行，不要求行顺序。",
+  "knowledge": [
+    "employees.department_id 指向 departments.id；部门 id 唯一，因此每名员工最多配到一个部门。内连接只保留 ON 条件配对成功的员工。",
+    "employees 和 departments 都有 name，输出时用 e.name 表示员工姓名、d.name 表示部门名称；e、d 是表别名。",
+    "salary >= 9000 包含刘敏和孙鹏的 9000 元边界。内连接中把这个筛选写入 WHERE 或同时作为 ON 条件都可筛掉不符合的配对；此处 WHERE 更直接表达员工月薪条件。"
+  ],
+  "readableTables": ["employees", "departments"],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 关联员工与部门，只保留月薪不低于 9000 元的员工。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "沿 department_id 与部门 id 配对，再筛选月薪；结果仍然一行一名员工。"
+    },
+    {
+      "id": "syntax",
+      "text": "给 employees、departments 分别取别名，JOIN 后用 ON e.department_id = d.id 配对，WHERE e.salary >= 9000 筛行。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT e.id AS employee_id, e.name AS employee_name, ____ AS department_name, e.salary FROM employees AS e JOIN departments AS d ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name, d.name AS department_name, e.salary FROM employees AS e JOIN departments AS d ON d.id = e.department_id WHERE e.salary >= 9000;",
+      "explanation": "内连接通过外键与部门主键配对，再筛出月薪不低于 9000 元的员工。部门编号唯一，故每名匹配员工一行；输出时用别名区分两张表的 name。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": [
+          "employee_id",
+          "employee_name",
+          "department_name",
+          "salary"
+        ],
+        "rows": [
+          [1, "陈立", "技术部", 12000],
+          [2, "刘敏", "技术部", 9000],
+          [3, "周强", "技术部", 15000],
+          [5, "郑伟", "销售部", 11000],
+          [7, "孙鹏", "销售部", 9000],
+          [8, "李娜", "财务部", 9800]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": [
+          "employee_id",
+          "employee_name",
+          "department_name",
+          "salary"
+        ],
+        "rows": [
+          [21, "何静", "研发部", 10500],
+          [23, "林芳", "研发部", 9300],
+          [24, "徐亮", "市场部", 12000],
+          [27, "罗敏", "供应链部", 13500]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": [
+          "employee_id",
+          "employee_name",
+          "department_name",
+          "salary"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "ignores-salary-filter",
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name, d.name AS department_name, e.salary FROM employees AS e JOIN departments AS d ON d.id = e.department_id;"
+    },
+    {
+      "id": "strict-greater",
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name, d.name AS department_name, e.salary FROM employees AS e JOIN departments AS d ON d.id = e.department_id WHERE e.salary > 9000;"
+    },
+    {
+      "id": "joins-on-wrong-key",
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name, d.name AS department_name, e.salary FROM employees AS e JOIN departments AS d ON d.id = e.id WHERE e.salary >= 9000;"
+    }
+  ]
+}

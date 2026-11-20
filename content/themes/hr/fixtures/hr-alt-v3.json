@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "id": "hr-alt-v3",
+  "tables": [
+    {
+      "name": "departments",
+      "description": "公司部门表，每行一个部门。员工通过 employees.department_id 归属部门。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "部门编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "部门名称"
+        },
+        {
+          "name": "manager",
+          "type": "TEXT",
+          "description": "部门负责人，虚构人物"
+        }
+      ],
+      "rows": [
+        [11, "研发部", "顾明"],
+        [12, "市场部", "秦蕾"],
+        [13, "供应链部", "谭勇"],
+        [14, "客服部", "白鸽"]
+      ]
+    },
+    {
+      "name": "employees",
+      "description": "员工档案，一行一名员工。姓名可能重复，以编号区分；phone 为 NULL 表示未登记电话。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "员工编号"
+        },
+        {
+          "name": "department_id",
+          "type": "INTEGER",
+          "description": "所属部门编号，指向 departments.id",
+          "references": {
+            "table": "departments",
+            "column": "id"
+          }
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "员工姓名，虚构人物，可能重名"
+        },
+        {
+          "name": "hire_date",
+          "type": "TEXT",
+          "description": "入职日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "salary",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "月薪，整数元"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话；NULL 表示未登记"
+        }
+      ],
+      "rows": [
+        [21, 11, "何静", "2018-05-12", 10500, ""],
+        [22, 11, "郭磊", "2019-08-30", 8800, null],
+        [23, 11, "林芳", "2023-11-05", 9300, null],
+        [24, 12, "徐亮", "2017-12-01", 12000, "NULL"],
+        [25, 12, "马丽", "2024-02-18", 7600, null],
+        [26, 12, "高翔", "2024-02-18", 8100, "13900002026"],
+        [27, 13, "罗敏", "2016-09-19", 13500, null],
+        [28, 13, "谢婷", "2021-03-15", 6900, null]
+      ]
+    },
+    {
+      "name": "attendances",
+      "description": "考勤记录，一行一名员工某一天的出勤情况；同一员工可有多条。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "考勤记录编号"
+        },
+        {
+          "name": "employee_id",
+          "type": "INTEGER",
+          "description": "员工编号，指向 employees.id",
+          "references": {
+            "table": "employees",
+            "column": "id"
+          }
+        },
+        {
+          "name": "work_date",
+          "type": "TEXT",
+          "description": "考勤日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "状态：出勤 / 请假 / 缺勤"
+        },
+        {
+          "name": "overtime_hours",
+          "type": "REAL",
+          "minimum": 0,
+          "description": "加班小时数，可带小数"
+        }
+      ],
+      "rows": [
+        [41, 21, "2025-05-06", "出勤", 2],
+        [42, 21, "2025-05-07", "出勤", 1],
+        [43, 22, "2025-05-06", "请假", 0],
+        [44, 24, "2025-05-06", "出勤", 3],
+        [45, 25, "2025-05-07", "缺勤", 0],
+        [46, 26, "2025-05-07", "出勤", 1.5],
+        [47, 27, "2025-05-08", "出勤", 0.5]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "attendances_date",
+      "table": "attendances",
+      "columns": [
+        {
+          "name": "work_date",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

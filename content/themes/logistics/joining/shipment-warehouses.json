@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "joining",
+  "id": "shipment-warehouses",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "查询运单的发运仓和承运商",
+  "prerequisites": ["status-groups"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "where-compare",
+    "inner-join"
+  ],
+  "introducedConcepts": ["inner-join"],
+  "objective": "从运单上的两个编号查到发运仓和承运商名称。",
+  "statement": "核对运费达到 260 元的运单，正好 260 元也计入。依次输出 shipment_id（运单编号）、warehouse_name（发运仓名称）、carrier_name（承运商名称）和 freight_fee（运费，元）。每张运单一行，行顺序不限。",
+  "knowledge": [
+    "shipments 中 warehouse_id 指向 warehouses.id，carrier_id 指向 carriers.id。发运仓和承运商各有一套编号；2 号运单的两个外键恰好都是 2，含义不同。",
+    "JOIN 是 INNER JOIN 的简写，只留下满足 ON 的配对。两次 JOIN 分别比较对应的编号，给每张运单补上一座仓库和一家承运商。",
+    "写 warehouses AS w、carriers AS c 为表起短名，再用 w.name、c.name 取各自表的名称。运费来自 shipments，可用 s.freight_fee 指明。",
+    "一张运单对应一行；北辰仓的运单可以由不同承运商配送，同一仓库名出现多次很正常。"
+  ],
+  "readableTables": ["shipments", "warehouses", "carriers"],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 关联运单、仓库和承运商，只保留运费不低于 260 元的运单。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "顺着运单里的 warehouse_id 和 carrier_id 分别找档案，看看哪个编号对应哪张表。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM 指定运单表。每加一张表，用 JOIN 表名 AS 别名 ON 两边相应的编号相等。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT s.id AS shipment_id, ____ AS warehouse_name, ____ AS carrier_name, s.freight_fee FROM shipments AS s JOIN warehouses AS w ON ____ JOIN carriers AS c ON ____ WHERE s.freight_fee >= 260;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT s.id AS shipment_id, w.name AS warehouse_name, c.name AS carrier_name, s.freight_fee FROM shipments AS s JOIN warehouses AS w ON w.id = s.warehouse_id JOIN carriers AS c ON c.id = s.carrier_id WHERE s.freight_fee >= 260;",
+      "explanation": "按各自的外键补名称，运费仍用运单自己的金额。预览的 2 号运单补上松江仓和云翼速运，260 元刚到门槛。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": [
+          "shipment_id",
+          "warehouse_name",
+          "carrier_name",
+          "freight_fee"
+        ],
+        "rows": [
+          [2, "松江仓", "云翼速运", 260],
+          [4, "北辰仓", "云翼速运", 300],
+          [5, "西湖仓", "顺达快递", 320],
+          [9, "北辰仓", "星驰配送", 420],
+          [10, "松江仓", "云翼速运", 280]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": [
+          "shipment_id",
+          "warehouse_name",
+          "carrier_name",
+          "freight_fee"
+        ],
+        "rows": [
+          [32, "亦庄仓", "极速通", 260],
+          [34, "临港仓", "极速通", 300],
+          [35, "河西仓", "风顺速运", 320],
+          [39, "河西仓", "极速通", 400],
+          [40, "亦庄仓", "风顺速运", 260],
+          [41, "黄埔仓", "极速通", 260]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": [
+          "shipment_id",
+          "warehouse_name",
+          "carrier_name",
+          "freight_fee"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "ignores-fee-filter",
+      "sql": "SELECT s.id AS shipment_id, w.name AS warehouse_name, c.name AS carrier_name, s.freight_fee FROM shipments AS s JOIN warehouses AS w ON w.id = s.warehouse_id JOIN carriers AS c ON c.id = s.carrier_id;"
+    },
+    {
+      "id": "strict-greater",
+      "sql": "SELECT s.id AS shipment_id, w.name AS warehouse_name, c.name AS carrier_name, s.freight_fee FROM shipments AS s JOIN warehouses AS w ON w.id = s.warehouse_id JOIN carriers AS c ON c.id = s.carrier_id WHERE s.freight_fee > 260;"
+    },
+    {
+      "id": "joins-on-wrong-key",
+      "sql": "SELECT s.id AS shipment_id, w.name AS warehouse_name, c.name AS carrier_name, s.freight_fee FROM shipments AS s JOIN warehouses AS w ON w.id = s.id JOIN carriers AS c ON c.id = s.carrier_id WHERE s.freight_fee >= 260;"
+    }
+  ]
+}

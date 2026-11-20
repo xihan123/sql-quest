@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "joining",
+  "id": "account-customers",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "查询账户及开户人",
+  "prerequisites": ["account-type-groups"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "where-compare",
+    "inner-join"
+  ],
+  "introducedConcepts": ["inner-join"],
+  "objective": "用客户编号为每个符合余额条件的账户查出开户人。",
+  "statement": "列出余额达到 30000 元的账户及其开户人，正好 30000 元也算，冻结账户符合余额条件也要列出。依次输出 account_id（账户编号）、customer_name（客户姓名）、balance（余额，元）、status（账户状态）。每个账户一行，行顺序不限。",
+  "knowledge": [
+    "accounts.customer_id 是外键，引用 customers.id。每个账户都有且只有一名开户客户；同一客户可以有多个账户。",
+    "JOIN 是 INNER JOIN 的简写，按 ON 条件配对，只保留配得上的行。accounts AS a 和 customers AS c 为两张表起短名：a.id 是账户编号，c.id 是客户编号，姓名来自 c.name。",
+    "预览里账户 1 和 11 属于同一位张伟，账户 4 属于另一位同名客户。查开户人应按编号配对；上述三条账户记录各占一行。"
+  ],
+  "readableTables": ["accounts", "customers"],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 关联账户与客户，只保留余额不低于 30000 元的账户。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "沿着账户上登记的客户编号去找开户人。对一下两张表，看看哪个 id 属于账户、哪个属于人。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM 账户表 AS a JOIN 客户表 AS c ON 两个客户编号相等；用 别名.列名 取字段。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT a.id AS account_id, c.name AS customer_name, a.balance, a.status FROM accounts AS a JOIN ____ ON ____ WHERE a.balance >= 30000;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT a.id AS account_id, c.name AS customer_name, a.balance, a.status FROM accounts AS a JOIN customers AS c ON c.id = a.customer_id WHERE a.balance >= 30000;",
+      "explanation": "ON 按客户编号补上姓名，WHERE 按账户余额选行。预览中 5 号账户虽然冻结，但余额刚好达到 30000 元，仍然列出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": ["account_id", "customer_name", "balance", "status"],
+        "rows": [
+          [1, "张伟", 52000, "正常"],
+          [2, "李娜", 50000, "正常"],
+          [4, "张伟", 120000, "正常"],
+          [5, "刘敏", 30000, "冻结"],
+          [8, "孙浩", 66000, "正常"],
+          [11, "张伟", 42000, "正常"]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": ["account_id", "customer_name", "balance", "status"],
+        "rows": [
+          [32, "林芳", 50000, "正常"],
+          [33, "周杰", 88000, "正常"],
+          [34, "徐亮", 30000, "冻结"],
+          [36, "高翔", 60000, "冻结"]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": ["account_id", "customer_name", "balance", "status"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "ignores-balance-filter",
+      "sql": "SELECT a.id AS account_id, c.name AS customer_name, a.balance, a.status FROM accounts AS a JOIN customers AS c ON c.id = a.customer_id;"
+    },
+    {
+      "id": "strict-greater",
+      "sql": "SELECT a.id AS account_id, c.name AS customer_name, a.balance, a.status FROM accounts AS a JOIN customers AS c ON c.id = a.customer_id WHERE a.balance > 30000;"
+    },
+    {
+      "id": "joins-on-wrong-key",
+      "sql": "SELECT a.id AS account_id, c.name AS customer_name, a.balance, a.status FROM accounts AS a JOIN customers AS c ON c.id = a.id WHERE a.balance >= 30000;"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "filtering",
+  "id": "follow-up",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "核对缺失的联系电话",
+  "prerequisites": ["high-fee"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare",
+    "and-or-conditions",
+    "null-check"
+  ],
+  "introducedConcepts": ["and-or-conditions", "null-check"],
+  "objective": "同时检查出生年份和电话是否缺失。",
+  "statement": "档案室核对 1980 年及以前出生的患者资料。找出 patients 中这些患者里 phone 为 SQL NULL 的人，依次输出 id、name、birth_year。1980 年出生的也在核对范围内，行顺序不限。",
+  "knowledge": [
+    "birth_year 是出生年份。吴涛生于 1980 年，比较符用 <= 才能把这个年份纳入核对。",
+    "patients 用 SQL NULL 表示 phone 未登记。IS NULL 检查是否缺值，IS NOT NULL 检查是否有值。写 phone = NULL 得不到真的条件；空字符串仍是文本值。",
+    "AND 要求两项都成立。钱伟虽未登记电话，但出生在 1980 年以后；已有电话号码的患者也不进名单。"
+  ],
+  "readableTables": ["patients"],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出年份不晚于 1980 且未登记电话的患者。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "既要属于指定年份范围，又要缺电话号码。少查一项，名单都会多出人。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 <= 比较出生年份，用 IS NULL 检查电话号码，再用 AND 连接两项。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, birth_year FROM patients WHERE ____ AND ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, birth_year FROM patients WHERE birth_year <= 1980 AND phone IS NULL;",
+      "explanation": "birth_year <= 1980 AND phone IS NULL 只留下同时满足两项的档案。吴涛刚好到年份边界且没有电话，钱伟只满足电话条件。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": ["id", "name", "birth_year"],
+        "rows": [
+          [2, "李强", 1972],
+          [4, "赵磊", 1968],
+          [6, "吴涛", 1980],
+          [10, "韩磊", 1975]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": ["id", "name", "birth_year"],
+        "rows": [
+          [21, "沈丽", 1979],
+          [23, "邓超", 1965],
+          [26, "卢凯", 1970]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": ["id", "name", "birth_year"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "phone-equals-null",
+      "sql": "SELECT id, name, birth_year FROM patients WHERE birth_year <= 1980 AND phone = NULL;"
+    },
+    {
+      "id": "ignores-birth-year",
+      "sql": "SELECT id, name, birth_year FROM patients WHERE phone IS NULL;"
+    },
+    {
+      "id": "ignores-phone",
+      "sql": "SELECT id, name, birth_year FROM patients WHERE birth_year <= 1980;"
+    },
+    {
+      "id": "registered-phone",
+      "sql": "SELECT id, name, birth_year FROM patients WHERE birth_year <= 1980 AND phone IS NOT NULL;"
+    },
+    {
+      "id": "excludes-boundary-year",
+      "sql": "SELECT id, name, birth_year FROM patients WHERE birth_year < 1980 AND phone IS NULL;"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "summarizing",
+  "id": "transaction-totals",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "流水笔数与金额",
+  "prerequisites": ["recent-accounts"],
+  "concepts": ["select", "aggregate"],
+  "introducedConcepts": ["aggregate"],
+  "objective": "在一行中汇总流水笔数和记录金额。",
+  "statement": "汇总 transactions 的全部流水，依次输出 transaction_count（笔数）、total_amount（amount 合计，元）。消费、存入、转账都按记录金额相加，金额为 0 的流水也算一笔。结果只有一行；没有流水时笔数为 0，合计为 SQL NULL。",
+  "knowledge": [
+    "COUNT(*) 统计 transactions 的行数。COUNT(memo) 只数备注有值的行，会跳过 memo 为 NULL 的流水，但会数到备注为空字符串的流水。",
+    "amount 记录每笔流水的非负金额。SUM(amount) 加总这些数值，不根据 kind 把消费改成负数；合计不能当成净流入或余额变动。预览中的零元流水仍占一行。",
+    "这两个聚合对整张表只给出一行。没有流水时 COUNT(*) 是 0，SUM(amount) 是 NULL；如果有流水且金额全是 0，SUM(amount) 才是 0。"
+  ],
+  "readableTables": ["transactions"],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计流水笔数与金额合计。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "所有类型的流水放在一起统计。0 元流水改变笔数，不改变金额合计。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT 中并排写 COUNT(*) 和 SUM(金额列)，给两个聚合结果分别起名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS transaction_count, ____ AS total_amount FROM transactions;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS transaction_count, SUM(amount) AS total_amount FROM transactions;",
+      "explanation": "预览中有 14 笔流水，amount 相加为 84270 元。COUNT(*) 不依赖备注，SUM(amount) 直接相加；两项都用全部流水计算。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": ["transaction_count", "total_amount"],
+        "rows": [[14, 84270]]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": ["transaction_count", "total_amount"],
+        "rows": [[12, 91700]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": ["transaction_count", "total_amount"],
+        "rows": [[0, null]]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "groups-by-kind",
+      "sql": "SELECT COUNT(*) AS transaction_count, SUM(amount) AS total_amount FROM transactions GROUP BY kind;"
+    },
+    {
+      "id": "counts-nullable-memo",
+      "sql": "SELECT COUNT(memo) AS transaction_count, SUM(amount) AS total_amount FROM transactions;"
+    },
+    {
+      "id": "drops-zero-amount",
+      "sql": "SELECT COUNT(*) AS transaction_count, SUM(amount) AS total_amount FROM transactions WHERE amount > 0;"
+    }
+  ]
+}

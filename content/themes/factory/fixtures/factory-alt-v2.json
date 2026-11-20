@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "id": "factory-alt-v2",
+  "tables": [
+    {
+      "name": "production_lines",
+      "description": "生产线档案，一行一条产线。workshop 是所属车间，同一车间可有多条产线，名称相近时以 id 区分。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "产线编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "产线名称"
+        },
+        {
+          "name": "workshop",
+          "type": "TEXT",
+          "description": "所属车间"
+        }
+      ],
+      "rows": [
+        [11, "精密加工二线", "机加工车间"],
+        [12, "装配三线", "总装车间"],
+        [13, "焊接线", "焊接车间"],
+        [14, "喷涂二线", "涂装车间"]
+      ]
+    },
+    {
+      "name": "batches",
+      "description": "生产批次，一行一个批次。line_id 指向产线，product 是产品名称，produced_at 为 YYYY-MM-DD 文本，quantity 是生产件数，defect_rate 为不良率百分比（1.85 表示 1.85%，NULL 表示尚未评估）。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "批次编号"
+        },
+        {
+          "name": "line_id",
+          "type": "INTEGER",
+          "description": "产线编号，指向 production_lines.id",
+          "references": {
+            "table": "production_lines",
+            "column": "id"
+          }
+        },
+        {
+          "name": "product",
+          "type": "TEXT",
+          "description": "产品名称"
+        },
+        {
+          "name": "produced_at",
+          "type": "TEXT",
+          "description": "生产日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "生产数量，件"
+        },
+        {
+          "name": "defect_rate",
+          "type": "REAL",
+          "minimum": 0,
+          "nullable": true,
+          "description": "不良率，百分比数值，1.85 表示 1.85%；NULL 表示尚未评估"
+        }
+      ],
+      "rows": [
+        [21, 11, "液压阀体", "2025-01-08", 360, 1.1],
+        [22, 12, "电机端盖", "2025-01-08", 520, 0.8],
+        [23, 11, "液压阀体", "2025-01-20", 280, null],
+        [24, 12, "电机端盖", "2025-02-14", 300, 2.6],
+        [25, 11, "液压阀体", "2025-02-14", 440, 0.95],
+        [26, 13, "焊合支架", "2025-04-30", 160, null],
+        [27, 14, "喷涂外壳", "2025-05-12", 610, 3.4],
+        [28, 13, "焊合支架", "2025-05-12", 210, null],
+        [29, 12, "电机端盖", "2025-06-09", 95, 1.75]
+      ]
+    },
+    {
+      "name": "inspections",
+      "description": "检验记录，一行一次检验。batch_id 指向批次，inspector 为检验员，result 为合格 / 不合格 / 待复检，checked_at 为检验日期；同一批次可多次检验，也可能没有记录。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "检验记录编号"
+        },
+        {
+          "name": "batch_id",
+          "type": "INTEGER",
+          "description": "批次编号，指向 batches.id",
+          "references": {
+            "table": "batches",
+            "column": "id"
+          }
+        },
+        {
+          "name": "inspector",
+          "type": "TEXT",
+          "description": "检验员，虚构人物"
+        },
+        {
+          "name": "result",
+          "type": "TEXT",
+          "description": "检验结论：合格 / 不合格 / 待复检"
+        },
+        {
+          "name": "checked_at",
+          "type": "TEXT",
+          "description": "检验日期，固定为 YYYY-MM-DD 文本"
+        }
+      ],
+      "rows": [
+        [31, 21, "王立", "合格", "2025-01-09"],
+        [32, 21, "李娜", "不合格", "2025-01-10"],
+        [33, 22, "张伟", "合格", "2025-01-09"],
+        [34, 24, "陈静", "待复检", "2025-02-15"],
+        [35, 25, "王立", "合格", "2025-02-15"],
+        [36, 25, "李娜", "待复检", "2025-02-16"],
+        [37, 26, "张伟", "合格", "2025-05-01"],
+        [38, 27, "陈静", "不合格", "2025-05-13"],
+        [39, 29, "王立", "合格", "2025-06-10"],
+        [40, 29, "李娜", "待复检", "2025-06-11"]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "batches_produced_at",
+      "table": "batches",
+      "columns": [
+        {
+          "name": "produced_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

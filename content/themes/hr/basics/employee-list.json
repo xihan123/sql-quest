@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "basics",
+  "id": "employee-list",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看员工",
+  "prerequisites": [],
+  "concepts": ["select"],
+  "introducedConcepts": ["select"],
+  "objective": "查看员工表的完整结构和全部员工记录。",
+  "statement": "查看 employees 的全部记录，按表结构顺序输出 id、department_id、name、hire_date、salary、phone 六列，保留原列名。未登记电话的 phone 为 SQL NULL；不要求行顺序，空表返回零行但保留六列列名。",
+  "knowledge": [
+    "SELECT * FROM employees; 会按建表顺序展开六列；星号只表示取列，不负责排序或筛行。",
+    "员工姓名不唯一：id 8 和 10 都叫李娜，分别属于不同部门、入职时间也不同。要识别员工用 id，不能把相同姓名当成同一人。",
+    "phone 的 SQL NULL 表示未登记。空字符串和文本“NULL”都是实际存入的文本，不能当成 SQL NULL；没有 ORDER BY 时也不承诺员工行顺序。"
+  ],
+  "readableTables": ["employees"],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看员工表的全部行和全部列。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "题目要求整张员工表；先核对表名和六列顺序，不需要筛选或排序。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT * 从一张表选出所有字段，FROM employees 指定数据表；星号展开顺序由表结构决定。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM employees;",
+      "explanation": "FROM employees 指向员工档案，星号展开表定义中的六列，所有员工都保留。两名李娜仍是两条记录；phone 的 NULL 也原样显示。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "department_id",
+          "name",
+          "hire_date",
+          "salary",
+          "phone"
+        ],
+        "rows": [
+          [1, 1, "陈立", "2018-03-05", 12000, "13800001001"],
+          [2, 1, "刘敏", "2020-07-14", 9000, null],
+          [3, 1, "周强", "2016-11-01", 15000, "13800001003"],
+          [4, 1, "吴倩", "2021-05-20", 7600, null],
+          [5, 2, "郑伟", "2015-02-09", 11000, "13800001005"],
+          [6, 2, "王雪", "2019-12-31", 6800, null],
+          [7, 2, "孙鹏", "2022-01-10", 9000, "13800001007"],
+          [8, 3, "李娜", "2017-06-18", 9800, null],
+          [9, 4, "张涛", "2024-08-15", 5200, null],
+          [10, 5, "李娜", "2024-08-15", 6200, null]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "department_id",
+          "name",
+          "hire_date",
+          "salary",
+          "phone"
+        ],
+        "rows": [
+          [21, 11, "何静", "2018-05-12", 10500, ""],
+          [22, 11, "郭磊", "2019-08-30", 8800, null],
+          [23, 11, "林芳", "2023-11-05", 9300, null],
+          [24, 12, "徐亮", "2017-12-01", 12000, "NULL"],
+          [25, 12, "马丽", "2024-02-18", 7600, null],
+          [26, 12, "高翔", "2024-02-18", 8100, "13900002026"],
+          [27, 13, "罗敏", "2016-09-19", 13500, null],
+          [28, 13, "谢婷", "2021-03-15", 6900, null]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "department_id",
+          "name",
+          "hire_date",
+          "salary",
+          "phone"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-phone",
+      "sql": "SELECT id, department_id, name, hire_date, salary FROM employees;"
+    },
+    {
+      "id": "filters-by-department",
+      "sql": "SELECT * FROM employees WHERE department_id = 1;"
+    }
+  ]
+}

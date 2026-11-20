@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "basics",
+  "id": "account-list",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看账户",
+  "prerequisites": [],
+  "concepts": ["select"],
+  "introducedConcepts": ["select"],
+  "objective": "读取完整账户清单，区分账户编号与客户编号。",
+  "statement": "查看 accounts 中的所有账户，依次输出 id、customer_id、account_type、balance、opened_at、status，保留原列名。正常、冻结账户都要列出，行顺序不限。",
+  "knowledge": [
+    "accounts 每行代表一个账户。id 是该账户的唯一编号；customer_id 标明账户属于谁。客户 1 名下的账户 1 和 11 分别占一行。",
+    "FROM accounts 指定账户表，SELECT * 按表结构读出全部六列。星号管的是读哪些列，不会按状态筛选。",
+    "账户 5 和 10 的 status 是冻结，但仍登记在账户表里；读取完整清单时它们也在结果中。"
+  ],
+  "readableTables": ["accounts"],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看账户表的全部行和全部列。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "只读账户清单即可，同一客户的各个账户和冻结账户都留下。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT * 读取全部列，FROM 后写清单所在的表。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM accounts;",
+      "explanation": "星号展开为 accounts 定义的六列。这里没有按客户合并，也没有按账户状态筛选。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "customer_id",
+          "account_type",
+          "balance",
+          "opened_at",
+          "status"
+        ],
+        "rows": [
+          [1, 1, "活期", 52000, "2025-01-05", "正常"],
+          [2, 2, "定期", 50000, "2025-01-08", "正常"],
+          [3, 3, "活期", 8000, "2025-01-12", "正常"],
+          [4, 4, "理财", 120000, "2025-02-03", "正常"],
+          [5, 5, "活期", 30000, "2025-02-10", "冻结"],
+          [6, 6, "定期", 20000, "2025-02-18", "正常"],
+          [7, 7, "理财", 5000, "2025-03-02", "正常"],
+          [8, 8, "活期", 66000, "2025-03-02", "正常"],
+          [9, 9, "定期", 15000, "2025-03-15", "正常"],
+          [10, 10, "活期", 3000, "2025-03-15", "冻结"],
+          [11, 1, "理财", 42000, "2025-03-20", "正常"],
+          [12, 2, "定期", 9000, "2025-03-25", "正常"]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "customer_id",
+          "account_type",
+          "balance",
+          "opened_at",
+          "status"
+        ],
+        "rows": [
+          [31, 21, "活期", 15000, "2025-06-01", "正常"],
+          [32, 22, "定期", 50000, "2025-06-03", "正常"],
+          [33, 23, "理财", 88000, "2025-07-03", "正常"],
+          [34, 24, "定期", 30000, "2025-06-05", "冻结"],
+          [35, 25, "活期", 4000, "2025-06-10", "正常"],
+          [36, 26, "理财", 60000, "2025-06-12", "冻结"],
+          [37, 27, "定期", 12000, "2025-06-18", "正常"],
+          [38, 21, "理财", 25000, "2025-06-18", "正常"],
+          [39, 28, "活期", 3000, "2025-06-28", "冻结"],
+          [40, 22, "定期", 20000, "2025-06-28", "正常"],
+          [41, 23, "理财", 7000, "2025-07-02", "正常"]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "customer_id",
+          "account_type",
+          "balance",
+          "opened_at",
+          "status"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-status",
+      "sql": "SELECT id, customer_id, account_type, balance, opened_at FROM accounts;"
+    },
+    {
+      "id": "keeps-only-normal",
+      "sql": "SELECT * FROM accounts WHERE status = '正常';"
+    }
+  ]
+}

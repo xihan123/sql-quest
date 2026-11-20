@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "id": "restaurant-allseen-v2",
+  "tables": [
+    {
+      "name": "dishes",
+      "description": "在售菜品，一行一道菜。category 为热菜 / 凉菜 / 主食 / 饮品；spicy_level 是 1–3 级辣度，NULL 表示未标注；price 为整数元。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "菜品编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "菜品名称"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "分类：热菜 / 凉菜 / 主食 / 饮品"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "单价，整数元"
+        },
+        {
+          "name": "spicy_level",
+          "type": "INTEGER",
+          "minimum": 1,
+          "nullable": true,
+          "description": "辣度 1–3；NULL 表示未标注"
+        }
+      ],
+      "rows": [
+        [61, "宫保鸡丁", "热菜", 46, 3],
+        [62, "清蒸鲈鱼", "热菜", 86, null],
+        [63, "麻婆豆腐", "热菜", 36, 3],
+        [64, "京酱肉丝", "热菜", 50, 2],
+        [65, "干锅花菜", "热菜", 34, 2],
+        [66, "凉拌黄瓜", "凉菜", 20, null],
+        [67, "口水鸡", "凉菜", 38, 2],
+        [68, "蒜泥白肉", "凉菜", 40, null],
+        [69, "蛋炒饭", "主食", 28, null],
+        [70, "手工水饺", "主食", 30, null],
+        [71, "酸梅汤", "饮品", 12, null],
+        [72, "柠檬茶", "饮品", 16, null]
+      ]
+    },
+    {
+      "name": "orders",
+      "description": "门店订单，一行一笔。table_no 是桌号，同一桌可多次下单；ordered_at 为 YYYY-MM-DD 文本日期；status 为已完成 / 进行中 / 已取消。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "订单编号"
+        },
+        {
+          "name": "table_no",
+          "type": "INTEGER",
+          "minimum": 1,
+          "description": "桌号"
+        },
+        {
+          "name": "ordered_at",
+          "type": "TEXT",
+          "description": "下单日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "状态：已完成 / 进行中 / 已取消"
+        }
+      ],
+      "rows": [
+        [101, 3, "2025-07-01", "已完成"],
+        [102, 3, "2025-07-01", "已完成"],
+        [103, 8, "2025-07-02", "进行中"],
+        [104, 2, "2025-07-03", "已完成"],
+        [105, 6, "2025-07-04", "已取消"]
+      ]
+    },
+    {
+      "name": "order_items",
+      "description": "订单明细，一行点了一道菜。order_id 指向订单，dish_id 指向菜品，quantity 是份数（≥1）；同一道菜可出现在多笔订单。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "明细编号"
+        },
+        {
+          "name": "order_id",
+          "type": "INTEGER",
+          "description": "订单编号，指向 orders.id",
+          "references": {
+            "table": "orders",
+            "column": "id"
+          }
+        },
+        {
+          "name": "dish_id",
+          "type": "INTEGER",
+          "description": "菜品编号，指向 dishes.id",
+          "references": {
+            "table": "dishes",
+            "column": "id"
+          }
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "minimum": 1,
+          "description": "份数"
+        }
+      ],
+      "rows": [
+        [201, 101, 61, 2],
+        [202, 101, 62, 1],
+        [203, 101, 63, 2],
+        [204, 102, 64, 1],
+        [205, 102, 65, 2],
+        [206, 102, 66, 1],
+        [207, 103, 67, 1],
+        [208, 103, 68, 2],
+        [209, 103, 69, 1],
+        [210, 104, 70, 1],
+        [211, 104, 71, 2],
+        [212, 105, 72, 1]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "orders_date",
+      "table": "orders",
+      "columns": [
+        {
+          "name": "ordered_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

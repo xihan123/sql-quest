@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "summarizing",
+  "id": "account-type-groups",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "账户类型分组",
+  "prerequisites": ["transaction-totals"],
+  "concepts": ["select", "aggregate", "group-by", "having"],
+  "introducedConcepts": ["group-by", "having"],
+  "objective": "按账户类型算小计，再筛出达到数量门槛的类型。",
+  "statement": "用 accounts 统计每类账户的数量和余额合计（元）。正常和冻结账户都参加统计，只列出至少有 4 个账户的类型。依次输出 account_type、account_count、total_balance，每种类型一行，行顺序不限。",
+  "knowledge": [
+    "GROUP BY account_type 让每种账户类型单独成组。SELECT 中原样输出的是 account_type，两项聚合则分别在各组内计算。",
+    "COUNT(*) 统计组内账户数，SUM(balance) 加总本组余额。活期账户 5 和 10 虽然冻结，仍参与活期组的计数和求和。",
+    "HAVING 写在 GROUP BY 后，用算出的账户数筛组。WHERE 在分组前筛单个账户，不能用来比较组内计数。",
+    "预览中定期正好 4 个，应该保留；理财有 3 个，余额合计虽然更高，也不会出现在结果里。空表没有账户可分组，返回零行。"
+  ],
+  "readableTables": ["accounts"],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按账户类型统计，只保留账户数不少于 4 个的类型。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "一行回答一种类型有多少个账户、一共有多少余额。哪个数决定这行要不要列出？"
+    },
+    {
+      "id": "syntax",
+      "text": "在 GROUP BY 后接类型列，再用 HAVING 对 COUNT(*) 写数量条件。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT account_type, COUNT(*) AS account_count, SUM(balance) AS total_balance FROM accounts GROUP BY account_type HAVING ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT account_type, COUNT(*) AS account_count, SUM(balance) AS total_balance FROM accounts GROUP BY account_type HAVING COUNT(*) >= 4;",
+      "explanation": "HAVING 比较的是账户数，所以预览中 4 个定期账户的组会保留，3 个理财账户的组会排除。余额总额只作为报表结果。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": ["account_type", "account_count", "total_balance"],
+        "rows": [
+          ["活期", 5, 159000],
+          ["定期", 4, 94000]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": ["account_type", "account_count", "total_balance"],
+        "rows": [
+          ["定期", 4, 112000],
+          ["理财", 4, 180000]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": ["account_type", "account_count", "total_balance"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "no-having",
+      "sql": "SELECT account_type, COUNT(*) AS account_count, SUM(balance) AS total_balance FROM accounts GROUP BY account_type;"
+    },
+    {
+      "id": "strict-greater-than-four",
+      "sql": "SELECT account_type, COUNT(*) AS account_count, SUM(balance) AS total_balance FROM accounts GROUP BY account_type HAVING COUNT(*) > 4;"
+    },
+    {
+      "id": "filters-by-total-balance",
+      "sql": "SELECT account_type, COUNT(*) AS account_count, SUM(balance) AS total_balance FROM accounts GROUP BY account_type HAVING SUM(balance) >= 100000;"
+    }
+  ]
+}

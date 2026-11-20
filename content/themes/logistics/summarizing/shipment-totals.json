@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "summarizing",
+  "id": "shipment-totals",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "运单数与运费",
+  "prerequisites": ["recent-shipments"],
+  "concepts": ["select", "aggregate"],
+  "introducedConcepts": ["aggregate"],
+  "objective": "统计运单张数，并加总各运单记载的运费。",
+  "statement": "汇总 shipments 的全部运单，包括未签收和已取消的运单。返回一行两列：shipment_count 是运单张数，total_fee 是 freight_fee 的记录金额合计（元）。没有运单时，张数是 0，合计为 SQL NULL。",
+  "knowledge": [
+    "COUNT(*) 数运单行；COUNT(delivered_at) 只数有签收日期的行。例如 7 号状态是异常，但有签收日期；在途的 1 号没有日期。题目要数所有运单。",
+    "SUM(freight_fee) 相加的是各运单的记录金额。13 号虽然已取消，表中仍有 60 元运费，这笔也计入；该合计不能当作实收运费。",
+    "两个聚合结果可以写在同一个 SELECT 中，只返回一行。shipments 为空时 COUNT(*) 返回 0，SUM(freight_fee) 返回 NULL。"
+  ],
+  "readableTables": ["shipments"],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计运单数与运费合计。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "统计范围是整张运单表。未签收也要数，已取消也要把记录金额加进去。"
+    },
+    {
+      "id": "syntax",
+      "text": "COUNT(*) 统计行数，SUM(运费列) 计算金额合计；用逗号分开两个结果。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS shipment_count, ____ AS total_fee FROM shipments;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments;",
+      "explanation": "对整张 shipments 计数、求和，预览有 13 张，记录金额合计 2490 元。签收日期和状态都不影响统计范围。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": ["shipment_count", "total_fee"],
+        "rows": [[13, 2490]]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": ["shipment_count", "total_fee"],
+        "rows": [[12, 2530]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": ["shipment_count", "total_fee"],
+        "rows": [[0, null]]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "groups-by-status",
+      "sql": "SELECT COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments GROUP BY status;"
+    },
+    {
+      "id": "counts-delivered-at",
+      "sql": "SELECT COUNT(delivered_at) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments;"
+    },
+    {
+      "id": "excludes-cancelled",
+      "sql": "SELECT COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments WHERE status <> '已取消';"
+    }
+  ]
+}

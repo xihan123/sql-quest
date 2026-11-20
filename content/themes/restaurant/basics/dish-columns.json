@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "basics",
+  "id": "dish-columns",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "菜品字段与列别名",
+  "prerequisites": ["dish-list"],
+  "concepts": ["select", "select-columns", "column-alias"],
+  "introducedConcepts": ["select-columns", "column-alias"],
+  "objective": "挑选菜品编号、单价和分类并命名结果列。",
+  "statement": "从 dishes 输出菜品编号、当前菜单单价和分类，依次命名为 dish_id、price_yuan、dish_category；每道菜一行。",
+  "knowledge": [
+    "id、price、category 分别存菜品编号、整数元当前单价和类别；给输出字段起别名不改变这些值。",
+    "列别名通常写成 price AS price_yuan；SQLite 允许省略 AS，只要结果列名和顺序符合题意即可。",
+    "同类别的菜各自保留一行，不能因为 category 相同就合并；本题没有聚合或去重。"
+  ],
+  "readableTables": ["dishes"],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出菜品编号、单价和分类，并使用题目要求的列名。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "按顺序选出菜品编号、单价、分类，并检查三列结果名称。"
+    },
+    {
+      "id": "syntax",
+      "text": "字段名后可以用 AS 设置列别名，字段间用逗号分隔；省略 AS 在 SQLite 中也有效。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id AS dish_id, price AS ____, category AS ____ FROM dishes;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id AS dish_id, price AS price_yuan, category AS dish_category FROM dishes;",
+      "explanation": "依次输出 id、price 和 category，并设置题目指定的结果表头；AS 只命名结果列，price 仍是菜单当前单价。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": ["dish_id", "price_yuan", "dish_category"],
+        "rows": [
+          [1, 48, "热菜"],
+          [2, 88, "热菜"],
+          [3, 36, "热菜"],
+          [4, 52, "热菜"],
+          [5, 34, "热菜"],
+          [6, 22, "凉菜"],
+          [7, 38, "凉菜"],
+          [8, 42, "凉菜"],
+          [9, 28, "主食"],
+          [10, 32, "主食"],
+          [11, 12, "饮品"],
+          [12, 16, "饮品"]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": ["dish_id", "price_yuan", "dish_category"],
+        "rows": [
+          [21, 58, "热菜"],
+          [22, 18, "凉菜"],
+          [23, 42, "凉菜"],
+          [24, 26, "主食"],
+          [25, 24, "主食"],
+          [26, 30, "主食"],
+          [27, 12, "饮品"],
+          [28, 8, "饮品"],
+          [29, 16, "饮品"]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": ["dish_id", "price_yuan", "dish_category"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-original-names",
+      "sql": "SELECT id, price, category FROM dishes;"
+    },
+    {
+      "id": "omits-price",
+      "sql": "SELECT id AS dish_id, category AS dish_category FROM dishes;"
+    }
+  ]
+}

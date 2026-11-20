@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "summarizing",
+  "id": "item-totals",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "明细行数与总份数",
+  "prerequisites": ["recent-orders"],
+  "concepts": ["select", "aggregate"],
+  "introducedConcepts": ["aggregate"],
+  "objective": "对全部订单明细汇总行数与订购份数。",
+  "statement": "统计 order_items 的明细行数和 quantity 份数合计，依次输出 line_count、total_quantity；统计范围是表中全部明细行，不按订单状态筛选。空表时行数为 0、合计为 SQL NULL。",
+  "knowledge": [
+    "COUNT(*) 统计明细行，SUM(quantity) 累加每行订购份数；明细行数不是订购总份数。",
+    "order_items 表的 13 行共有 23 份；quantity 为 3 的一行只给 COUNT(*) 增加 1，却给 SUM(quantity) 增加 3。",
+    "本题只读取 order_items，没有连接 orders 或过滤 status，因此已取消订单中的明细也在汇总范围。空表下 COUNT(*) 为 0、SUM(quantity) 为 NULL。"
+  ],
+  "readableTables": ["order_items"],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计订单明细的行数与份数合计。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "整张明细表只输出一个汇总行；分别数明细记录和累加每行份数。"
+    },
+    {
+      "id": "syntax",
+      "text": "COUNT(*) 数行，SUM(quantity) 加总份数；两个聚合写在同一个 SELECT 中。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS line_count, ____ AS total_quantity FROM order_items;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS line_count, SUM(quantity) AS total_quantity FROM order_items;",
+      "explanation": "COUNT(*) 得到明细记录数，SUM(quantity) 得到各行份数之和。只查询 order_items，所以不同订单状态的明细都计入；空表仍返回一行，计数为 0、合计为 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": ["line_count", "total_quantity"],
+        "rows": [[13, 23]]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": ["line_count", "total_quantity"],
+        "rows": [[9, 17]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": ["line_count", "total_quantity"],
+        "rows": [[0, null]]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "groups-by-order",
+      "sql": "SELECT COUNT(*) AS line_count, SUM(quantity) AS total_quantity FROM order_items GROUP BY order_id;"
+    },
+    {
+      "id": "count-instead-of-sum",
+      "sql": "SELECT COUNT(*) AS line_count, COUNT(quantity) AS total_quantity FROM order_items;"
+    }
+  ]
+}

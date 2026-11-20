@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "filtering",
+  "id": "heavy-shipments",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "筛选重件运单",
+  "prerequisites": ["shipment-columns"],
+  "concepts": ["select", "select-columns", "where-compare"],
+  "introducedConcepts": ["where-compare"],
+  "objective": "按原始重量挑出达到门槛的运单。",
+  "statement": "在 shipments 中找出重量达到 500 千克的运单，正好 500 千克也算。依次输出 id、weight_kg；重量按原值显示，小数不取整。每张运单一行，行顺序不限。",
+  "knowledge": [
+    "weight_kg 以千克记录，是可含小数的数值列。预览中 2 号运单重 480.5 千克，低于门槛；4 号和 5 号都是 500 千克，应当保留。",
+    "WHERE 用 >= 比较每张运单的原始重量与数值 500。筛选决定哪些运单留下，SELECT 则把留下的运单重量原样取出。"
+  ],
+  "readableTables": ["shipments"],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出重量不低于 500 千克的运单。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "拿 480.5 和 500 这两个重量核对条件，前者不要，后者要留。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE 中用 >= 与数值 500 比较，输出的重量列不做计算。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, weight_kg FROM shipments WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, weight_kg FROM shipments WHERE weight_kg >= 500;",
+      "explanation": "weight_kg >= 500 保留预览中两张刚到门槛和一张更重的运单。结果仍取 weight_kg 原值，所以入选运单如果带小数也会照常显示。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": ["id", "weight_kg"],
+        "rows": [
+          [4, 500],
+          [5, 500],
+          [9, 620]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": ["id", "weight_kg"],
+        "rows": [
+          [34, 500],
+          [35, 500],
+          [39, 610.5]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": ["id", "weight_kg"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "strict-greater",
+      "sql": "SELECT id, weight_kg FROM shipments WHERE weight_kg > 500;"
+    },
+    {
+      "id": "lower-bound-too-low",
+      "sql": "SELECT id, weight_kg FROM shipments WHERE weight_kg >= 400;"
+    },
+    {
+      "id": "rounds-output-weight",
+      "sql": "SELECT id, ROUND(weight_kg) AS weight_kg FROM shipments WHERE weight_kg >= 500;"
+    }
+  ]
+}

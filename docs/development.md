@@ -42,9 +42,26 @@ content/
       ...
     campus/
       ...
+    clinic/
+      basics/
+        patient-list.json
+        ...
+      fixtures/
+        clinic-main-v3.json
+        ...
+    logistics/
+      ...
+    banking/
+      ...
+    hr/
+      ...
+    restaurant/
+      ...
+    factory/
+      ...
 ```
 
-关卡路径为 `themes/<主题 ID>/<章节 ID>/<关卡 ID>.json`。主题下的 `fixtures/` 存放跨章节共用的数据，关卡不另存表结构或预览行。
+关卡路径为 `themes/<主题 ID>/<章节 ID>/<关卡 ID>.json`。主题下的 `fixtures/` 存放跨章节共用的数据，关卡不另存表结构或预览行。行业主题统一使用 `basics`、`filtering`、`summarizing`、`joining` 四个章节，每主题登记 `-main`、`-alt`、`-empty`、`-allseen` 四种夹具；`-allseen` 让左连接的父表每行都有子行，覆盖「全部匹配返回零行」，`empty` 只覆盖左表为空。恒为零行的用例无法区分 `INNER JOIN` 与 `LEFT JOIN`，误用识别由 `-main` 与 `-alt` 承担。夹具按各自数据变化独立递增版本，因此当前登记版本包含 v2 和 v3；已登记夹具的旧版本文件可保留，但不重复登记。
 
 1. 修改源 JSON，新增关卡时在根配置登记
 2. 按题意和数据独立核对预期结果，再执行参考解法和典型错误
@@ -55,7 +72,9 @@ content/
 
 ### 版本规则
 
-- 当前课程 ID 为 `sql-quest-v1`，初始根及 60 个开放关卡的 revision 均为 1，夹具各自使用 v1。它不继承旧 `sql-quest` 的学习状态；旧记录仍保留并可导出。
+- 当前课程 ID 为 `sql-quest-v1`，根 revision 为 5，共 9 个主题、114 个开放关卡；行业主题关卡使用 revision 3，已登记夹具版本为 v2 或 v3。它不继承旧 `sql-quest` 的学习状态；旧记录仍保留并可导出。
+- 根 revision 跳过 2：该版本号已被一套未收录进仓库的本地会计草案占用，其资源也不在源目录中，因此新内容从 r3 起编号。后续已发布内容的教学与数据修订使用新关卡 revision 和夹具版本，当前根为 r5；不以修改现有夹具文件的方式替换已发布数据。
+- 知识点 `concepts` 只在主题内唯一，跨主题同一技能可用不同 ID（如图书的 `where` 与行业主题的 `where-compare`），不得跨主题按 ID 合并统计。
 - 后续更新保持 courseId、themeId、lessonId 稳定。改名或换路径不是新身份。
 - 根清单或引用内容变化时递增根 revision；关卡正文变化时递增关卡 revision；已发布共享夹具变化时使用新夹具 ID。
 - 资源生成到 `public/content/releases/r<根 revision>/`，保留源目录结构。生成器只复制登记文档，为非空路径添加该版本前缀。

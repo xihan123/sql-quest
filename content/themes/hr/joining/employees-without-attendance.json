@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "joining",
+  "id": "employees-without-attendance",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "没有考勤记录的员工",
+  "prerequisites": ["employee-departments"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null-check",
+    "left-join"
+  ],
+  "introducedConcepts": ["left-join"],
+  "objective": "用左连接保留员工，并筛出没有任何考勤明细的员工。",
+  "statement": "找出没有任何考勤记录的员工，依次输出 employee_id（employees.id）和 employee_name（employees.name）。每名员工一行；如果所有员工都有考勤，返回零行。",
+  "knowledge": [
+    "employees 放在 LEFT JOIN 左侧，确保每名员工先被保留；attendances.employee_id = employees.id 用于寻找考勤记录。",
+    "某员工可有多条考勤，匹配到的明细会展开为多行；本题只找完全没有匹配的员工，所以不会把有多条考勤的人重复输出。",
+    "未匹配时 attendance 主键 a.id 被补成 SQL NULL，可在连接后用 WHERE a.id IS NULL 识别。主键不可能是真实 NULL；过滤右表条件应放在 WHERE 才表达未匹配检测。"
+  ],
+  "readableTables": ["employees", "attendances"],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出没有任何考勤记录的员工。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "保留员工表的所有人，再从连接结果中挑出没有对应考勤记录的人。"
+    },
+    {
+      "id": "syntax",
+      "text": "LEFT JOIN 用 ON a.employee_id = e.id 配对；右表主键 a.id 未匹配时为 NULL，再用 WHERE a.id IS NULL 筛选。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT e.id AS employee_id, e.name AS employee_name FROM employees AS e LEFT JOIN attendances AS a ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name FROM employees AS e LEFT JOIN attendances AS a ON a.employee_id = e.id WHERE a.id IS NULL;",
+      "explanation": "左连接保留每名员工，并按员工编号找考勤。没有明细的行中 a.id 是连接补出的 NULL，WHERE 只留下这些员工；有多条考勤的员工都不符合“没有任何记录”。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": ["employee_id", "employee_name"],
+        "rows": [
+          [8, "李娜"],
+          [9, "张涛"],
+          [10, "李娜"]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": ["employee_id", "employee_name"],
+        "rows": [
+          [23, "林芳"],
+          [28, "谢婷"]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": ["employee_id", "employee_name"],
+        "rows": []
+      }
+    },
+    {
+      "id": "allseen",
+      "fixtureId": "hr-allseen-v2",
+      "expected": {
+        "columns": ["employee_id", "employee_name"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-join",
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name FROM employees AS e JOIN attendances AS a ON a.employee_id = e.id WHERE a.id IS NULL;"
+    },
+    {
+      "id": "condition-in-on",
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name FROM employees AS e LEFT JOIN attendances AS a ON a.employee_id = e.id AND a.id IS NULL;"
+    },
+    {
+      "id": "forgets-null-filter",
+      "sql": "SELECT e.id AS employee_id, e.name AS employee_name FROM employees AS e LEFT JOIN attendances AS a ON a.employee_id = e.id;"
+    }
+  ]
+}

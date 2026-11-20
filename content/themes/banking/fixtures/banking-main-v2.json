@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "id": "banking-main-v2",
+  "tables": [
+    {
+      "name": "customers",
+      "description": "银行客户档案，一行一名客户。姓名可能重名，以编号区分。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "客户编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "客户姓名，虚构人物，可能重名"
+        },
+        {
+          "name": "city",
+          "type": "TEXT",
+          "description": "所在城市"
+        },
+        {
+          "name": "credit_level",
+          "type": "TEXT",
+          "description": "信用等级：A / B / C"
+        }
+      ],
+      "rows": [
+        [1, "张伟", "北京", "A"],
+        [2, "李娜", "上海", "B"],
+        [3, "王强", "广州", "A"],
+        [4, "张伟", "北京", "C"],
+        [5, "刘敏", "深圳", "B"],
+        [6, "陈杰", "杭州", "A"],
+        [7, "赵丽", "成都", "C"],
+        [8, "孙浩", "南京", "B"],
+        [9, "周婷", "武汉", "A"],
+        [10, "吴斌", "重庆", "B"],
+        [11, "郑凯", "苏州", "B"]
+      ]
+    },
+    {
+      "name": "accounts",
+      "description": "账户记录，一行一个账户。同一客户可开多个账户，余额与类型按账户分别记录。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "账户编号"
+        },
+        {
+          "name": "customer_id",
+          "type": "INTEGER",
+          "description": "开户客户编号，指向 customers.id",
+          "references": {
+            "table": "customers",
+            "column": "id"
+          }
+        },
+        {
+          "name": "account_type",
+          "type": "TEXT",
+          "description": "账户类型：活期 / 定期 / 理财"
+        },
+        {
+          "name": "balance",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "余额，整数元"
+        },
+        {
+          "name": "opened_at",
+          "type": "TEXT",
+          "description": "开户日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "状态：正常 / 冻结"
+        }
+      ],
+      "rows": [
+        [1, 1, "活期", 52000, "2025-01-05", "正常"],
+        [2, 2, "定期", 50000, "2025-01-08", "正常"],
+        [3, 3, "活期", 8000, "2025-01-12", "正常"],
+        [4, 4, "理财", 120000, "2025-02-03", "正常"],
+        [5, 5, "活期", 30000, "2025-02-10", "冻结"],
+        [6, 6, "定期", 20000, "2025-02-18", "正常"],
+        [7, 7, "理财", 5000, "2025-03-02", "正常"],
+        [8, 8, "活期", 66000, "2025-03-02", "正常"],
+        [9, 9, "定期", 15000, "2025-03-15", "正常"],
+        [10, 10, "活期", 3000, "2025-03-15", "冻结"],
+        [11, 1, "理财", 42000, "2025-03-20", "正常"],
+        [12, 2, "定期", 9000, "2025-03-25", "正常"]
+      ]
+    },
+    {
+      "name": "transactions",
+      "description": "账户流水，一行一笔交易。memo 为 NULL 表示没有备注，空串 '' 表示已填写但内容为空，两者不同。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "流水编号"
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "description": "账户编号，指向 accounts.id",
+          "references": {
+            "table": "accounts",
+            "column": "id"
+          }
+        },
+        {
+          "name": "kind",
+          "type": "TEXT",
+          "description": "类型：转账 / 消费 / 存入"
+        },
+        {
+          "name": "amount",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "金额，整数元，可能为 0"
+        },
+        {
+          "name": "occurred_at",
+          "type": "TEXT",
+          "description": "发生日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "memo",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "备注；NULL 表示没有备注，'' 表示已填写但为空"
+        }
+      ],
+      "rows": [
+        [1, 1, "转账", 5000, "2025-04-02", null],
+        [2, 1, "消费", 320, "2025-04-03", null],
+        [3, 2, "转账", 12000, "2025-04-05", "货款"],
+        [4, 3, "存入", 2000, "2025-04-08", null],
+        [5, 4, "转账", 30000, "2025-04-10", null],
+        [6, 5, "消费", 1500, "2025-04-12", "超市"],
+        [7, 6, "转账", 800, "2025-04-15", null],
+        [8, 8, "转账", 2600, "2025-04-18", "房租"],
+        [9, 9, "存入", 5000, "2025-04-20", null],
+        [10, 11, "转账", 9000, "2025-04-22", null],
+        [11, 4, "转账", 15000, "2025-04-25", null],
+        [12, 2, "消费", 600, "2025-04-28", null],
+        [13, 1, "转账", 0, "2025-05-01", null],
+        [14, 8, "转账", 450, "2025-05-03", ""]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "accounts_opened_at",
+      "table": "accounts",
+      "columns": [
+        {
+          "name": "opened_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

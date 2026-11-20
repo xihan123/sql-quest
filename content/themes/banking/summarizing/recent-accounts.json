@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "summarizing",
+  "id": "recent-accounts",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "最近开立的三个账户",
+  "prerequisites": ["transfer-without-memo"],
+  "concepts": ["select", "select-columns", "order-by", "limit"],
+  "introducedConcepts": ["order-by", "limit"],
+  "objective": "按开户日和账户编号排序，确定最近的三条记录。",
+  "statement": "在 accounts 中查最近开立的账户，依次输出 id、opened_at、account_type、balance。开户日从新到旧，同日按编号从大到小；取前三条，并列也不增加名额。不足三条时全部输出。",
+  "knowledge": [
+    "opened_at 以 YYYY-MM-DD 记录开户日，年、月、日按固定长度书写，直接按文本排序就能排出日期先后。只看账户编号并不能判断哪户开得晚。",
+    "ORDER BY 指定行顺序，DESC 是降序，省略方向默认为 ASC（升序）。两个排序键用逗号分开，开户日相同才按编号决定先后。",
+    "账户 9、10 开在同一天，预览里正好争第三个名额；id DESC 会选择 10。LIMIT 3 写在排序之后，结果最多三行。"
+  ],
+  "readableTables": ["accounts"],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按开户日期从新到旧，同一天按编号从大到小，取前三行。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "回到开户日期看先后。同日的 9 号和 10 号都可能排第三，题目指定了选谁。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY 用逗号隔开开户日和编号，各写 DESC；末尾写 LIMIT 3。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, opened_at, account_type, balance FROM accounts ORDER BY ____, ____ LIMIT 3;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, opened_at, account_type, balance FROM accounts ORDER BY opened_at DESC, id DESC LIMIT 3;",
+      "explanation": "预览中 12 和 11 的开户日最新。9 和 10 日期相同，先按 id DESC 让 10 排在前面，再截取三条，因此 9 不输出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": ["id", "opened_at", "account_type", "balance"],
+        "rows": [
+          [12, "2025-03-25", "定期", 9000],
+          [11, "2025-03-20", "理财", 42000],
+          [10, "2025-03-15", "活期", 3000]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": ["id", "opened_at", "account_type", "balance"],
+        "rows": [
+          [33, "2025-07-03", "理财", 88000],
+          [41, "2025-07-02", "理财", 7000],
+          [40, "2025-06-28", "定期", 20000]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": ["id", "opened_at", "account_type", "balance"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "oldest-first",
+      "sql": "SELECT id, opened_at, account_type, balance FROM accounts ORDER BY opened_at ASC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "forgets-limit",
+      "sql": "SELECT id, opened_at, account_type, balance FROM accounts ORDER BY opened_at DESC, id DESC;"
+    },
+    {
+      "id": "wrong-secondary-key",
+      "sql": "SELECT id, opened_at, account_type, balance FROM accounts ORDER BY opened_at DESC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "sorts-only-by-id",
+      "sql": "SELECT id, opened_at, account_type, balance FROM accounts ORDER BY id DESC LIMIT 3;"
+    }
+  ]
+}

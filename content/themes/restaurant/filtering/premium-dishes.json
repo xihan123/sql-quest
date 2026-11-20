@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "filtering",
+  "id": "premium-dishes",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "高价菜品",
+  "prerequisites": ["dish-columns"],
+  "concepts": ["select", "select-columns", "where-compare"],
+  "introducedConcepts": ["where-compare"],
+  "objective": "用包含边界的比较条件筛选当前菜单单价。",
+  "statement": "列出当前单价不低于 38 元的菜品，依次输出 id、name、price。正好 38 元的口水鸡也要保留；每道菜按记录分别输出。",
+  "knowledge": [
+    "price 是整数元的当前菜单单价；本题只筛选菜单价，并未查询订单明细或计算销售额。",
+    "“不低于 38”表示 price >= 38，包含边界。口水鸡恰好 38 元，是检查是否误写严格大于的记录。",
+    "数值常量 38 不加单引号；WHERE 逐行筛选，SELECT 决定保留 id、name、price 三列。"
+  ],
+  "readableTables": ["dishes"],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出单价不低于 38 元的菜品。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "筛选菜品当前单价，确认 38 元整属于结果。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE price >= 38 使用“大于或等于”，整数价格不需要单引号。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, price FROM dishes WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, price FROM dishes WHERE price >= 38;",
+      "explanation": "price >= 38 会保留单价等于或高于 38 元的菜；口水鸡处在边界，当前菜单价为 38 元。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": ["id", "name", "price"],
+        "rows": [
+          [1, "宫保鸡丁", 48],
+          [2, "清蒸鲈鱼", 88],
+          [4, "京酱肉丝", 52],
+          [7, "口水鸡", 38],
+          [8, "蒜泥白肉", 42]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": ["id", "name", "price"],
+        "rows": [
+          [21, "糖醋里脊", 58],
+          [23, "夫妻肺片", 42]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": ["id", "name", "price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "strict-greater",
+      "sql": "SELECT id, name, price FROM dishes WHERE price > 38;"
+    },
+    {
+      "id": "lower-bound-too-low",
+      "sql": "SELECT id, name, price FROM dishes WHERE price >= 30;"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "joining",
+  "id": "patients-without-visits",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "没有就诊记录的患者",
+  "prerequisites": ["visit-doctors"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null-check",
+    "left-join"
+  ],
+  "introducedConcepts": ["left-join"],
+  "objective": "用左连接区分有就诊记录和无记录的患者。",
+  "statement": "从 patients 查出没有任何 visits 记录的患者。依次输出 patient_id（患者编号）、patient_name（患者姓名），每人一行，行顺序不限。每个人都有就诊记录时，返回零行。",
+  "knowledge": [
+    "FROM patients AS p LEFT JOIN visits AS v ON v.patient_id = p.id 保留左侧的每位患者。有多次就诊的患者会匹配多行；找不到就诊的患者有一行，右侧各列补 NULL。",
+    "visits.id 是就诊主键，真实就诊的 v.id 不会是 NULL。匹配完成后用 WHERE v.id IS NULL，留下的是没有就诊的患者。",
+    "如果把 v.id IS NULL 放进 ON，它就成了配对条件：没有一条真实就诊能配上，左连接反而会给每位患者补一行 NULL。"
+  ],
+  "readableTables": ["patients", "visits"],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出从未就诊的患者。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "没有就诊的患者仍有档案。先让他们能出现在连接结果中，再区分左右两边有没有配上。"
+    },
+    {
+      "id": "syntax",
+      "text": "把 patients 放在 LEFT JOIN 左侧，ON 比较患者编号；在 WHERE 检查右表主键 IS NULL。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT p.id AS patient_id, p.name AS patient_name FROM patients AS p LEFT JOIN visits AS v ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT p.id AS patient_id, p.name AS patient_name FROM patients AS p LEFT JOIN visits AS v ON v.patient_id = p.id WHERE v.id IS NULL;",
+      "explanation": "patients 左连接 visits 后，只有找不到就诊的档案，其右侧就诊编号才为 NULL。预览中钱伟、冯雪、韩磊符合。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": ["patient_id", "patient_name"],
+        "rows": [
+          [8, "钱伟"],
+          [9, "冯雪"],
+          [10, "韩磊"]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": ["patient_id", "patient_name"],
+        "rows": [[28, "崔浩"]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": ["patient_id", "patient_name"],
+        "rows": []
+      }
+    },
+    {
+      "id": "allseen",
+      "fixtureId": "clinic-allseen-v2",
+      "expected": {
+        "columns": ["patient_id", "patient_name"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-join",
+      "sql": "SELECT p.id AS patient_id, p.name AS patient_name FROM patients AS p JOIN visits AS v ON v.patient_id = p.id WHERE v.id IS NULL;"
+    },
+    {
+      "id": "condition-in-on",
+      "sql": "SELECT p.id AS patient_id, p.name AS patient_name FROM patients AS p LEFT JOIN visits AS v ON v.patient_id = p.id AND v.id IS NULL;"
+    },
+    {
+      "id": "forgets-null-filter",
+      "sql": "SELECT p.id AS patient_id, p.name AS patient_name FROM patients AS p LEFT JOIN visits AS v ON v.patient_id = p.id;"
+    }
+  ]
+}

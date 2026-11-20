@@ -64,8 +64,9 @@ test('fixture compiler executes in real SQLite WASM module Worker', async ({
 test('course solutions, misconceptions, flowcharts and reference puzzles use the shared read-only WASM entry', async ({
   page,
 }) => {
-  // 课程含多个主题后，全量审计的用例数随内容增长，预留更长超时。
-  test.setTimeout(120_000);
+  // 九个主题共 114 关，逐关执行参考解法、每条错误解法的全部用例与教学示例，
+  // 执行次数约为旧 60 关时的 1.6 倍，故在旧值 120 秒基础上按 2.5 倍预留。
+  test.setTimeout(300_000);
   await page.goto('tests/browser/engine-harness.html');
   await page.waitForFunction(() => Boolean(window.engine));
   const { course, documents } = await sourceContent();

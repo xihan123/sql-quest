@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "summarizing",
+  "id": "recent-visits",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "最近三次就诊",
+  "prerequisites": ["follow-up"],
+  "concepts": ["select", "select-columns", "order-by", "limit"],
+  "introducedConcepts": ["order-by", "limit"],
+  "objective": "用就诊日期和编号排定先后，再取前三条记录。",
+  "statement": "查看 visits 中最近的就诊记录，依次输出 id、visit_date、department、fee。按就诊日期从新到旧排，同一天按编号从大到小排。只取前三条，同日并列也不增加名额；不足三条则全部列出。",
+  "knowledge": [
+    "visit_date 按 YYYY-MM-DD 保存，月份和日期都补足两位，因此文本顺序与日期先后一致。编号只标识记录，不能替代就诊日期。",
+    "ORDER BY 指定行顺序。DESC 表示降序；省略方向默认为 ASC（升序）。多个排序键用逗号隔开，只有日期相同时才按第二个键比较。",
+    "预览的就诊 10 和 11 都在 3 月 15 日，id DESC 让 11 排在 10 前面。LIMIT 3 写在排序后，最多留下三行。"
+  ],
+  "readableTables": ["visits"],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按日期从新到旧，同一天按编号从大到小，取前三行。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先找最近的就诊日；同一天出现多条时，再比较编号。排到第四条的记录不进结果。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY 中写两个排序键，各加 DESC；最后用 LIMIT 3 限制行数。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, visit_date, department, fee FROM visits ORDER BY ____, ____ LIMIT 3;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, visit_date, department, fee FROM visits ORDER BY visit_date DESC, id DESC LIMIT 3;",
+      "explanation": "先按日期把 3 月 20 日的就诊排在最前，再按编号排出 3 月 15 日的两条。LIMIT 3 截取按这两项规则排好的结果。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": ["id", "visit_date", "department", "fee"],
+        "rows": [
+          [12, "2025-03-20", "内科", 410],
+          [11, "2025-03-15", "皮肤科", 300],
+          [10, "2025-03-15", "皮肤科", 90]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": ["id", "visit_date", "department", "fee"],
+        "rows": [
+          [32, "2025-04-22", "内科", 80],
+          [39, "2025-04-20", "外科", 140],
+          [38, "2025-04-20", "内科", 210]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": ["id", "visit_date", "department", "fee"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "oldest-first",
+      "sql": "SELECT id, visit_date, department, fee FROM visits ORDER BY visit_date ASC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "forgets-limit",
+      "sql": "SELECT id, visit_date, department, fee FROM visits ORDER BY visit_date DESC, id DESC;"
+    },
+    {
+      "id": "wrong-secondary-key",
+      "sql": "SELECT id, visit_date, department, fee FROM visits ORDER BY visit_date DESC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "sorts-only-by-id",
+      "sql": "SELECT id, visit_date, department, fee FROM visits ORDER BY id DESC LIMIT 3;"
+    }
+  ]
+}

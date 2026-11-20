@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "filtering",
+  "id": "spicy-missing",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "未标注辣度的凉菜",
+  "prerequisites": ["premium-dishes"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare",
+    "and-or-conditions",
+    "null-check"
+  ],
+  "introducedConcepts": ["and-or-conditions", "null-check"],
+  "objective": "用 AND 组合分类筛选和辣度 NULL 判断。",
+  "statement": "找出 category 为“凉菜”且 spicy_level 为 SQL NULL（未标注）的菜品，依次输出 id、name、spicy_level；分类或辣度条件任一不满足都不入选。",
+  "knowledge": [
+    "category 是文本，要与单引号内的“凉菜”比较；AND 要求类别和辣度两个条件都成立。",
+    "spicy_level 的 NULL 表示没有记录辣度，不是 0 级，也不是空字符串；dishes 中凉拌黄瓜、蒜泥白肉符合两个条件。",
+    "与 NULL 的普通相等比较结果为未知，WHERE 不会保留未知条件的行。IS NULL 是表达缺失值最清楚的写法；不能把它解释成普通的“= NULL”。"
+  ],
+  "readableTables": ["dishes"],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出分类为凉菜且未标注辣度的菜品。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先限定凉菜，再保留辣度没有记录的菜；两个条件必须同时成立。"
+    },
+    {
+      "id": "syntax",
+      "text": "category = '凉菜' AND spicy_level IS NULL；文本用单引号，空值判断用 IS NULL。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, spicy_level FROM dishes WHERE category = '凉菜' AND ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, spicy_level FROM dishes WHERE category = '凉菜' AND spicy_level IS NULL;",
+      "explanation": "AND 同时检查分类和空值条件。spicy_level IS NULL 只匹配未标注的 SQL NULL，不把已标注辣度或数值 0 当成缺失。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": ["id", "name", "spicy_level"],
+        "rows": [
+          [6, "凉拌黄瓜", null],
+          [8, "蒜泥白肉", null]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": ["id", "name", "spicy_level"],
+        "rows": [[22, "凉拌木耳", null]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": ["id", "name", "spicy_level"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "spicy-equals-null",
+      "sql": "SELECT id, name, spicy_level FROM dishes WHERE category = '凉菜' AND spicy_level = NULL;"
+    },
+    {
+      "id": "ignores-category",
+      "sql": "SELECT id, name, spicy_level FROM dishes WHERE spicy_level IS NULL;"
+    },
+    {
+      "id": "marked-spicy",
+      "sql": "SELECT id, name, spicy_level FROM dishes WHERE category = '凉菜' AND spicy_level IS NOT NULL;"
+    }
+  ]
+}

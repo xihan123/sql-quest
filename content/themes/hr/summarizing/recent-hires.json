@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "summarizing",
+  "id": "recent-hires",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "最近入职",
+  "prerequisites": ["missing-phone"],
+  "concepts": ["select", "select-columns", "order-by", "limit"],
+  "introducedConcepts": ["order-by", "limit"],
+  "objective": "用双重排序和行数上限找出最近入职的员工。",
+  "statement": "输出最近入职的最多三名员工的 id、name、hire_date、salary，按入职日期从新到旧；同一天编号大的在前。若符合条件的员工不足三名则全部输出，不要求恰好凑满三行。hire_date 是 YYYY-MM-DD 文本。",
+  "knowledge": [
+    "YYYY-MM-DD 等宽日期文本可以直接按字典序比较先后，hire_date DESC 将最近日期排在前面。",
+    "张涛和 id 10 的李娜同在 2024-08-15 入职；第二排序键 id DESC 才能确定同日先后。",
+    "ORDER BY 可以列出多个排序键，前一列相同时才比较下一列；LIMIT 3 取排序后的最多三行，不保证空表或短表凑足三行。"
+  ],
+  "readableTables": ["employees"],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按入职日期从新到旧，同一天按编号从大到小，取前三行。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先确定日期新旧顺序，再用员工编号打破同日并列，最后最多取前三行。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY hire_date DESC, id DESC 指定两级降序；LIMIT 3 放在查询末尾限制行数。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, hire_date, salary FROM employees ORDER BY ____, ____ LIMIT 3;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, hire_date, salary FROM employees ORDER BY hire_date DESC, id DESC LIMIT 3;",
+      "explanation": "日期降序把最近入职者排在前面，id 降序确定同日顺序，LIMIT 3 截取最多三行；没有员工时返回零行。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": ["id", "name", "hire_date", "salary"],
+        "rows": [
+          [10, "李娜", "2024-08-15", 6200],
+          [9, "张涛", "2024-08-15", 5200],
+          [7, "孙鹏", "2022-01-10", 9000]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": ["id", "name", "hire_date", "salary"],
+        "rows": [
+          [26, "高翔", "2024-02-18", 8100],
+          [25, "马丽", "2024-02-18", 7600],
+          [23, "林芳", "2023-11-05", 9300]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": ["id", "name", "hire_date", "salary"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "oldest-first",
+      "sql": "SELECT id, name, hire_date, salary FROM employees ORDER BY hire_date ASC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "forgets-limit",
+      "sql": "SELECT id, name, hire_date, salary FROM employees ORDER BY hire_date DESC, id DESC;"
+    },
+    {
+      "id": "tiebreak-ascending",
+      "sql": "SELECT id, name, hire_date, salary FROM employees ORDER BY hire_date DESC, id ASC LIMIT 3;"
+    }
+  ]
+}

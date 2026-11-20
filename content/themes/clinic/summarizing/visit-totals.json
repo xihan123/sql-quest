@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "summarizing",
+  "id": "visit-totals",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "门诊总量与费用",
+  "prerequisites": ["recent-visits"],
+  "concepts": ["select", "aggregate"],
+  "introducedConcepts": ["aggregate"],
+  "objective": "在一行里给出总就诊次数和门诊费合计。",
+  "statement": "汇总 visits 的全部就诊记录，输出一行两列：visit_count 是就诊次数，total_fee 是门诊费 fee 的合计（元）。同一患者每次就诊都计入。没有记录时，次数为 0，合计为 SQL NULL。",
+  "knowledge": [
+    "COUNT(*) 统计 visits 的行数。陈欣的几次就诊各算一次；这里要数就诊，不是数有多少名患者。",
+    "SUM(fee) 把每次就诊的门诊费相加。收费为 0 时，这次就诊仍计入次数，金额只加 0。",
+    "直接汇总整张 visits 得到一行。没有任何就诊时，COUNT(*) 返回 0，SUM(fee) 返回 NULL；有记录但费用合计为 0 是另一种情况。"
+  ],
+  "readableTables": ["visits"],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计就诊次数与费用合计。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先分清两个数：一共接诊多少次，每次费用加起来又是多少。都从就诊记录算。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 COUNT(*) 数就诊行，用 SUM(费用列) 加总。两个结果各用 AS 命名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS visit_count, ____ AS total_fee FROM visits;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS visit_count, SUM(fee) AS total_fee FROM visits;",
+      "explanation": "COUNT(*) 和 SUM(fee) 都读取同一批就诊记录。预览有 12 次就诊，费用合计 3400 元；空表没有可加的费用，合计为 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": ["visit_count", "total_fee"],
+        "rows": [[12, 3400]]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": ["visit_count", "total_fee"],
+        "rows": [[9, 2460]]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": ["visit_count", "total_fee"],
+        "rows": [[0, null]]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "groups-by-department",
+      "sql": "SELECT COUNT(*) AS visit_count, SUM(fee) AS total_fee FROM visits GROUP BY department;"
+    },
+    {
+      "id": "uses-avg-instead-of-sum",
+      "sql": "SELECT COUNT(*) AS visit_count, AVG(fee) AS total_fee FROM visits;"
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "joining",
+  "id": "order-dishes",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "查询点单明细与菜品",
+  "prerequisites": ["category-groups"],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "where-compare",
+    "inner-join"
+  ],
+  "introducedConcepts": ["inner-join"],
+  "objective": "将订单明细与菜品关联，保留达到份数门槛的明细。",
+  "statement": "列出所有订单明细中 quantity 不少于 2 份的行，依次输出 item_id、dish_name、quantity、current_price（菜品当前菜单价）；正好 2 份也保留。每条明细一行，包括已取消订单的明细。",
+  "knowledge": [
+    "order_items.dish_id 引用 dishes.id；一条明细配到一道菜，所以用内连接后仍是一条明细一行。order_items.id 才是明细编号。",
+    "quantity >= 2 包含恰好两份的边界；一份明细不应因同一道菜在别的订单出现而合并或去重。",
+    "dishes.price 是当前菜单价，不是下单时历史价格或成交额。题目从全部 order_items 出发，没有按 orders.status 过滤，因此已取消订单的明细也在范围内。对内连接而言，将明细筛选写在 WHERE 或连接 ON 都可达到过滤配对的效果；这里 ON 表示键关系，WHERE 单独说明业务筛选。"
+  ],
+  "readableTables": ["order_items", "dishes"],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 关联订单明细与菜品，只保留份数不少于 2 份的明细。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先按 dish_id 找到每条明细对应的菜名和当前菜单价，再留下份数至少为 2 的明细。"
+    },
+    {
+      "id": "syntax",
+      "text": "JOIN dishes AS d ON d.id = oi.dish_id 配对；WHERE oi.quantity >= 2 筛选明细行。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT oi.id AS item_id, d.name AS dish_name, oi.quantity, d.price AS current_price FROM order_items AS oi JOIN dishes AS d ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT oi.id AS item_id, d.name AS dish_name, oi.quantity, d.price AS current_price FROM order_items AS oi JOIN dishes AS d ON d.id = oi.dish_id WHERE oi.quantity >= 2;",
+      "explanation": "内连接用 dish_id 配对菜品，每条明细对应一行；WHERE 保留至少两份的行。输出的是菜品当前菜单价，明细范围包含已取消订单。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": ["item_id", "dish_name", "quantity", "current_price"],
+        "rows": [
+          [1, "宫保鸡丁", 2, 48],
+          [2, "蛋炒饭", 3, 28],
+          [4, "酸梅汤", 2, 12],
+          [5, "麻婆豆腐", 2, 36],
+          [6, "手工水饺", 2, 32],
+          [7, "柠檬茶", 3, 16],
+          [11, "凉拌黄瓜", 2, 22],
+          [13, "宫保鸡丁", 2, 48]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": ["item_id", "dish_name", "quantity", "current_price"],
+        "rows": [
+          [41, "糖醋里脊", 2, 58],
+          [42, "酸梅汤", 2, 12],
+          [44, "蛋炒饭", 3, 26],
+          [45, "凉拌木耳", 2, 18],
+          [48, "柠檬茶", 2, 16],
+          [49, "糖醋里脊", 3, 58]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": ["item_id", "dish_name", "quantity", "current_price"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "ignores-quantity-filter",
+      "sql": "SELECT oi.id AS item_id, d.name AS dish_name, oi.quantity, d.price AS current_price FROM order_items AS oi JOIN dishes AS d ON d.id = oi.dish_id;"
+    },
+    {
+      "id": "joins-on-wrong-key",
+      "sql": "SELECT oi.id AS item_id, d.name AS dish_name, oi.quantity, d.price AS current_price FROM order_items AS oi JOIN dishes AS d ON d.id = oi.id WHERE oi.quantity >= 2;"
+    },
+    {
+      "id": "strict-greater",
+      "sql": "SELECT oi.id AS item_id, d.name AS dish_name, oi.quantity, d.price AS current_price FROM order_items AS oi JOIN dishes AS d ON d.id = oi.dish_id WHERE oi.quantity > 2;"
+    }
+  ]
+}

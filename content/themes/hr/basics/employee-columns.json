@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "basics",
+  "id": "employee-columns",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "薪资字段与列别名",
+  "prerequisites": ["employee-list"],
+  "concepts": ["select", "select-columns", "column-alias"],
+  "introducedConcepts": ["select-columns", "column-alias"],
+  "objective": "选取员工编号、所属部门和月薪，并给结果列命名。",
+  "statement": "从 employees 输出员工编号、部门编号和月薪，依次命名为 employee_id、dept_no、salary_yuan。每名员工一行；别名改变输出表头，不改变字段值。",
+  "knowledge": [
+    "id 是员工编号，department_id 是所属部门编号，salary 是整数元月薪；别名只改变结果表头，不改变取值或原表。",
+    "AS 可写在原列名和别名之间；SQLite 也允许省略 AS，只要结果列名和顺序符合题意即可。",
+    "同名员工仍是两行：id 8 与 10 都叫李娜，department_id 和 salary 各自保留。"
+  ],
+  "readableTables": ["employees"],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出员工编号、部门编号和月薪，并使用题目要求的列名。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "按题目顺序选择员工编号、部门编号、月薪，并分别核对三个输出表头。"
+    },
+    {
+      "id": "syntax",
+      "text": "每个字段后可写 AS 新列名，多个输出列用逗号隔开；SQLite 允许省略 AS。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id AS employee_id, ____ AS dept_no, salary AS ____ FROM employees;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id AS employee_id, department_id AS dept_no, salary AS salary_yuan FROM employees;",
+      "explanation": "依次从 id、department_id、salary 取值，并将结果列名设为题目要求的三种名称；AS 不会转换或修改底层数值。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": ["employee_id", "dept_no", "salary_yuan"],
+        "rows": [
+          [1, 1, 12000],
+          [2, 1, 9000],
+          [3, 1, 15000],
+          [4, 1, 7600],
+          [5, 2, 11000],
+          [6, 2, 6800],
+          [7, 2, 9000],
+          [8, 3, 9800],
+          [9, 4, 5200],
+          [10, 5, 6200]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": ["employee_id", "dept_no", "salary_yuan"],
+        "rows": [
+          [21, 11, 10500],
+          [22, 11, 8800],
+          [23, 11, 9300],
+          [24, 12, 12000],
+          [25, 12, 7600],
+          [26, 12, 8100],
+          [27, 13, 13500],
+          [28, 13, 6900]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": ["employee_id", "dept_no", "salary_yuan"],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-original-names",
+      "sql": "SELECT id, department_id, salary FROM employees;"
+    },
+    {
+      "id": "omits-salary",
+      "sql": "SELECT id AS employee_id, department_id AS dept_no FROM employees;"
+    }
+  ]
+}
