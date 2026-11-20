@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "summarizing",
+  "id": "recent-batches",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "最近生产",
+  "prerequisites": [
+    "unrated-batches"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "order-by",
+    "limit"
+  ],
+  "introducedConcepts": [
+    "order-by",
+    "limit"
+  ],
+  "objective": "按生产日期和批次编号排序，最多取三批。",
+  "statement": "输出最近三个批次的 id、product、produced_at、quantity，按生产日期从新到旧；同一天编号大的在前；只取排序后的最多三行。若批次少于三条则不补行，也不扩充并列名额。",
+  "knowledge": [
+    "produced_at 固定为补零的 YYYY-MM-DD 文本，可直接比较日期；DESC 将较新的日期排在前面。",
+    "id 是唯一批次编号，作为第二排序键可确定同日批次先后。batches 中 10、11 号批次日期相同，编号较大的 11 在前。",
+    "多个 ORDER BY 键按书写顺序逐个比较；LIMIT 3 只取前三行，记录不足三条时会返回实际存在的行数。"
+  ],
+  "readableTables": [
+    "batches"
+  ],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按日期从新到旧，同一天按编号从大到小，取前三行。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先按生产日期排新到旧，同日再按批次编号排大到小，最后截最多三行。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY produced_at DESC, id DESC 写两级排序；LIMIT 3 放在语句末尾限制结果行数。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, product, produced_at, quantity FROM batches ORDER BY ____, ____ LIMIT 3;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, product, produced_at, quantity FROM batches ORDER BY produced_at DESC, id DESC LIMIT 3;",
+      "explanation": "日期降序选出最近批次，id 降序确定同日的先后，再用 LIMIT 3 取最多三批。空表返回零行，短表不补足。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "product",
+          "produced_at",
+          "quantity"
+        ],
+        "rows": [
+          [
+            11,
+            "外壳涂层件",
+            "2025-05-06",
+            90
+          ],
+          [
+            10,
+            "外壳涂层件",
+            "2025-05-06",
+            720
+          ],
+          [
+            7,
+            "支架板",
+            "2025-04-30",
+            640
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "product",
+          "produced_at",
+          "quantity"
+        ],
+        "rows": [
+          [
+            29,
+            "电机端盖",
+            "2025-06-09",
+            95
+          ],
+          [
+            28,
+            "焊合支架",
+            "2025-05-12",
+            210
+          ],
+          [
+            27,
+            "喷涂外壳",
+            "2025-05-12",
+            610
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "product",
+          "produced_at",
+          "quantity"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "oldest-first",
+      "sql": "SELECT id, product, produced_at, quantity FROM batches ORDER BY produced_at ASC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "forgets-limit",
+      "sql": "SELECT id, product, produced_at, quantity FROM batches ORDER BY produced_at DESC, id DESC;"
+    },
+    {
+      "id": "tie-by-id-asc",
+      "sql": "SELECT id, product, produced_at, quantity FROM batches ORDER BY produced_at DESC, id ASC LIMIT 3;"
+    }
+  ]
+}

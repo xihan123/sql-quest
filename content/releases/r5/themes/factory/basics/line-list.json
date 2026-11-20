@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "basics",
+  "id": "line-list",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看产线",
+  "prerequisites": [],
+  "concepts": [
+    "select"
+  ],
+  "introducedConcepts": [
+    "select"
+  ],
+  "objective": "查看产线表中的全部字段和全部产线。",
+  "statement": "查看 production_lines 中全部产线，按表结构顺序输出 id、name、workshop 三列，列名保持原样。总装车间的多条产线分别保留；空表返回零行但保留列名。",
+  "knowledge": [
+    "SELECT * FROM production_lines 按表定义顺序输出三列，星号不会筛选产线或去重。",
+    "workshop 是车间名称，不是产线唯一编号；一号、二号装配线都属于总装车间。记录身份要看 id。",
+    "不同产线即使 workshop 相同也分别输出；没有 ORDER BY 时不承诺显示顺序。"
+  ],
+  "readableTables": [
+    "production_lines"
+  ],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看产线的全部行和全部列。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "任务覆盖整张产线档案，保留同一车间下的每一条产线。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT * 选择所有字段，FROM production_lines 指定产线表。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM production_lines;",
+      "explanation": "FROM 指定 production_lines，星号按表结构顺序展开编号、名称和所属车间；同车间多条产线不会合并。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "workshop"
+        ],
+        "rows": [
+          [
+            1,
+            "一号装配线",
+            "总装车间"
+          ],
+          [
+            2,
+            "二号装配线",
+            "总装车间"
+          ],
+          [
+            3,
+            "精密加工线",
+            "机加工车间"
+          ],
+          [
+            4,
+            "冲压线",
+            "冲压车间"
+          ],
+          [
+            5,
+            "涂装线",
+            "涂装车间"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "workshop"
+        ],
+        "rows": [
+          [
+            11,
+            "精密加工二线",
+            "机加工车间"
+          ],
+          [
+            12,
+            "装配三线",
+            "总装车间"
+          ],
+          [
+            13,
+            "焊接线",
+            "焊接车间"
+          ],
+          [
+            14,
+            "喷涂二线",
+            "涂装车间"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "workshop"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-workshop",
+      "sql": "SELECT id, name FROM production_lines;"
+    },
+    {
+      "id": "filters-by-workshop",
+      "sql": "SELECT * FROM production_lines WHERE workshop = '总装车间';"
+    }
+  ]
+}

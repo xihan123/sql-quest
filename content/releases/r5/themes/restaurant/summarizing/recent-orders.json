@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "summarizing",
+  "id": "recent-orders",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "最近三笔订单",
+  "prerequisites": [
+    "spicy-missing"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "order-by",
+    "limit"
+  ],
+  "introducedConcepts": [
+    "order-by",
+    "limit"
+  ],
+  "objective": "按日期和订单编号排序，截取最近的订单。",
+  "statement": "输出最近三笔订单的 id、table_no、ordered_at、status，按下单日期从新到旧；同一天编号大的在前，只返回排序后的最多三行。即使第 3 行与后续订单同日，也不扩充名额。",
+  "knowledge": [
+    "ordered_at 是 YYYY-MM-DD 文本，格式固定且各部分补零，可直接按日期先后比较；DESC 把较晚日期排前面。",
+    "预览中 5 月 8 日有 9、10 两笔订单，日期相同后比较 id；按 id DESC 时 10 排在 9 前面。",
+    "LIMIT 3 只限制最多三行，不承诺凑满三笔。status 不在筛选条件中：已取消、进行中和已完成订单都在订单表范围内。"
+  ],
+  "readableTables": [
+    "orders"
+  ],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按下单日期从新到旧，同一天按编号从大到小，取前三行。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先按日期确定最近顺序，同一天按编号打破并列，然后从头截取三行，不扩充并列名额。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY ordered_at DESC, id DESC 指定两级降序；LIMIT 3 放在查询末尾。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, table_no, ordered_at, status FROM orders ORDER BY ____, ____ LIMIT 3;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, table_no, ordered_at, status FROM orders ORDER BY ordered_at DESC, id DESC LIMIT 3;",
+      "explanation": "先用日期降序排列，再用订单编号降序确定同日先后，LIMIT 3 截取前三笔，不扩充第三行并列。题目没有状态筛选，因此取消和进行中的订单也参与排序。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "table_no",
+          "ordered_at",
+          "status"
+        ],
+        "rows": [
+          [
+            10,
+            7,
+            "2025-05-08",
+            "进行中"
+          ],
+          [
+            9,
+            7,
+            "2025-05-08",
+            "已完成"
+          ],
+          [
+            8,
+            9,
+            "2025-05-07",
+            "已完成"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "table_no",
+          "ordered_at",
+          "status"
+        ],
+        "rows": [
+          [
+            35,
+            8,
+            "2025-06-07",
+            "已取消"
+          ],
+          [
+            38,
+            7,
+            "2025-06-06",
+            "进行中"
+          ],
+          [
+            37,
+            3,
+            "2025-06-05",
+            "已完成"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "table_no",
+          "ordered_at",
+          "status"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "oldest-first",
+      "sql": "SELECT id, table_no, ordered_at, status FROM orders ORDER BY ordered_at ASC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "forgets-limit",
+      "sql": "SELECT id, table_no, ordered_at, status FROM orders ORDER BY ordered_at DESC, id DESC;"
+    },
+    {
+      "id": "tiebreak-ascending",
+      "sql": "SELECT id, table_no, ordered_at, status FROM orders ORDER BY ordered_at DESC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "orders-by-id-only",
+      "sql": "SELECT id, table_no, ordered_at, status FROM orders ORDER BY id DESC LIMIT 3;"
+    }
+  ]
+}

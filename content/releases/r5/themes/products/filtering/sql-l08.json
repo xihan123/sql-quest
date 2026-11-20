@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "filtering",
+  "id": "sql-l08",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "空值判断",
+  "prerequisites": [
+    "sql-l07"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where",
+    "null"
+  ],
+  "introducedConcepts": [
+    "null"
+  ],
+  "objective": "用 IS NULL 找出未填写备注的商品。",
+  "statement": "查询 note 为 SQL NULL 的商品，依次输出 id、name、note。空字符串 '' 和文本 'NULL' 不符合条件；不按价格或库存筛选。不要求行顺序。",
+  "knowledge": [
+    "SQL NULL 表示缺失或未知，不是数字 0，也不是空字符串或四个字母组成的文本 NULL。数据区会明确区分这些情况。",
+    "判断空值用 IS NULL，判断已填写用 IS NOT NULL。= NULL 和 <> NULL 的比较不会得到真；WHERE 只保留条件为真的行。",
+    "例如 note = '' 找空字符串，note = 'NULL' 找文字 NULL，都不是寻找 SQL NULL。此扩展目录的 price 也允许未知，但本关只检查 note。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 IS NULL 找出未填写备注的商品。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, note FROM products WHERE note IS NOT NULL;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "NULL 不等于空文本",
+        "description": "示例查询非 NULL 的备注，题目要求 NULL 备注，筛选方向相反。"
+      },
+      {
+        "id": "missing",
+        "label": "缺失值\nSQL NULL",
+        "description": "NULL 表示未知或未填写。IS NOT NULL 在示例中排除它；寻找缺失值应使用相反的空值判断。"
+      },
+      {
+        "id": "text",
+        "label": "已填写的文本\n空串或文字 NULL",
+        "description": "空字符串长度为 0，但仍是文本；文字 NULL 也是文本。它们都满足本示例的 IS NOT NULL。"
+      },
+      {
+        "id": "predicate",
+        "label": "不用 = NULL",
+        "description": "= NULL 或 <> NULL 的比较不会得到真，不能代替 IS NULL 或 IS NOT NULL。WHERE 只留下条件为真的行。"
+      },
+      {
+        "id": "scope",
+        "label": "只检查 note",
+        "description": "价格是否未知、库存是否为 0 都不影响这条示例的备注判断。输出 id、note 两列，备注内容保持原样。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "missing"
+      },
+      {
+        "from": "topic",
+        "to": "text"
+      },
+      {
+        "from": "topic",
+        "to": "predicate"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "目标是缺失值，不是看起来像“没有内容”的文本。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 WHERE 中写 字段 IS NULL，不要用等号。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, note FROM products WHERE note ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, note FROM products WHERE note IS NULL;",
+      "explanation": "IS NULL 只选择真正缺失的备注，保留 NULL 原值作为第三列。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "note"
+        ],
+        "rows": [
+          [
+            1,
+            "帆布袋",
+            null
+          ],
+          [
+            4,
+            "体验装",
+            null
+          ],
+          [
+            6,
+            "陶瓷杯",
+            null
+          ],
+          [
+            9,
+            "礼盒",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "note"
+        ],
+        "rows": [
+          [
+            21,
+            "样品",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "note"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "equals-null",
+      "sql": "SELECT id, name, note FROM products WHERE note = NULL;"
+    },
+    {
+      "id": "empty-text",
+      "sql": "SELECT id, name, note FROM products WHERE note = '';"
+    },
+    {
+      "id": "null-text",
+      "sql": "SELECT id, name, note FROM products WHERE note = 'NULL';"
+    },
+    {
+      "id": "opposite-nullness",
+      "sql": "SELECT id, name, note FROM products WHERE note IS NOT NULL;"
+    }
+  ]
+}

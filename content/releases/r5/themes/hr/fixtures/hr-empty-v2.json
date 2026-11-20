@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "hr-empty-v2",
+  "tables": [
+    {
+      "name": "departments",
+      "description": "公司部门表，每行一个部门。员工通过 employees.department_id 归属部门。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "部门编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "部门名称"
+        },
+        {
+          "name": "manager",
+          "type": "TEXT",
+          "description": "部门负责人，虚构人物"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "employees",
+      "description": "员工档案，一行一名员工。姓名可能重复，以编号区分；phone 为 NULL 表示未登记电话。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "员工编号"
+        },
+        {
+          "name": "department_id",
+          "type": "INTEGER",
+          "description": "所属部门编号，指向 departments.id",
+          "references": {
+            "table": "departments",
+            "column": "id"
+          }
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "员工姓名，虚构人物，可能重名"
+        },
+        {
+          "name": "hire_date",
+          "type": "TEXT",
+          "description": "入职日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "salary",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "月薪，整数元"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话；NULL 表示未登记"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "attendances",
+      "description": "考勤记录，一行一名员工某一天的出勤情况；同一员工可有多条。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "考勤记录编号"
+        },
+        {
+          "name": "employee_id",
+          "type": "INTEGER",
+          "description": "员工编号，指向 employees.id",
+          "references": {
+            "table": "employees",
+            "column": "id"
+          }
+        },
+        {
+          "name": "work_date",
+          "type": "TEXT",
+          "description": "考勤日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "状态：出勤 / 请假 / 缺勤"
+        },
+        {
+          "name": "overtime_hours",
+          "type": "REAL",
+          "minimum": 0,
+          "description": "加班小时数，可带小数"
+        }
+      ],
+      "rows": []
+    }
+  ],
+  "indexes": [
+    {
+      "name": "attendances_date",
+      "table": "attendances",
+      "columns": [
+        {
+          "name": "work_date",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

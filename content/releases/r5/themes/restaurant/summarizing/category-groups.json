@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "restaurant",
+  "chapterId": "summarizing",
+  "id": "category-groups",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "菜品分类统计",
+  "prerequisites": [
+    "item-totals"
+  ],
+  "concepts": [
+    "select",
+    "aggregate",
+    "group-by",
+    "having"
+  ],
+  "introducedConcepts": [
+    "group-by",
+    "having"
+  ],
+  "objective": "按菜品分类统计数量和总价，再筛选分类组。",
+  "statement": "按 category 分组，统计每类菜品数与当前菜单单价合计，只保留菜品数不少于 3 的分类，依次输出 category、dish_count、total_price。3 道也保留；这是当前菜单价格合计，不是销量或实收。",
+  "knowledge": [
+    "GROUP BY category 使结果每行代表一个类别；COUNT(*) 数该类菜品，SUM(price) 加总在售菜品的当前菜单单价。",
+    "dishes 中热菜有 5 道、凉菜有 3 道，达到门槛；主食和饮品各 2 道。price 是当前菜单价，不是销量、取消订单处理结果或历史成交价格。",
+    "HAVING COUNT(*) >= 3 在分组后筛选，包含三道菜的边界。WHERE 用于分组前的行条件；WHERE COUNT(*) >= 3 是无效 SQL，因为 WHERE 阶段不能使用聚合值。"
+  ],
+  "readableTables": [
+    "dishes"
+  ],
+  "previewFixtureId": "restaurant-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按分类统计，只保留菜品数量不少于 3 道的分类。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "输出粒度是一行一个类别；先按类别聚合，再按该类菜品数筛组。"
+    },
+    {
+      "id": "syntax",
+      "text": "GROUP BY category 后用 HAVING COUNT(*) >= 3 筛组；COUNT(*) 数菜品行，SUM(price) 汇总当前菜单单价。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT category, COUNT(*) AS dish_count, SUM(price) AS total_price FROM dishes GROUP BY ____ HAVING ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT category, COUNT(*) AS dish_count, SUM(price) AS total_price FROM dishes GROUP BY category HAVING COUNT(*) >= 3;",
+      "explanation": "先按 category 分组并分别计算菜品数量及当前 price 合计，再由 HAVING 保留至少三道菜的类别。这个总价不是销量或营业额。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "restaurant-main-v2",
+      "expected": {
+        "columns": [
+          "category",
+          "dish_count",
+          "total_price"
+        ],
+        "rows": [
+          [
+            "热菜",
+            5,
+            258
+          ],
+          [
+            "凉菜",
+            3,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "restaurant-alt-v3",
+      "expected": {
+        "columns": [
+          "category",
+          "dish_count",
+          "total_price"
+        ],
+        "rows": [
+          [
+            "主食",
+            3,
+            80
+          ],
+          [
+            "饮品",
+            3,
+            36
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "restaurant-empty-v2",
+      "expected": {
+        "columns": [
+          "category",
+          "dish_count",
+          "total_price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "no-having",
+      "sql": "SELECT category, COUNT(*) AS dish_count, SUM(price) AS total_price FROM dishes GROUP BY category;"
+    },
+    {
+      "id": "filters-by-total-price",
+      "sql": "SELECT category, COUNT(*) AS dish_count, SUM(price) AS total_price FROM dishes GROUP BY category HAVING SUM(price) >= 150;"
+    },
+    {
+      "id": "strict-greater-than-three",
+      "sql": "SELECT category, COUNT(*) AS dish_count, SUM(price) AS total_price FROM dishes GROUP BY category HAVING COUNT(*) > 3;"
+    }
+  ]
+}

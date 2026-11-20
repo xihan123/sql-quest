@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "relationships",
+  "id": "campus-left-join",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "左连接",
+  "prerequisites": [
+    "campus-join"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "null",
+    "inner-join",
+    "left-join"
+  ],
+  "introducedConcepts": [
+    "left-join"
+  ],
+  "objective": "保留所有课程，为没有选课记录的课程显示未匹配的 NULL。",
+  "statement": "输出全部课程及其选课记录，依次为 course_id（courses.id）、course_name（courses.name）、enrollment_id（enrollments.id）。每条选课记录一行；没有选课记录的课程也输出一行，enrollment_id 为 SQL NULL。同名课程按编号区分，不要求行顺序。",
+  "knowledge": [
+    "LEFT JOIN 保留左表所有行；存在匹配时输出匹配组合，不存在匹配时仍输出一行，并把右表列补为 NULL。",
+    "本关左表应是 courses；把 enrollments 放左边只能保留选课记录，不能表示完全没有选课记录的课程。",
+    "右表 enrollments.id 在原表不为空，但外连接生成的未匹配行可以让它变成 NULL。这是连接结果的空值，不是夹具中存在坏编号。",
+    "不要用 DISTINCT 合并同一课程的多条选课记录；左连接保证保留左行，并不保证每门课程恰好只有一行。"
+  ],
+  "readableTables": [
+    "courses",
+    "enrollments"
+  ],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 保留所有课程，为没有选课记录的课程显示未匹配的 NULL。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "确定哪个实体即使没有匹配也必须出现，把它放左边。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM courses AS c LEFT JOIN enrollments AS e，ON 仍沿 course_id 外键。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT c.id AS course_id, c.name AS course_name, e.id AS enrollment_id FROM courses AS c LEFT JOIN enrollments AS e ON ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, e.id AS enrollment_id FROM courses AS c LEFT JOIN enrollments AS e ON c.id = e.course_id;",
+      "explanation": "从 courses 左连接 enrollments，保留没有选课记录的课程，并将其 enrollment_id 显示为 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": [
+          "course_id",
+          "course_name",
+          "enrollment_id"
+        ],
+        "rows": [
+          [
+            101,
+            "数据库基础",
+            1
+          ],
+          [
+            101,
+            "数据库基础",
+            4
+          ],
+          [
+            101,
+            "数据库基础",
+            6
+          ],
+          [
+            101,
+            "数据库基础",
+            11
+          ],
+          [
+            101,
+            "数据库基础",
+            19
+          ],
+          [
+            101,
+            "数据库基础",
+            25
+          ],
+          [
+            101,
+            "数据库基础",
+            26
+          ],
+          [
+            102,
+            "程序设计",
+            7
+          ],
+          [
+            102,
+            "程序设计",
+            14
+          ],
+          [
+            102,
+            "程序设计",
+            22
+          ],
+          [
+            102,
+            "程序设计",
+            24
+          ],
+          [
+            103,
+            "高等数学",
+            2
+          ],
+          [
+            103,
+            "高等数学",
+            8
+          ],
+          [
+            103,
+            "高等数学",
+            9
+          ],
+          [
+            103,
+            "高等数学",
+            23
+          ],
+          [
+            104,
+            "大学语文",
+            3
+          ],
+          [
+            104,
+            "大学语文",
+            12
+          ],
+          [
+            105,
+            "数据结构",
+            5
+          ],
+          [
+            105,
+            "数据结构",
+            20
+          ],
+          [
+            106,
+            "油画入门",
+            13
+          ],
+          [
+            106,
+            "油画入门",
+            16
+          ],
+          [
+            107,
+            "大学物理",
+            10
+          ],
+          [
+            107,
+            "大学物理",
+            17
+          ],
+          [
+            108,
+            "音乐欣赏",
+            15
+          ],
+          [
+            108,
+            "音乐欣赏",
+            21
+          ],
+          [
+            109,
+            "英语写作",
+            18
+          ],
+          [
+            109,
+            "英语写作",
+            27
+          ],
+          [
+            110,
+            "人工智能导论",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": [
+          "course_id",
+          "course_name",
+          "enrollment_id"
+        ],
+        "rows": [
+          [
+            111,
+            "高等数学",
+            31
+          ],
+          [
+            111,
+            "高等数学",
+            32
+          ],
+          [
+            111,
+            "高等数学",
+            35
+          ],
+          [
+            111,
+            "高等数学",
+            36
+          ],
+          [
+            112,
+            "数据库基础",
+            33
+          ],
+          [
+            112,
+            "数据库基础",
+            34
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": [
+          "course_id",
+          "course_name",
+          "enrollment_id"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-loses-unmatched",
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, e.id AS enrollment_id FROM courses AS c INNER JOIN enrollments AS e ON c.id = e.course_id;"
+    },
+    {
+      "id": "wrong-preserved-side",
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, e.id AS enrollment_id FROM enrollments AS e LEFT JOIN courses AS c ON c.id = e.course_id;"
+    },
+    {
+      "id": "changes-null-to-zero",
+      "sql": "SELECT c.id AS course_id, c.name AS course_name, COALESCE(e.id, 0) AS enrollment_id FROM courses AS c LEFT JOIN enrollments AS e ON c.id = e.course_id;"
+    }
+  ],
+  "flowchart": {
+    "exampleSql": "SELECT c.id AS course_id, c.name AS course_name, e.id AS enrollment_id FROM courses AS c LEFT JOIN enrollments AS e ON c.id = e.course_id;",
+    "nodes": [
+      {
+        "id": "left",
+        "label": "左侧：所有课程",
+        "description": "以 courses 为保留侧，课程按编号区分，而不是按课程名合并。"
+      },
+      {
+        "id": "match",
+        "label": "ON：匹配选课课程编号",
+        "description": "查找 c.id = e.course_id 的选课记录；同一课程可以匹配多条选课记录。"
+      },
+      {
+        "id": "preserve",
+        "label": "LEFT JOIN：保留匹配或未匹配行",
+        "description": "有匹配时每条选课记录形成一行；无匹配时也保留该课程，右表列补为 NULL。"
+      },
+      {
+        "id": "project",
+        "label": "SELECT：输出三列",
+        "description": "取课程编号、课程名与选课记录编号；本例不筛选记录，也不保证行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "left",
+        "to": "match"
+      },
+      {
+        "from": "match",
+        "to": "preserve"
+      },
+      {
+        "from": "preserve",
+        "to": "project"
+      }
+    ]
+  }
+}

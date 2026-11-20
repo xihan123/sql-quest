@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "basics",
+  "id": "visit-columns",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "就诊字段与列别名",
+  "prerequisites": [
+    "patient-list"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias"
+  ],
+  "introducedConcepts": [
+    "select-columns",
+    "column-alias"
+  ],
+  "objective": "从就诊明细选出三列，为结果起列名。",
+  "statement": "整理 visits 的就诊费用明细。依次取就诊编号 id、患者编号 patient_id、门诊费 fee，结果列名为 visit_id、patient_no、fee_yuan。每次就诊一行，行顺序不限。",
+  "knowledge": [
+    "visits.id 标识一次就诊，visits.patient_id 标识来就诊的人。陈欣的几次就诊共用一个患者编号，但各有自己的就诊编号。",
+    "将要看的列依次写在 SELECT 后，用逗号隔开。没选日期、科室或接诊医生，不影响就诊记录的条数。",
+    "fee 已经按整数元存储。fee AS fee_yuan 只给结果列写清单位，数值本身和 visits 的字段名都不变。"
+  ],
+  "readableTables": [
+    "visits"
+  ],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出就诊编号、患者编号和费用，并使用题目要求的列名。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先分清哪一个编号代表这次就诊、哪一个代表患者。费用原样取出。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 SELECT 中用 原列名 AS 结果列名 为单列起名，各列用逗号分开。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id AS visit_id, ____ AS patient_no, fee AS ____ FROM visits;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id AS visit_id, patient_id AS patient_no, fee AS fee_yuan FROM visits;",
+      "explanation": "id 和 patient_id 分别用不同的列名标出。查询没有筛就诊记录，同一个患者在费用表里仍可能出现多次。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": [
+          "visit_id",
+          "patient_no",
+          "fee_yuan"
+        ],
+        "rows": [
+          [
+            1,
+            1,
+            320
+          ],
+          [
+            2,
+            1,
+            180
+          ],
+          [
+            3,
+            2,
+            450
+          ],
+          [
+            4,
+            3,
+            300
+          ],
+          [
+            5,
+            4,
+            120
+          ],
+          [
+            6,
+            5,
+            300
+          ],
+          [
+            7,
+            6,
+            260
+          ],
+          [
+            8,
+            3,
+            150
+          ],
+          [
+            9,
+            7,
+            520
+          ],
+          [
+            10,
+            1,
+            90
+          ],
+          [
+            11,
+            5,
+            300
+          ],
+          [
+            12,
+            6,
+            410
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": [
+          "visit_id",
+          "patient_no",
+          "fee_yuan"
+        ],
+        "rows": [
+          [
+            31,
+            22,
+            300
+          ],
+          [
+            32,
+            21,
+            80
+          ],
+          [
+            33,
+            24,
+            460
+          ],
+          [
+            34,
+            24,
+            300
+          ],
+          [
+            35,
+            26,
+            150
+          ],
+          [
+            36,
+            25,
+            520
+          ],
+          [
+            37,
+            27,
+            300
+          ],
+          [
+            38,
+            23,
+            210
+          ],
+          [
+            39,
+            27,
+            140
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": [
+          "visit_id",
+          "patient_no",
+          "fee_yuan"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-original-names",
+      "sql": "SELECT id, patient_id, fee FROM visits;"
+    },
+    {
+      "id": "omits-fee",
+      "sql": "SELECT id AS visit_id, patient_id AS patient_no FROM visits;"
+    }
+  ]
+}

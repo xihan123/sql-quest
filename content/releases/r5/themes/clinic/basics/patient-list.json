@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "basics",
+  "id": "patient-list",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看患者档案",
+  "prerequisites": [],
+  "concepts": [
+    "select"
+  ],
+  "introducedConcepts": [
+    "select"
+  ],
+  "objective": "读出患者档案中的全部行和字段。",
+  "statement": "查看 patients 中的全部患者档案，依次输出 id、name、gender、birth_year、phone，保留原列名。没有登记电话或没有就诊记录的患者也要列出。行顺序不限。",
+  "knowledge": [
+    "patients 每行是一份患者档案。id 是唯一的患者编号，name 是姓名，birth_year 只记录出生年份。",
+    "phone 存的是电话号码文本。李强的 phone 为 NULL，表示没有登记电话，他的档案仍是一条完整的查询结果。",
+    "FROM patients 指定读取患者表，SELECT * 按表中定义的顺序输出五列。表中没有档案时，结果保留这五个列名，行数为零。"
+  ],
+  "readableTables": [
+    "patients"
+  ],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看患者档案的全部行和全部列。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "查档案时，电话号码缺失的那一行也要留下。想想有没有必要挑列或筛行。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 SELECT * 取全部列，FROM 后接档案所在的表名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM patients;",
+      "explanation": "这条查询直接读取 patients 的每条档案。星号展开为五列，患者有没有电话或就诊记录都不影响他是否出现在结果里。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "gender",
+          "birth_year",
+          "phone"
+        ],
+        "rows": [
+          [
+            1,
+            "陈欣",
+            "女",
+            1985,
+            "13800000001"
+          ],
+          [
+            2,
+            "李强",
+            "男",
+            1972,
+            null
+          ],
+          [
+            3,
+            "王芳",
+            "女",
+            1990,
+            "13800000003"
+          ],
+          [
+            4,
+            "赵磊",
+            "男",
+            1968,
+            null
+          ],
+          [
+            5,
+            "周敏",
+            "女",
+            1995,
+            "13800000005"
+          ],
+          [
+            6,
+            "吴涛",
+            "男",
+            1980,
+            null
+          ],
+          [
+            7,
+            "郑爽",
+            "女",
+            2001,
+            null
+          ],
+          [
+            8,
+            "钱伟",
+            "男",
+            1992,
+            null
+          ],
+          [
+            9,
+            "冯雪",
+            "女",
+            1988,
+            "13800000009"
+          ],
+          [
+            10,
+            "韩磊",
+            "男",
+            1975,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "gender",
+          "birth_year",
+          "phone"
+        ],
+        "rows": [
+          [
+            21,
+            "沈丽",
+            "女",
+            1979,
+            null
+          ],
+          [
+            22,
+            "曹阳",
+            "男",
+            1978,
+            "13900000022"
+          ],
+          [
+            23,
+            "邓超",
+            "男",
+            1965,
+            null
+          ],
+          [
+            24,
+            "许晴",
+            "女",
+            1991,
+            "13900000024"
+          ],
+          [
+            25,
+            "苏敏",
+            "女",
+            1987,
+            "13900000025"
+          ],
+          [
+            26,
+            "卢凯",
+            "男",
+            1970,
+            null
+          ],
+          [
+            27,
+            "姚婷",
+            "女",
+            1998,
+            "13900000027"
+          ],
+          [
+            28,
+            "崔浩",
+            "男",
+            1994,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "gender",
+          "birth_year",
+          "phone"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-phone",
+      "sql": "SELECT id, name, gender, birth_year FROM patients;"
+    },
+    {
+      "id": "filters-by-gender",
+      "sql": "SELECT * FROM patients WHERE gender = '女';"
+    }
+  ]
+}

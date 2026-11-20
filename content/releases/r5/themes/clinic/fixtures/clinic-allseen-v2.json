@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "id": "clinic-allseen-v2",
+  "tables": [
+    {
+      "name": "patients",
+      "description": "门诊患者档案，每行一名患者；从未就诊的患者也在此表。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "患者编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "患者姓名"
+        },
+        {
+          "name": "gender",
+          "type": "TEXT",
+          "description": "性别：男 / 女"
+        },
+        {
+          "name": "birth_year",
+          "type": "INTEGER",
+          "minimum": 1900,
+          "description": "出生年份"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话；NULL 表示未登记"
+        }
+      ],
+      "rows": [
+        [
+          41,
+          "陆铭",
+          "男",
+          1983,
+          "13700000041"
+        ],
+        [
+          42,
+          "蒋芸",
+          "女",
+          1979,
+          null
+        ],
+        [
+          43,
+          "潘越",
+          "男",
+          1996,
+          "13700000043"
+        ],
+        [
+          44,
+          "尹璐",
+          "女",
+          1988,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "doctors",
+      "description": "门诊医生名单，每行一位医生。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "医生编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "医生姓名"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "职称：主任医师 / 副主任医师 / 主治医师"
+        },
+        {
+          "name": "department",
+          "type": "TEXT",
+          "description": "所属科室"
+        }
+      ],
+      "rows": [
+        [
+          41,
+          "许平",
+          "主治医师",
+          "内科"
+        ],
+        [
+          42,
+          "袁琴",
+          "副主任医师",
+          "外科"
+        ]
+      ]
+    },
+    {
+      "name": "visits",
+      "description": "就诊记录，一行一次就诊；同一患者可多次就诊。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "就诊记录编号"
+        },
+        {
+          "name": "patient_id",
+          "type": "INTEGER",
+          "description": "就诊患者编号，指向 patients.id",
+          "references": {
+            "table": "patients",
+            "column": "id"
+          }
+        },
+        {
+          "name": "doctor_id",
+          "type": "INTEGER",
+          "description": "接诊医生编号，指向 doctors.id",
+          "references": {
+            "table": "doctors",
+            "column": "id"
+          }
+        },
+        {
+          "name": "visit_date",
+          "type": "TEXT",
+          "description": "就诊日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "department",
+          "type": "TEXT",
+          "description": "就诊科室"
+        },
+        {
+          "name": "fee",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "本次门诊费用，整数元"
+        }
+      ],
+      "rows": [
+        [
+          41,
+          41,
+          41,
+          "2025-04-02",
+          "内科",
+          210
+        ],
+        [
+          42,
+          42,
+          42,
+          "2025-04-05",
+          "外科",
+          340
+        ],
+        [
+          43,
+          43,
+          41,
+          "2025-04-09",
+          "内科",
+          180
+        ],
+        [
+          44,
+          44,
+          42,
+          "2025-04-12",
+          "外科",
+          290
+        ],
+        [
+          45,
+          41,
+          42,
+          "2025-04-15",
+          "外科",
+          260
+        ]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "visits_date",
+      "table": "visits",
+      "columns": [
+        {
+          "name": "visit_date",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

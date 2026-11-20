@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "filtering",
+  "id": "undelivered",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "未签收的在途和异常运单",
+  "prerequisites": [
+    "heavy-shipments"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare",
+    "and-or-conditions",
+    "null-check"
+  ],
+  "introducedConcepts": [
+    "and-or-conditions",
+    "null-check"
+  ],
+  "objective": "组合签收日期与运单状态，找出仍需跟进的运单。",
+  "statement": "给调度员列出还未签收的在途、异常运单。运单须同时满足：delivered_at 为 SQL NULL，且 status 为“在途”或“异常”。依次输出 id、status、delivered_at；已取消的运单不列，行顺序不限。",
+  "knowledge": [
+    "status 是运单状态，delivered_at 记录签收日期。7 号运单标为异常，但有签收日期；13 号没有签收日期，状态却是已取消。只检查其中一列会把无关运单带进来。",
+    "用 delivered_at IS NULL 找没有签收日期的记录；IS NOT NULL 判断已有值。写 delivered_at = NULL 不能得到为真的条件。",
+    "OR 要求至少一个状态条件成立，AND 要求同时符合日期条件。SQLite 先结合 AND，再结合 OR；把两个状态条件括在一起，日期条件就能约束整组。"
+  ],
+  "readableTables": [
+    "shipments"
+  ],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出未签收、且状态为在途或异常的运单。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先看有没有签收日期；即使没有，也只留下在途和异常两种状态。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 IS NULL 检查日期，用 = 与单引号内的状态文本比较。将两个 OR 条件放在同一对括号内。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, status, delivered_at FROM shipments WHERE ____ AND (____ OR ____);"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, status, delivered_at FROM shipments WHERE delivered_at IS NULL AND (status = '在途' OR status = '异常');",
+      "explanation": "括号让在途和异常都接受同一项日期检查。预览里 3 号是未签收的异常运单，7 号虽然也异常，但已经有签收日期。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "status",
+          "delivered_at"
+        ],
+        "rows": [
+          [
+            1,
+            "在途",
+            null
+          ],
+          [
+            3,
+            "异常",
+            null
+          ],
+          [
+            5,
+            "在途",
+            null
+          ],
+          [
+            9,
+            "在途",
+            null
+          ],
+          [
+            12,
+            "在途",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "status",
+          "delivered_at"
+        ],
+        "rows": [
+          [
+            31,
+            "在途",
+            null
+          ],
+          [
+            33,
+            "异常",
+            null
+          ],
+          [
+            35,
+            "在途",
+            null
+          ],
+          [
+            38,
+            "在途",
+            null
+          ],
+          [
+            39,
+            "在途",
+            null
+          ],
+          [
+            40,
+            "异常",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "status",
+          "delivered_at"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "delivered-equals-null",
+      "sql": "SELECT id, status, delivered_at FROM shipments WHERE delivered_at = NULL AND (status = '在途' OR status = '异常');"
+    },
+    {
+      "id": "misses-parentheses",
+      "sql": "SELECT id, status, delivered_at FROM shipments WHERE delivered_at IS NULL AND status = '在途' OR status = '异常';"
+    },
+    {
+      "id": "ignores-null-check",
+      "sql": "SELECT id, status, delivered_at FROM shipments WHERE status = '在途' OR status = '异常';"
+    },
+    {
+      "id": "ignores-status",
+      "sql": "SELECT id, status, delivered_at FROM shipments WHERE delivered_at IS NULL;"
+    }
+  ]
+}

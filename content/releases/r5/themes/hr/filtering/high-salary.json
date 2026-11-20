@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "filtering",
+  "id": "high-salary",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "高薪员工",
+  "prerequisites": [
+    "employee-columns"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare"
+  ],
+  "introducedConcepts": [
+    "where-compare"
+  ],
+  "objective": "使用包含边界的比较条件筛选月薪。",
+  "statement": "列出月薪不低于 9000 元的员工，输出 id、name、salary。9000 元整也符合条件；姓名可能重名，各条员工记录分别保留，不要求行顺序。",
+  "knowledge": [
+    "salary 存的是整数元，9000 不加引号；WHERE salary >= 9000 按每条员工记录判断条件。",
+    ">= 表示大于或等于，包含边界；employees 中刘敏和孙鹏都是 9000 元，写 > 9000 会漏掉两人。",
+    "WHERE 负责筛行，SELECT 决定输出 id、name、salary 三列；id 标识员工，所以同名员工仍能分别识别。"
+  ],
+  "readableTables": [
+    "employees"
+  ],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出月薪不低于 9000 元的员工。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "筛的是每名员工的月薪，先确认“不低于”包含恰好 9000 元的边界。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE 后写 salary >= 9000；>= 包含等于，数值不需要单引号。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, salary FROM employees WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, salary FROM employees WHERE salary >= 9000;",
+      "explanation": "WHERE salary >= 9000 按月薪保留边界值和更高值，再按要求输出员工编号、姓名与月薪。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "salary"
+        ],
+        "rows": [
+          [
+            1,
+            "陈立",
+            12000
+          ],
+          [
+            2,
+            "刘敏",
+            9000
+          ],
+          [
+            3,
+            "周强",
+            15000
+          ],
+          [
+            5,
+            "郑伟",
+            11000
+          ],
+          [
+            7,
+            "孙鹏",
+            9000
+          ],
+          [
+            8,
+            "李娜",
+            9800
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "salary"
+        ],
+        "rows": [
+          [
+            21,
+            "何静",
+            10500
+          ],
+          [
+            23,
+            "林芳",
+            9300
+          ],
+          [
+            24,
+            "徐亮",
+            12000
+          ],
+          [
+            27,
+            "罗敏",
+            13500
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "salary"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "strict-greater",
+      "sql": "SELECT id, name, salary FROM employees WHERE salary > 9000;"
+    },
+    {
+      "id": "lower-bound-too-low",
+      "sql": "SELECT id, name, salary FROM employees WHERE salary >= 6000;"
+    }
+  ]
+}

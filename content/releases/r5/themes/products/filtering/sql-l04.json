@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "filtering",
+  "id": "sql-l04",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "比较条件",
+  "prerequisites": [
+    "sql-l03"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where"
+  ],
+  "introducedConcepts": [
+    "where"
+  ],
+  "objective": "用 WHERE 按价格筛选商品，区分大于与大于等于。",
+  "statement": "查询单价不低于 25 元的商品，依次输出 id、name、price。恰好 25 元也符合，不按库存筛选。保留不同记录，不要求行顺序。",
+  "knowledge": [
+    "WHERE 放在 FROM 后，用条件决定哪些行进入结果；SELECT 的字段列表仍决定输出列。",
+    "比较运算包括 =、<>（不等于）、>、>=、<、<=。不低于包含边界，应区别于严格大于；数值直接书写，不加引号。",
+    "例如 WHERE stock = 0 查无库存商品，而 WHERE price < 25 查低于 25 元的商品。本关不按库存筛选。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-intro-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 用 WHERE 按价格筛选商品，区分大于与大于等于。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, name, price FROM products WHERE price < 25;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "用比较条件筛行",
+        "description": "示例查询低于 25 元的商品，题目要求不低于 25 元，两者的范围相反。"
+      },
+      {
+        "id": "rows",
+        "label": "筛哪些行？\nWHERE price < 25",
+        "description": "逐条判断商品价格，只有条件为真的行进入结果。字段列表不决定价格范围。"
+      },
+      {
+        "id": "boundary",
+        "label": "边界是否包含？\n< 不包含等于",
+        "description": "恰好 25 元不符合本示例；<= 才包含等于。> 与 >= 也有相同的边界区别。"
+      },
+      {
+        "id": "scope",
+        "label": "是否检查库存？\n没有库存条件",
+        "description": "示例只比较 price，不应额外排除 stock 为 0 的记录。0 元是正常价格，也参与比较。"
+      },
+      {
+        "id": "output",
+        "label": "保留哪些列？\nid、name、price",
+        "description": "SELECT 指定这三列及顺序；WHERE 去掉的是不符合条件的行，不是其他字段的值。没有符合行时保留列名并输出零行。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "rows"
+      },
+      {
+        "from": "topic",
+        "to": "boundary"
+      },
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "output"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先确定价格的包含边界，不要顺手排除缺货商品。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 FROM products 后添加 WHERE，使用包含等号的下界比较。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, price FROM products WHERE price ____ 25;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, price FROM products WHERE price >= 25;",
+      "explanation": ">= 保留等于 25 的两条商品，不额外附加库存条件。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-intro-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": [
+          [
+            1,
+            "帆布袋",
+            25
+          ],
+          [
+            2,
+            "陶瓷杯",
+            39
+          ],
+          [
+            3,
+            "帆布袋",
+            25
+          ],
+          [
+            6,
+            "陶瓷杯",
+            49
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-intro-varied-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": [
+          [
+            12,
+            "收纳盒",
+            32
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-intro-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "excludes-boundary",
+      "sql": "SELECT id, name, price FROM products WHERE price > 25;"
+    },
+    {
+      "id": "wrong-direction",
+      "sql": "SELECT id, name, price FROM products WHERE price <= 25;"
+    }
+  ]
+}

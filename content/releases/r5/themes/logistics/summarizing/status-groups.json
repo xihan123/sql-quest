@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "summarizing",
+  "id": "status-groups",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "状态分组统计",
+  "prerequisites": [
+    "shipment-totals"
+  ],
+  "concepts": [
+    "select",
+    "aggregate",
+    "group-by",
+    "having"
+  ],
+  "introducedConcepts": [
+    "group-by",
+    "having"
+  ],
+  "objective": "按运单状态汇总，再按每组张数筛选。",
+  "statement": "按 shipments 的状态制作报表。逐种状态统计运单张数和运费记录金额之和（元），只有达到 4 张的状态才列出。依次输出 status、shipment_count、total_fee，每种状态一行，行顺序不限。",
+  "knowledge": [
+    "每张运单有一个 status。用 GROUP BY status 把同一状态的运单归为一组，状态本身也作为结果的一列。",
+    "COUNT(*) 和 SUM(freight_fee) 分别数、加本组的运单。预览里在途运单正好 4 张，记录运费为 100 + 320 + 420 + 100，共 940 元。",
+    "HAVING 写在 GROUP BY 后，比较统计完成的张数。WHERE 会在分组前筛单张运单，不能用来检查一组有几张。",
+    "没有任何运单时不会产生分组。预览里的已取消有一张，这一组存在，但没有达到输出门槛。"
+  ],
+  "readableTables": [
+    "shipments"
+  ],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按状态统计，只保留运单数不少于 4 张的状态。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "每种状态先各算一份小计。应不应该列出这一组，看的是什么数？"
+    },
+    {
+      "id": "syntax",
+      "text": "GROUP BY 指定状态列；HAVING 用 COUNT(*) 比较组内张数。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT status, COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments GROUP BY status HAVING ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT status, COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments GROUP BY status HAVING COUNT(*) >= 4;",
+      "explanation": "HAVING COUNT(*) >= 4 让正好 4 张的在途组和 6 张的已签收组出现在预览报表里。运费只用于输出合计，不影响这一组是否入选。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": [
+          "status",
+          "shipment_count",
+          "total_fee"
+        ],
+        "rows": [
+          [
+            "在途",
+            4,
+            940
+          ],
+          [
+            "已签收",
+            6,
+            1250
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": [
+          "status",
+          "shipment_count",
+          "total_fee"
+        ],
+        "rows": [
+          [
+            "在途",
+            4,
+            955
+          ],
+          [
+            "异常",
+            4,
+            810
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": [
+          "status",
+          "shipment_count",
+          "total_fee"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "no-having",
+      "sql": "SELECT status, COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments GROUP BY status;"
+    },
+    {
+      "id": "strict-greater-than-four",
+      "sql": "SELECT status, COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments GROUP BY status HAVING COUNT(*) > 4;"
+    },
+    {
+      "id": "filters-by-total-fee",
+      "sql": "SELECT status, COUNT(*) AS shipment_count, SUM(freight_fee) AS total_fee FROM shipments GROUP BY status HAVING SUM(freight_fee) >= 1000;"
+    }
+  ]
+}

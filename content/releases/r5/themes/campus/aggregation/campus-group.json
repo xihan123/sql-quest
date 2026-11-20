@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "aggregation",
+  "id": "campus-group",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "分组统计",
+  "prerequisites": [
+    "campus-aggregate"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "aggregate",
+    "group-by"
+  ],
+  "introducedConcepts": [
+    "group-by"
+  ],
+  "objective": "按课程统计选课记录数。",
+  "statement": "按 enrollments.course_id 分组，依次输出 course_id、enroll_count（记录数）。成绩未公布的记录也计入。只输出实际有选课记录的课程，不要求行顺序；空表返回零行。",
+  "knowledge": [
+    "GROUP BY 把相同键值的输入行放进一组，聚合函数分别对每组计算；结果从“一条选课记录一行”变为“一门课程一行”。",
+    "SELECT 中所有非聚合的输出字段都列入 GROUP BY；本关输出 course_id 与计数，因此按 course_id 分组。不要依赖 SQLite 允许裸列的扩展，它不能保证拿到哪条记录的值。",
+    "COUNT(*) 计每组行数，未公布成绩的记录同样是一条选课记录；改用 COUNT(score) 会漏掉未公布成绩的课程记录数。",
+    "分组不会自动造出没有选课记录的课程。与无 GROUP BY 的整体聚合不同，空输入的分组结果是零行；GROUP BY 本身不承诺行顺序。"
+  ],
+  "readableTables": [
+    "enrollments"
+  ],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按课程统计选课记录数。\n",
+  "flowchart": {
+    "exampleSql": "SELECT student_id, COUNT(*) AS course_count FROM enrollments GROUP BY student_id;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "按学生分组计数",
+        "description": "示例按学生统计选课记录数；题目按课程统计，分组字段不同。"
+      },
+      {
+        "id": "key",
+        "label": "按什么归组？\nGROUP BY 分组键",
+        "description": "分组键相同的输入行归为一组。结果从每条选课记录一行变为每个实际出现的键值一行。"
+      },
+      {
+        "id": "metrics",
+        "label": "每组分别计算\nCOUNT(*)",
+        "description": "COUNT(*) 数每组行数；一条选课记录无论成绩是否公布，都让所在组的计数加 1。"
+      },
+      {
+        "id": "columns",
+        "label": "输出列与分组键一致",
+        "description": "示例输出 student_id，所以按 student_id 分组；题目输出 course_id，应按 course_id 分组。"
+      },
+      {
+        "id": "empty",
+        "label": "空输入没有分组",
+        "description": "空表没有学生组，结果为零行。题目按课程分组时，空表同样没有分组；GROUP BY 不保证行顺序。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "key"
+      },
+      {
+        "from": "topic",
+        "to": "metrics"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      },
+      {
+        "from": "topic",
+        "to": "empty"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "结果每行代表一门有选课记录的课程，不再代表单条选课记录。"
+    },
+    {
+      "id": "syntax",
+      "text": "按 course_id 分组，对每组用 COUNT(*) 计数。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT course_id, COUNT(*) AS enroll_count FROM enrollments GROUP BY ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT course_id, COUNT(*) AS enroll_count FROM enrollments GROUP BY course_id;",
+      "explanation": "COUNT(*) 统计每门课程的全部选课记录，包含成绩为 NULL 的记录。没有选课记录的课程不出现。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": [
+          "course_id",
+          "enroll_count"
+        ],
+        "rows": [
+          [
+            101,
+            7
+          ],
+          [
+            102,
+            4
+          ],
+          [
+            103,
+            4
+          ],
+          [
+            104,
+            2
+          ],
+          [
+            105,
+            2
+          ],
+          [
+            106,
+            2
+          ],
+          [
+            107,
+            2
+          ],
+          [
+            108,
+            2
+          ],
+          [
+            109,
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": [
+          "course_id",
+          "enroll_count"
+        ],
+        "rows": [
+          [
+            111,
+            4
+          ],
+          [
+            112,
+            2
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": [
+          "course_id",
+          "enroll_count"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "counts-graded-only",
+      "sql": "SELECT course_id, COUNT(score) AS enroll_count FROM enrollments GROUP BY course_id;"
+    },
+    {
+      "id": "wrong-key",
+      "sql": "SELECT student_id AS course_id, COUNT(*) AS enroll_count FROM enrollments GROUP BY student_id;"
+    },
+    {
+      "id": "wrong-grain",
+      "sql": "SELECT course_id, COUNT(*) AS enroll_count FROM enrollments GROUP BY course_id, student_id;"
+    }
+  ]
+}

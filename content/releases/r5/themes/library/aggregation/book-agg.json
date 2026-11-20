@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "aggregation",
+  "id": "book-agg",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "数值聚合",
+  "prerequisites": [
+    "book-count"
+  ],
+  "concepts": [
+    "select",
+    "count",
+    "numeric-aggregation"
+  ],
+  "introducedConcepts": [
+    "numeric-aggregation"
+  ],
+  "objective": "用 SUM 与 AVG 对数值列求总和与平均值，认识空输入的行为。",
+  "statement": "对 books 的全部记录计算定价总和与平均值，依次输出 total_price、avg_price。0 元图书也参与平均。结果为一行；空表时两列均为 SQL NULL，不改成 0。",
+  "knowledge": [
+    "SUM(price) 求定价总和，AVG(price) 求平均值。多个聚合列可放在同一条 SELECT 中，分别用 AS 命名。",
+    "SUM 和 AVG 忽略 NULL，但不忽略 0。AVG 的分母是价格非 NULL 的记录数。",
+    "没有 GROUP BY 且输入为空时，SUM 和 AVG 都返回一行 NULL。"
+  ],
+  "readableTables": [
+    "books"
+  ],
+  "previewFixtureId": "library-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 计算全部图书定价的总和与平均值。\n",
+  "flowchart": {
+    "exampleSql": "SELECT SUM(price) AS total_price, AVG(price) AS avg_price FROM books;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "求和与平均",
+        "description": "在同一条查询中计算定价总和与平均值。"
+      },
+      {
+        "id": "source",
+        "label": "对什么计算？\nbooks 的 price 列",
+        "description": "没有 WHERE 时，全部行的 price 都是输入；0 元图书也是有效价格。"
+      },
+      {
+        "id": "sum",
+        "label": "总和\nSUM(price)",
+        "description": "把每个有值的 price 相加，包括 0；结果是全部定价之和。"
+      },
+      {
+        "id": "avg",
+        "label": "平均值\nAVG(price)",
+        "description": "平均值 = 取值之和 ÷ 有值行数；它忽略 NULL，但不忽略 0，分母不会因 0 元图书减少。"
+      },
+      {
+        "id": "empty",
+        "label": "空表怎么办？\n结果是 NULL",
+        "description": "没有行可算时 SUM 与 AVG 都输出 NULL；NULL 表示「没有值」，与 0 不同。"
+      },
+      {
+        "id": "columns",
+        "label": "输出几列？\n两列，各起别名",
+        "description": "一条查询可以放多个聚合；结果一行两列，列名由 AS 决定。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "sum"
+      },
+      {
+        "from": "topic",
+        "to": "avg"
+      },
+      {
+        "from": "topic",
+        "to": "empty"
+      },
+      {
+        "from": "topic",
+        "to": "columns"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "两个聚合可以放在同一条查询里：先对 price 求和，再对它求平均，各自起列名。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT SUM(列) AS 名1, AVG(列) AS 名2 FROM 表; 聚合列之间用逗号分隔。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT ____(price) AS total_price, ____(price) AS avg_price FROM books;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT SUM(price) AS total_price, AVG(price) AS avg_price FROM books;",
+      "explanation": "SUM 把全部定价相加（含 0 元图书），AVG 用取值之和除以有值行数；空表时两列都是 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "catalog",
+      "fixtureId": "library-catalog-v1",
+      "expected": {
+        "columns": [
+          "total_price",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            397,
+            39.7
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-catalog",
+      "fixtureId": "library-catalog-varied-v1",
+      "expected": {
+        "columns": [
+          "total_price",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            165,
+            27.5
+          ]
+        ]
+      }
+    },
+    {
+      "id": "small-catalog",
+      "fixtureId": "library-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "total_price",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            140,
+            35
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-catalog",
+      "fixtureId": "library-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "total_price",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            null,
+            null
+          ]
+        ]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "excludes-open-access",
+      "sql": "SELECT SUM(price) AS total_price, AVG(price) AS avg_price FROM books WHERE price > 0;"
+    },
+    {
+      "id": "uses-count-instead-of-sum",
+      "sql": "SELECT COUNT(price) AS total_price, AVG(price) AS avg_price FROM books;"
+    },
+    {
+      "id": "omits-avg-column",
+      "sql": "SELECT SUM(price) AS total_price FROM books;"
+    },
+    {
+      "id": "sums-distinct-prices",
+      "sql": "SELECT SUM(DISTINCT price) AS total_price, AVG(price) AS avg_price FROM books;"
+    }
+  ]
+}

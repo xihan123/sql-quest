@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "id": "restaurant-alt-v3",
+  "tables": [
+    {
+      "name": "dishes",
+      "description": "在售菜品，一行一道菜。category 为热菜 / 凉菜 / 主食 / 饮品；spicy_level 是 1–3 级辣度，NULL 表示未标注；price 为整数元。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "菜品编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "菜品名称"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "分类：热菜 / 凉菜 / 主食 / 饮品"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "单价，整数元"
+        },
+        {
+          "name": "spicy_level",
+          "type": "INTEGER",
+          "minimum": 1,
+          "nullable": true,
+          "description": "辣度 1–3；NULL 表示未标注"
+        }
+      ],
+      "rows": [
+        [
+          21,
+          "糖醋里脊",
+          "热菜",
+          58,
+          1
+        ],
+        [
+          22,
+          "凉拌木耳",
+          "凉菜",
+          18,
+          null
+        ],
+        [
+          23,
+          "夫妻肺片",
+          "凉菜",
+          42,
+          3
+        ],
+        [
+          24,
+          "蛋炒饭",
+          "主食",
+          26,
+          null
+        ],
+        [
+          25,
+          "担担面",
+          "主食",
+          24,
+          2
+        ],
+        [
+          26,
+          "手工水饺",
+          "主食",
+          30,
+          null
+        ],
+        [
+          27,
+          "酸梅汤",
+          "饮品",
+          12,
+          null
+        ],
+        [
+          28,
+          "豆浆",
+          "饮品",
+          8,
+          null
+        ],
+        [
+          29,
+          "柠檬茶",
+          "饮品",
+          16,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "orders",
+      "description": "门店订单，一行一笔。table_no 是桌号，同一桌可多次下单；ordered_at 为 YYYY-MM-DD 文本日期；status 为已完成 / 进行中 / 已取消。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "订单编号"
+        },
+        {
+          "name": "table_no",
+          "type": "INTEGER",
+          "minimum": 1,
+          "description": "桌号"
+        },
+        {
+          "name": "ordered_at",
+          "type": "TEXT",
+          "description": "下单日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "状态：已完成 / 进行中 / 已取消"
+        }
+      ],
+      "rows": [
+        [
+          31,
+          2,
+          "2025-06-01",
+          "已完成"
+        ],
+        [
+          32,
+          4,
+          "2025-06-01",
+          "进行中"
+        ],
+        [
+          33,
+          6,
+          "2025-06-02",
+          "已完成"
+        ],
+        [
+          34,
+          1,
+          "2025-06-05",
+          "已完成"
+        ],
+        [
+          35,
+          8,
+          "2025-06-07",
+          "已取消"
+        ],
+        [
+          36,
+          3,
+          "2025-06-05",
+          "已完成"
+        ],
+        [
+          37,
+          3,
+          "2025-06-05",
+          "已完成"
+        ],
+        [
+          38,
+          7,
+          "2025-06-06",
+          "进行中"
+        ]
+      ]
+    },
+    {
+      "name": "order_items",
+      "description": "订单明细，一行点了一道菜。order_id 指向订单，dish_id 指向菜品，quantity 是份数（≥1）；同一道菜可出现在多笔订单。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "明细编号"
+        },
+        {
+          "name": "order_id",
+          "type": "INTEGER",
+          "description": "订单编号，指向 orders.id",
+          "references": {
+            "table": "orders",
+            "column": "id"
+          }
+        },
+        {
+          "name": "dish_id",
+          "type": "INTEGER",
+          "description": "菜品编号，指向 dishes.id",
+          "references": {
+            "table": "dishes",
+            "column": "id"
+          }
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "minimum": 1,
+          "description": "份数"
+        }
+      ],
+      "rows": [
+        [
+          41,
+          31,
+          21,
+          2
+        ],
+        [
+          42,
+          31,
+          27,
+          2
+        ],
+        [
+          43,
+          32,
+          23,
+          1
+        ],
+        [
+          44,
+          33,
+          24,
+          3
+        ],
+        [
+          45,
+          34,
+          22,
+          2
+        ],
+        [
+          46,
+          34,
+          26,
+          1
+        ],
+        [
+          47,
+          35,
+          25,
+          1
+        ],
+        [
+          48,
+          36,
+          29,
+          2
+        ],
+        [
+          49,
+          37,
+          21,
+          3
+        ]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "orders_date",
+      "table": "orders",
+      "columns": [
+        {
+          "name": "ordered_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

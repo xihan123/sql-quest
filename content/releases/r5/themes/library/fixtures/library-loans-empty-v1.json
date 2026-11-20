@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "id": "library-loans-empty-v1",
+  "tables": [
+    {
+      "name": "authors",
+      "description": "虚构的空作者表，表结构与 library-loans-v1 相同，用于检验空表行为。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "作者编号，唯一标识一位作者"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "作者姓名，不保证唯一；同名不代表同一作者"
+        },
+        {
+          "name": "country",
+          "type": "TEXT",
+          "description": "作者所在国家或地区"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "books",
+      "description": "虚构的空馆藏书目，表结构与 library-loans-v1 相同。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "馆藏图书编号，唯一标识一条书目"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一；同名行可能是不同作者的作品"
+        },
+        {
+          "name": "author_id",
+          "type": "INTEGER",
+          "description": "作者编号，指向 authors.id",
+          "references": {
+            "table": "authors",
+            "column": "id"
+          }
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "图书分类"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "定价，整数元；0 表示开放获取的免费图书，不是价格缺失"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "borrow_records",
+      "description": "虚构的空借阅记录表，表结构与 library-loans-v1 相同。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "借阅记录编号，唯一标识一次借阅"
+        },
+        {
+          "name": "book_id",
+          "type": "INTEGER",
+          "description": "所借图书编号，指向 books.id",
+          "references": {
+            "table": "books",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reader_name",
+          "type": "TEXT",
+          "description": "借阅读者姓名，不保证唯一"
+        },
+        {
+          "name": "borrowed_on",
+          "type": "TEXT",
+          "description": "借出日期，ISO 8601 格式的文本（YYYY-MM-DD）"
+        },
+        {
+          "name": "returned_on",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "归还日期，ISO 8601 格式的文本（YYYY-MM-DD）；SQL NULL 表示尚未归还，不是空字符串"
+        }
+      ],
+      "rows": []
+    }
+  ]
+}

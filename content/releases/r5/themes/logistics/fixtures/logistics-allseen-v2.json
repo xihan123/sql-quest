@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "id": "logistics-allseen-v2",
+  "tables": [
+    {
+      "name": "warehouses",
+      "description": "仓库档案，每行一个仓库；没有运单的仓库也在其中。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "仓库编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "仓库名称"
+        },
+        {
+          "name": "city",
+          "type": "TEXT",
+          "description": "所在城市"
+        }
+      ],
+      "rows": [
+        [
+          51,
+          "临河仓",
+          "银川"
+        ],
+        [
+          52,
+          "山城仓",
+          "重庆"
+        ],
+        [
+          53,
+          "滨江仓",
+          "宁波"
+        ],
+        [
+          54,
+          "星海仓",
+          "大连"
+        ],
+        [
+          55,
+          "蓉城仓",
+          "成都"
+        ],
+        [
+          56,
+          "江城仓",
+          "武汉"
+        ],
+        [
+          57,
+          "雁塔仓",
+          "西安"
+        ],
+        [
+          58,
+          "泉城仓",
+          "济南"
+        ],
+        [
+          59,
+          "春城仓",
+          "昆明"
+        ],
+        [
+          60,
+          "花城仓",
+          "广州"
+        ]
+      ]
+    },
+    {
+      "name": "carriers",
+      "description": "承运商档案，每行一家承运商；服务等级只有标准与加急。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "承运商编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "承运商名称"
+        },
+        {
+          "name": "service_level",
+          "type": "TEXT",
+          "description": "服务等级：标准 / 加急"
+        }
+      ],
+      "rows": [
+        [
+          51,
+          "顺捷速运",
+          "标准"
+        ],
+        [
+          52,
+          "迅风快递",
+          "加急"
+        ],
+        [
+          53,
+          "恒通物流",
+          "标准"
+        ]
+      ]
+    },
+    {
+      "name": "shipments",
+      "description": "运单记录，一行一张运单；delivered_at 为 NULL 表示尚未签收。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "运单编号"
+        },
+        {
+          "name": "warehouse_id",
+          "type": "INTEGER",
+          "description": "发运仓库编号，指向 warehouses.id",
+          "references": {
+            "table": "warehouses",
+            "column": "id"
+          }
+        },
+        {
+          "name": "carrier_id",
+          "type": "INTEGER",
+          "description": "承运商编号，指向 carriers.id",
+          "references": {
+            "table": "carriers",
+            "column": "id"
+          }
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "状态：在途 / 已签收 / 异常 / 已取消"
+        },
+        {
+          "name": "weight_kg",
+          "type": "REAL",
+          "minimum": 0,
+          "description": "重量，千克，可能有小数"
+        },
+        {
+          "name": "freight_fee",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "运费，整数元"
+        },
+        {
+          "name": "shipped_at",
+          "type": "TEXT",
+          "description": "发货日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "delivered_at",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "签收日期；NULL 表示尚未签收"
+        }
+      ],
+      "rows": [
+        [
+          61,
+          51,
+          51,
+          "在途",
+          120,
+          180,
+          "2025-06-02",
+          null
+        ],
+        [
+          62,
+          52,
+          52,
+          "已签收",
+          480.5,
+          260,
+          "2025-06-03",
+          "2025-06-05"
+        ],
+        [
+          63,
+          53,
+          53,
+          "异常",
+          62,
+          90,
+          "2025-06-04",
+          null
+        ],
+        [
+          64,
+          54,
+          52,
+          "已签收",
+          500,
+          300,
+          "2025-06-05",
+          "2025-06-07"
+        ],
+        [
+          65,
+          55,
+          51,
+          "在途",
+          500,
+          320,
+          "2025-06-06",
+          null
+        ],
+        [
+          66,
+          56,
+          53,
+          "已签收",
+          35.5,
+          60,
+          "2025-06-08",
+          "2025-06-09"
+        ],
+        [
+          67,
+          57,
+          52,
+          "已取消",
+          25.5,
+          60,
+          "2025-06-09",
+          null
+        ],
+        [
+          68,
+          58,
+          51,
+          "已签收",
+          88,
+          110,
+          "2025-06-10",
+          "2025-06-11"
+        ],
+        [
+          69,
+          59,
+          53,
+          "在途",
+          620,
+          420,
+          "2025-06-11",
+          null
+        ],
+        [
+          70,
+          60,
+          52,
+          "已签收",
+          310,
+          280,
+          "2025-06-12",
+          "2025-06-14"
+        ],
+        [
+          71,
+          51,
+          53,
+          "已签收",
+          150,
+          240,
+          "2025-06-12",
+          "2025-06-13"
+        ],
+        [
+          72,
+          52,
+          51,
+          "异常",
+          45,
+          100,
+          "2025-06-13",
+          "2025-06-14"
+        ]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "shipments_shipped_at",
+      "table": "shipments",
+      "columns": [
+        {
+          "name": "shipped_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

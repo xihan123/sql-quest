@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "joining",
+  "id": "batches-without-inspection",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "没有检验记录的批次",
+  "prerequisites": [
+    "batch-lines"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null-check",
+    "left-join"
+  ],
+  "introducedConcepts": [
+    "left-join"
+  ],
+  "objective": "用左连接和右表主键 NULL 找出没有检验明细的批次。",
+  "statement": "找出没有任何 inspections 记录的批次，依次输出 batch_id、product；每个无检验批次一行。某批次有多次检验也算“有记录”，全部批次都有检验时返回零行。",
+  "knowledge": [
+    "batches 放在 LEFT JOIN 左侧，保留所有批次；inspections.batch_id 引用批次 id。普通 JOIN 会直接丢掉没有匹配检验的批次。",
+    "一个批次可有多条检验，如 3 号批次有两条；连接会展开多行。本题寻找完全没有记录的批次，有一条或多条检验都不入选。",
+    "无匹配时右表主键 i.id 是连接补出的 SQL NULL，用 WHERE i.id IS NULL 筛选。主键实际值不可能为 NULL；将此条件放进 ON 会改变匹配过程，不是在连接后检查无记录。"
+  ],
+  "readableTables": [
+    "batches",
+    "inspections"
+  ],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出没有任何检验记录的批次。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "保留全部批次并尝试配对检验记录；最后挑出右侧没有任何记录的批次。"
+    },
+    {
+      "id": "syntax",
+      "text": "LEFT JOIN 按 i.batch_id = b.id 配对，随后 WHERE i.id IS NULL 筛未匹配项。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT b.id AS batch_id, b.product FROM batches AS b LEFT JOIN inspections AS i ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT b.id AS batch_id, b.product FROM batches AS b LEFT JOIN inspections AS i ON i.batch_id = b.id WHERE i.id IS NULL;",
+      "explanation": "左连接保留每条批次，并查找对应检验。若完全没有匹配，i.id 会是补出的 NULL；WHERE 只保留这些批次，有一条或多条检验的批次都会排除。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": [
+          "batch_id",
+          "product"
+        ],
+        "rows": [
+          [
+            4,
+            "轴承座"
+          ],
+          [
+            7,
+            "支架板"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": [
+          "batch_id",
+          "product"
+        ],
+        "rows": [
+          [
+            23,
+            "液压阀体"
+          ],
+          [
+            28,
+            "焊合支架"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": [
+          "batch_id",
+          "product"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "allseen",
+      "fixtureId": "factory-allseen-v2",
+      "expected": {
+        "columns": [
+          "batch_id",
+          "product"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-join",
+      "sql": "SELECT b.id AS batch_id, b.product FROM batches AS b JOIN inspections AS i ON i.batch_id = b.id WHERE i.id IS NULL;"
+    },
+    {
+      "id": "condition-in-on",
+      "sql": "SELECT b.id AS batch_id, b.product FROM batches AS b LEFT JOIN inspections AS i ON i.batch_id = b.id AND i.id IS NULL;"
+    },
+    {
+      "id": "forgets-null-filter",
+      "sql": "SELECT b.id AS batch_id, b.product FROM batches AS b LEFT JOIN inspections AS i ON i.batch_id = b.id;"
+    }
+  ]
+}

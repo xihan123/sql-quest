@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "basics",
+  "id": "batch-columns",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "批次字段与列别名",
+  "prerequisites": [
+    "line-list"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias"
+  ],
+  "introducedConcepts": [
+    "select-columns",
+    "column-alias"
+  ],
+  "objective": "挑选批次编号、产线编号和件数并命名结果列。",
+  "statement": "从 batches 输出批次编号、产线编号和生产数量，依次命名为 batch_id、line_no、produced_qty；一个批次一行，quantity 的单位是件。",
+  "knowledge": [
+    "batches.id 标识批次，line_id 指向 production_lines.id，quantity 是生产件数；别名只改输出列名。",
+    "AS 用来书写列别名，SQLite 也允许省略 AS；只要结果列名和顺序符合题意，省略 AS 仍是有效等价写法。",
+    "同一产线可以有多个批次，例如 line_id 为 1 的批次各自保留一行，不能按产线合并。"
+  ],
+  "readableTables": [
+    "batches"
+  ],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出批次编号、产线编号和生产数量，并使用题目要求的列名。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "依次选择批次自身编号、它所属的产线编号、生产件数，并核对输出名称。"
+    },
+    {
+      "id": "syntax",
+      "text": "每个字段可用 AS 后接别名，字段间用逗号分隔；SQLite 允许省略 AS。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id AS batch_id, ____ AS line_no, quantity AS ____ FROM batches;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id AS batch_id, line_id AS line_no, quantity AS produced_qty FROM batches;",
+      "explanation": "依次取批次 id、产线 line_id 和 quantity，并设置题目要求的结果列名；每条批次记录独立保留。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": [
+          "batch_id",
+          "line_no",
+          "produced_qty"
+        ],
+        "rows": [
+          [
+            1,
+            1,
+            420
+          ],
+          [
+            2,
+            1,
+            300
+          ],
+          [
+            3,
+            2,
+            510
+          ],
+          [
+            4,
+            3,
+            260
+          ],
+          [
+            5,
+            1,
+            380
+          ],
+          [
+            6,
+            2,
+            295
+          ],
+          [
+            7,
+            4,
+            640
+          ],
+          [
+            8,
+            2,
+            180
+          ],
+          [
+            9,
+            3,
+            150
+          ],
+          [
+            10,
+            5,
+            720
+          ],
+          [
+            11,
+            5,
+            90
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": [
+          "batch_id",
+          "line_no",
+          "produced_qty"
+        ],
+        "rows": [
+          [
+            21,
+            11,
+            360
+          ],
+          [
+            22,
+            12,
+            520
+          ],
+          [
+            23,
+            11,
+            280
+          ],
+          [
+            24,
+            12,
+            300
+          ],
+          [
+            25,
+            11,
+            440
+          ],
+          [
+            26,
+            13,
+            160
+          ],
+          [
+            27,
+            14,
+            610
+          ],
+          [
+            28,
+            13,
+            210
+          ],
+          [
+            29,
+            12,
+            95
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": [
+          "batch_id",
+          "line_no",
+          "produced_qty"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-original-names",
+      "sql": "SELECT id, line_id, quantity FROM batches;"
+    },
+    {
+      "id": "omits-quantity",
+      "sql": "SELECT id AS batch_id, line_id AS line_no FROM batches;"
+    }
+  ]
+}

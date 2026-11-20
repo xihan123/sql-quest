@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "id": "library-loans-v1",
+  "tables": [
+    {
+      "name": "authors",
+      "description": "虚构作者表。id 唯一，姓名可能相同；同名行是不同作者，各有独立编号。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "作者编号，唯一标识一位作者"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "作者姓名，不保证唯一；同名不代表同一作者"
+        },
+        {
+          "name": "country",
+          "type": "TEXT",
+          "description": "作者所在国家或地区"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "沈临",
+          "中国"
+        ],
+        [
+          2,
+          "白榆",
+          "中国"
+        ],
+        [
+          3,
+          "Anna Reed",
+          "美国"
+        ],
+        [
+          4,
+          "江晚",
+          "中国"
+        ],
+        [
+          5,
+          "Mora Kim",
+          "韩国"
+        ],
+        [
+          6,
+          "沈临",
+          "中国"
+        ]
+      ]
+    },
+    {
+      "name": "books",
+      "description": "虚构馆藏书目，每行代表一个馆藏图书编号；books.author_id 指向 authors.id。同名书可能是不同作者的作品。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "馆藏图书编号，唯一标识一条书目"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一；同名行可能是不同作者的作品"
+        },
+        {
+          "name": "author_id",
+          "type": "INTEGER",
+          "description": "作者编号，指向 authors.id",
+          "references": {
+            "table": "authors",
+            "column": "id"
+          }
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "图书分类"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "定价，整数元；0 表示开放获取的免费图书，不是价格缺失"
+        }
+      ],
+      "rows": [
+        [
+          101,
+          "雾中灯塔",
+          1,
+          "文学",
+          42
+        ],
+        [
+          102,
+          "雾中灯塔",
+          6,
+          "文学",
+          38
+        ],
+        [
+          103,
+          "河流改道",
+          2,
+          "自然",
+          55
+        ],
+        [
+          104,
+          "秋日食谱",
+          4,
+          "生活",
+          30
+        ],
+        [
+          105,
+          "桥梁简史",
+          3,
+          "历史",
+          68
+        ],
+        [
+          106,
+          "静物写生",
+          5,
+          "艺术",
+          47
+        ],
+        [
+          107,
+          "声音的形状",
+          2,
+          "艺术",
+          0
+        ],
+        [
+          108,
+          "候鸟旅馆",
+          3,
+          "自然",
+          36
+        ]
+      ]
+    },
+    {
+      "name": "borrow_records",
+      "description": "虚构借阅记录，一行代表一次借阅；同一本书可以有多条记录。returned_on 为 SQL NULL 表示尚未归还。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "借阅记录编号，唯一标识一次借阅"
+        },
+        {
+          "name": "book_id",
+          "type": "INTEGER",
+          "description": "所借图书编号，指向 books.id",
+          "references": {
+            "table": "books",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reader_name",
+          "type": "TEXT",
+          "description": "借阅读者姓名，不保证唯一"
+        },
+        {
+          "name": "borrowed_on",
+          "type": "TEXT",
+          "description": "借出日期，ISO 8601 格式的文本（YYYY-MM-DD）"
+        },
+        {
+          "name": "returned_on",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "归还日期，ISO 8601 格式的文本（YYYY-MM-DD）；SQL NULL 表示尚未归还，不是空字符串"
+        }
+      ],
+      "rows": [
+        [
+          201,
+          101,
+          "周禾",
+          "2024-03-02",
+          "2024-03-16"
+        ],
+        [
+          202,
+          101,
+          "许星",
+          "2024-04-11",
+          "2024-05-02"
+        ],
+        [
+          203,
+          101,
+          "周禾",
+          "2024-06-20",
+          null
+        ],
+        [
+          204,
+          103,
+          "温澄",
+          "2024-01-15",
+          "2024-02-03"
+        ],
+        [
+          205,
+          103,
+          "林杉",
+          "2024-08-01",
+          "2024-08-30"
+        ],
+        [
+          206,
+          104,
+          "许星",
+          "2024-05-09",
+          null
+        ],
+        [
+          207,
+          105,
+          "陈果",
+          "2024-02-21",
+          "2024-03-20"
+        ],
+        [
+          208,
+          105,
+          "周禾",
+          "2023-11-30",
+          "2023-12-24"
+        ],
+        [
+          209,
+          106,
+          "温澄",
+          "2024-07-04",
+          "2024-07-19"
+        ],
+        [
+          210,
+          102,
+          "林杉",
+          "2024-09-12",
+          null
+        ],
+        [
+          211,
+          107,
+          "许星",
+          "2024-10-01",
+          "2024-10-15"
+        ],
+        [
+          212,
+          106,
+          "周禾",
+          "2024-11-02",
+          null
+        ],
+        [
+          213,
+          101,
+          "方远",
+          "2024-12-05",
+          null
+        ]
+      ]
+    }
+  ]
+}

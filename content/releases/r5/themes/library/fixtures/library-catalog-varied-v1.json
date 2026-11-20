@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "id": "library-catalog-varied-v1",
+  "tables": [
+    {
+      "name": "books",
+      "description": "虚构的图书目录变化用例，规模较小，包含免费图书、同年并列、同价并列与同名不同版；description 区分未填写、空字符串和文字 NULL。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "书目编号，唯一标识一条图书记录"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "书名，不保证唯一；同名行是不同版本，仍是不同图书"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "图书分类"
+        },
+        {
+          "name": "publish_year",
+          "type": "INTEGER",
+          "description": "出版年份，公历四位年份"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "定价，整数元；0 表示开放获取的免费图书，不是价格缺失"
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "内容简介；SQL NULL 表示尚未填写，空字符串和文字 NULL 都是已填写的文本"
+        }
+      ],
+      "rows": [
+        [
+          11,
+          "星图手册",
+          "自然",
+          2021,
+          0,
+          null
+        ],
+        [
+          12,
+          "厨房里的化学",
+          "生活",
+          2023,
+          52,
+          "修订说明"
+        ],
+        [
+          13,
+          "民谣收集记",
+          "文学",
+          2012,
+          18,
+          null
+        ],
+        [
+          14,
+          "民谣收集记",
+          "文学",
+          2012,
+          18,
+          "重印说明"
+        ],
+        [
+          15,
+          "星图手册",
+          "自然",
+          2010,
+          25,
+          ""
+        ],
+        [
+          16,
+          "文字的故事",
+          "历史",
+          2023,
+          52,
+          "NULL"
+        ]
+      ]
+    }
+  ]
+}

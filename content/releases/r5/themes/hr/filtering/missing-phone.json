@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "filtering",
+  "id": "missing-phone",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "核对未登记电话的员工",
+  "prerequisites": [
+    "high-salary"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare",
+    "and-or-conditions",
+    "null-check"
+  ],
+  "introducedConcepts": [
+    "and-or-conditions",
+    "null-check"
+  ],
+  "objective": "组合日期边界与 NULL 判断，找出符合条件的员工。",
+  "statement": "查找 hire_date 不晚于 2019-12-31 且 phone 为 SQL NULL 的员工，输出 id、name、hire_date；当天入职也算，不要求行顺序。空字符串和文本“NULL”不算 SQL NULL。",
+  "knowledge": [
+    "hire_date 固定为 YYYY-MM-DD 文本，按这种格式比较可得到日期先后；<= 包含 2019-12-31 当天。王雪正好在边界入职。",
+    "NULL 表示未知或未登记，普通比较 phone = NULL 得到未知而非真，WHERE 不会保留该行。用 phone IS NULL 表达本题的空值条件最清楚。",
+    "空字符串 phone = '' 与文本 phone = 'NULL' 都不是 SQL NULL。部门、薪资不影响本题，两个条件必须同时成立，所以用 AND。"
+  ],
+  "readableTables": [
+    "employees"
+  ],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出入职不晚于 2019-12-31 且未登记电话的员工。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "只保留日期在边界当天或更早、并且电话确实为 SQL NULL 的员工；文本空值不能混入。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 hire_date <= 日期 和 phone IS NULL 表达两个条件，再以 AND 连接；比较日期文本时加单引号。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, hire_date FROM employees WHERE hire_date <= '2019-12-31' AND ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, hire_date FROM employees WHERE hire_date <= '2019-12-31' AND phone IS NULL;",
+      "explanation": "AND 要求两个条件同时为真：入职日期不晚于指定日期，且 phone 为 SQL NULL。对 phone 使用 IS NULL，空字符串与文字“NULL”不会入选。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "hire_date"
+        ],
+        "rows": [
+          [
+            6,
+            "王雪",
+            "2019-12-31"
+          ],
+          [
+            8,
+            "李娜",
+            "2017-06-18"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "hire_date"
+        ],
+        "rows": [
+          [
+            22,
+            "郭磊",
+            "2019-08-30"
+          ],
+          [
+            27,
+            "罗敏",
+            "2016-09-19"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "hire_date"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "phone-equals-null",
+      "sql": "SELECT id, name, hire_date FROM employees WHERE hire_date <= '2019-12-31' AND phone = NULL;"
+    },
+    {
+      "id": "ignores-hire-date",
+      "sql": "SELECT id, name, hire_date FROM employees WHERE phone IS NULL;"
+    },
+    {
+      "id": "registered-phone",
+      "sql": "SELECT id, name, hire_date FROM employees WHERE hire_date <= '2019-12-31' AND phone IS NOT NULL;"
+    },
+    {
+      "id": "excludes-boundary-date",
+      "sql": "SELECT id, name, hire_date FROM employees WHERE hire_date < '2019-12-31' AND phone IS NULL;"
+    },
+    {
+      "id": "treats-text-as-missing",
+      "sql": "SELECT id, name, hire_date FROM employees WHERE hire_date <= '2019-12-31' AND (phone IS NULL OR phone = '' OR phone = 'NULL');"
+    }
+  ]
+}

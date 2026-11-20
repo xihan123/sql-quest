@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "summarizing",
+  "id": "department-headcount",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "人数与薪资合计",
+  "prerequisites": [
+    "recent-hires"
+  ],
+  "concepts": [
+    "select",
+    "aggregate"
+  ],
+  "introducedConcepts": [
+    "aggregate"
+  ],
+  "objective": "用整表聚合统计员工数和月薪总额。",
+  "statement": "统计 employees 的员工人数与月薪合计，依次输出 employee_count、total_salary（整数元）。不按部门拆分，结果为一行；空表时人数为 0、合计为 SQL NULL。",
+  "knowledge": [
+    "没有 GROUP BY 时，COUNT(*) 和 SUM(salary) 汇总整张表并产生一行；COUNT(*) 数记录，SUM 把月薪相加。",
+    "COUNT(*) 数所有行，COUNT(phone) 只数 phone 非 NULL 的行；未登记电话不会让员工从人数里消失。",
+    "输入为空时仍有聚合结果行：COUNT(*) 为 0，SUM(salary) 为 NULL。零元薪资（若存在）会参与求和，和未知值 NULL 不同。"
+  ],
+  "readableTables": [
+    "employees"
+  ],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计员工人数与月薪合计。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "需要整家公司一个人数和一个薪资总额；不要按 department_id 分组。"
+    },
+    {
+      "id": "syntax",
+      "text": "在同一 SELECT 中用 COUNT(*) 数行、SUM(salary) 求和，两个结果以逗号分隔并分别命名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS employee_count, ____ AS total_salary FROM employees;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS employee_count, SUM(salary) AS total_salary FROM employees;",
+      "explanation": "两个聚合各自处理 employees 全表，COUNT(*) 统计员工记录，SUM(salary) 累加月薪。没有分组时即使表为空也返回一行；空表的计数是 0、总额是 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": [
+          "employee_count",
+          "total_salary"
+        ],
+        "rows": [
+          [
+            10,
+            91600
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": [
+          "employee_count",
+          "total_salary"
+        ],
+        "rows": [
+          [
+            8,
+            76700
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": [
+          "employee_count",
+          "total_salary"
+        ],
+        "rows": [
+          [
+            0,
+            null
+          ]
+        ]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "groups-by-department",
+      "sql": "SELECT COUNT(*) AS employee_count, SUM(salary) AS total_salary FROM employees GROUP BY department_id;"
+    },
+    {
+      "id": "counts-nullable-phone",
+      "sql": "SELECT COUNT(phone) AS employee_count, SUM(salary) AS total_salary FROM employees;"
+    }
+  ]
+}

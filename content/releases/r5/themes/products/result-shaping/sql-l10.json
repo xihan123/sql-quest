@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "result-shaping",
+  "id": "sql-l10",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "限制条数",
+  "prerequisites": [
+    "sql-l09"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "order-by",
+    "null",
+    "limit"
+  ],
+  "introducedConcepts": [
+    "limit"
+  ],
+  "objective": "先确定完整排序，再取前三条商品记录。",
+  "statement": "将全部商品按 price 降序、id 升序排列，取前 3 行，依次输出 id、name、price。NULL 排在已知价格之后。同价不增加名额；不足 3 条时全部输出，空表返回零行。",
+  "knowledge": [
+    "LIMIT 放在 ORDER BY 后，限制最终输出行数，例如 LIMIT 3。它不表示价格排名第三，也不自动包含与最后一行同价的商品。",
+    "没有明确 ORDER BY 的 LIMIT 只是在未承诺的顺序中截取；先写出完整排序，才能稳定决定哪些商品进入前几条。",
+    "同价时按唯一编号决定先后。LIMIT 不补足不存在的记录，也不改变输出列或行内数据。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 先确定完整排序，再取前三条商品记录。\n",
+  "flowchart": {
+    "exampleSql": "SELECT id, price FROM products ORDER BY price DESC, id ASC LIMIT 2;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "先排定，再截取",
+        "description": "示例取排序后的前 2 条记录；题目取前 3 条，且多输出名称。"
+      },
+      {
+        "id": "order",
+        "label": "先确定谁在前\nprice DESC, id ASC",
+        "description": "按价格降序、编号升序排列所有候选记录。没有完整排序，就不能稳定说明哪几件商品入选。"
+      },
+      {
+        "id": "limit",
+        "label": "最多输出 2 行\nLIMIT 2",
+        "description": "LIMIT 限制的是行数，不是价格等级；与最后一条同价的商品不会因此全部加入。"
+      },
+      {
+        "id": "short",
+        "label": "不足数量时不补行",
+        "description": "只有一条记录就输出一条，空表输出零行；LIMIT 不制造占位商品，列名仍然存在。"
+      },
+      {
+        "id": "null",
+        "label": "NULL 仍遵守排序规则",
+        "description": "NULL 价格排在已知价格后，不是被过滤掉；已知商品不足时，未知价格商品也可能落入截取范围。"
+      },
+      {
+        "id": "cutoff",
+        "label": "并列截点靠唯一编号",
+        "description": "两件商品同价时由 id 决定先后，不能只写价格排序后期望每次都选中同一件。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "order"
+      },
+      {
+        "from": "topic",
+        "to": "limit"
+      },
+      {
+        "from": "topic",
+        "to": "short"
+      },
+      {
+        "from": "topic",
+        "to": "null"
+      },
+      {
+        "from": "order",
+        "to": "cutoff"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "沿用上一关的完整排序，再在末尾限定条数。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY 后写 LIMIT，不要把 LIMIT 当作价格条件。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, name, price FROM products ORDER BY price DESC, id ASC LIMIT ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, name, price FROM products ORDER BY price DESC, id ASC LIMIT 3;",
+      "explanation": "预览中三条 20 元商品跨越截点，仅最小 id 的那条进入前三，不把所有同价商品加入。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": [
+          [
+            6,
+            "陶瓷杯",
+            40
+          ],
+          [
+            2,
+            "陶瓷杯",
+            30
+          ],
+          [
+            1,
+            "帆布袋",
+            20
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": [
+          [
+            22,
+            "陶瓷杯",
+            20
+          ],
+          [
+            21,
+            "样品",
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "price"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "limit-without-order",
+      "sql": "SELECT id, name, price FROM products LIMIT 3;"
+    },
+    {
+      "id": "wrong-cutoff-tie",
+      "sql": "SELECT id, name, price FROM products ORDER BY price DESC, id DESC LIMIT 3;"
+    },
+    {
+      "id": "no-limit",
+      "sql": "SELECT id, name, price FROM products ORDER BY price DESC, id ASC;"
+    }
+  ]
+}

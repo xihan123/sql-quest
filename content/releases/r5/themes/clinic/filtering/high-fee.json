@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "filtering",
+  "id": "high-fee",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "高额门诊费",
+  "prerequisites": [
+    "visit-columns"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare"
+  ],
+  "introducedConcepts": [
+    "where-compare"
+  ],
+  "objective": "按单次门诊费筛选，保留达到费用门槛的就诊。",
+  "statement": "从 visits 找出单次门诊费达到 300 元的就诊记录。正好 300 元也要列出。依次输出 id、fee，每次就诊一行，行顺序不限。",
+  "knowledge": [
+    "WHERE 写在 FROM visits 之后，只留下条件为真的就诊记录。显示哪些列仍由 SELECT 决定。",
+    "fee 存的是单次费用，单位为元。就诊 4 的 fee 是 300，满足门槛；用 > 会漏掉它，用 >= 才包含等于 300 的记录。",
+    "患者 5 有两次各为 300 元的就诊。每次分别判断，不能先把一个患者的费用合起来再和门槛比。"
+  ],
+  "readableTables": [
+    "visits"
+  ],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出费用不低于 300 元的就诊记录。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "用就诊 4 检查条件：收费恰好 300 元时，这条记录仍要留下。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM visits 后接 WHERE；用 >= 与数值 300 比较。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, fee FROM visits WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, fee FROM visits WHERE fee >= 300;",
+      "explanation": "fee >= 300 对每次就诊单独判断。预览里就诊 4、6、11 都恰好 300 元，三条分别输出。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "fee"
+        ],
+        "rows": [
+          [
+            1,
+            320
+          ],
+          [
+            3,
+            450
+          ],
+          [
+            4,
+            300
+          ],
+          [
+            6,
+            300
+          ],
+          [
+            9,
+            520
+          ],
+          [
+            11,
+            300
+          ],
+          [
+            12,
+            410
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "fee"
+        ],
+        "rows": [
+          [
+            31,
+            300
+          ],
+          [
+            33,
+            460
+          ],
+          [
+            34,
+            300
+          ],
+          [
+            36,
+            520
+          ],
+          [
+            37,
+            300
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "fee"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "strict-greater",
+      "sql": "SELECT id, fee FROM visits WHERE fee > 300;"
+    },
+    {
+      "id": "lower-bound-too-low",
+      "sql": "SELECT id, fee FROM visits WHERE fee >= 200;"
+    }
+  ]
+}

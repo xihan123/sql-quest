@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "id": "products-pattern-v1",
+  "tables": [
+    {
+      "name": "products",
+      "description": "虚构的 SQL 学习用品，名称包含大小写、不同前缀和不同长度；字段均非空。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "商品编号，唯一标识一条商品记录"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "商品名称，不保证唯一"
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "description": "商品类别"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "商品单价，单位为整数元；0 表示免费，不表示缺失"
+        },
+        {
+          "name": "stock",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "库存件数；0 表示暂时无库存，仍是目录中的商品"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "SQL手册",
+          "图书",
+          20,
+          2
+        ],
+        [
+          2,
+          "sql卡片",
+          "文具",
+          10,
+          1
+        ],
+        [
+          3,
+          "Sql速查",
+          "图书",
+          15,
+          3
+        ],
+        [
+          4,
+          "SQL",
+          "图书",
+          0,
+          4
+        ],
+        [
+          5,
+          "学SQL入门",
+          "图书",
+          25,
+          1
+        ],
+        [
+          6,
+          "SQL_指南",
+          "图书",
+          30,
+          2
+        ],
+        [
+          7,
+          "SQLAB",
+          "文具",
+          5,
+          0
+        ]
+      ]
+    }
+  ]
+}

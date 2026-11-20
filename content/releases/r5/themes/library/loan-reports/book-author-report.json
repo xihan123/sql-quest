@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "loan-reports",
+  "id": "book-author-report",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "challenge",
+  "title": "关联汇总",
+  "prerequisites": [
+    "book-left-join"
+  ],
+  "concepts": [
+    "select",
+    "count",
+    "group-by",
+    "relational-keys",
+    "inner-join",
+    "join-cardinality",
+    "left-join"
+  ],
+  "introducedConcepts": [],
+  "objective": "连接三张表，按作者统计借阅记录数。",
+  "statement": "统计每位作者名下图书的借阅总次数，依次输出 author_id、author_name、borrow_count，每位作者一行。次数按借阅记录数计算；没有图书或没有借阅的作者也输出，次数为 0。同名作者按编号分开统计。不要求行顺序。",
+  "knowledge": [
+    "从 authors 出发，用两次 LEFT JOIN 依次连接 books 和 borrow_records，保留没有图书或借阅的作者。",
+    "COUNT(br.id) 只数实际匹配的借阅记录；未匹配时右表编号为 NULL，计数为 0。",
+    "按 a.id、a.name 分组，防止同名作者合并。每条借阅只属于一本书、本例中的一位作者，不会因这两段连接被重复计算。"
+  ],
+  "readableTables": [
+    "authors",
+    "books",
+    "borrow_records"
+  ],
+  "previewFixtureId": "library-loans-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计每位作者的图书被借阅总次数。\n",
+  "flowchart": {
+    "exampleSql": "SELECT a.id AS author_id, a.name AS author_name, COUNT(br.id) AS borrow_count FROM authors AS a LEFT JOIN books AS b ON b.author_id = a.id LEFT JOIN borrow_records AS br ON br.book_id = b.id GROUP BY a.id, a.name;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "按作者统计借阅",
+        "description": "作者、图书、借阅记录通过两段左连接关联，再按作者计数。"
+      },
+      {
+        "id": "chain",
+        "label": "三张表怎么连？\n作者 → 书 → 借阅",
+        "description": "authors 与 books 按 author_id 相连，books 与 borrow_records 按 book_id 相连；两段都用 LEFT JOIN。"
+      },
+      {
+        "id": "count",
+        "label": "数什么？\nCOUNT(br.id)",
+        "description": "数的是借阅明细，不是书：一本书被借四次就是四条明细；没有明细时 COUNT 为 0。"
+      },
+      {
+        "id": "identity",
+        "label": "按什么分组？\na.id 与 a.name",
+        "description": "编号是稳定身份；两位同名作者编号不同，必须分别成组，合并就是错误。"
+      },
+      {
+        "id": "expansion",
+        "label": "展开会翻倍吗？\n不会",
+        "description": "每条借阅只挂在它自己的书上；作者维度的计数是名下全部明细条数，不因连接段数重复。"
+      },
+      {
+        "id": "result",
+        "label": "输出什么？\n编号、姓名、次数",
+        "description": "每位作者一行；借阅为 0 的作者照常输出，次数列显示 0。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "chain"
+      },
+      {
+        "from": "topic",
+        "to": "count"
+      },
+      {
+        "from": "topic",
+        "to": "identity"
+      },
+      {
+        "from": "topic",
+        "to": "expansion"
+      },
+      {
+        "from": "topic",
+        "to": "result"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先把作者、书、借阅明细沿外键连起来，再按作者编号分组、数借阅明细；没有明细的作者也要保留。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM authors AS a LEFT JOIN books AS b ON ... LEFT JOIN borrow_records AS br ON ... GROUP BY a.id, a.name; 计数用 COUNT(br.id)。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT a.id AS author_id, a.name AS author_name, ____(br.id) AS borrow_count FROM authors AS a LEFT JOIN books AS b ON ____ LEFT JOIN borrow_records AS br ON ____ GROUP BY a.id, a.name;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT a.id AS author_id, a.name AS author_name, COUNT(br.id) AS borrow_count FROM authors AS a LEFT JOIN books AS b ON b.author_id = a.id LEFT JOIN borrow_records AS br ON br.book_id = b.id GROUP BY a.id, a.name;",
+      "explanation": "沿 author_id 与 book_id 链式左连接；按作者编号分组后统计借阅明细条数，没有明细的作者计 0，同名作者按编号分开。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "loans",
+      "fixtureId": "library-loans-v1",
+      "expected": {
+        "columns": [
+          "author_id",
+          "author_name",
+          "borrow_count"
+        ],
+        "rows": [
+          [
+            1,
+            "沈临",
+            4
+          ],
+          [
+            2,
+            "白榆",
+            3
+          ],
+          [
+            3,
+            "Anna Reed",
+            2
+          ],
+          [
+            4,
+            "江晚",
+            1
+          ],
+          [
+            5,
+            "Mora Kim",
+            2
+          ],
+          [
+            6,
+            "沈临",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-loans",
+      "fixtureId": "library-loans-varied-v1",
+      "expected": {
+        "columns": [
+          "author_id",
+          "author_name",
+          "borrow_count"
+        ],
+        "rows": [
+          [
+            1,
+            "沈临",
+            2
+          ],
+          [
+            2,
+            "白榆",
+            1
+          ],
+          [
+            3,
+            "芮宁",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-loans",
+      "fixtureId": "library-loans-empty-v1",
+      "expected": {
+        "columns": [
+          "author_id",
+          "author_name",
+          "borrow_count"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "merges-authors-by-name",
+      "sql": "SELECT a.name AS author_name, COUNT(br.id) AS borrow_count FROM authors AS a LEFT JOIN books AS b ON b.author_id = a.id LEFT JOIN borrow_records AS br ON br.book_id = b.id GROUP BY a.name;"
+    },
+    {
+      "id": "counts-books-not-loans",
+      "sql": "SELECT a.id AS author_id, a.name AS author_name, COUNT(b.id) AS borrow_count FROM authors AS a LEFT JOIN books AS b ON b.author_id = a.id LEFT JOIN borrow_records AS br ON br.book_id = b.id GROUP BY a.id, a.name;"
+    },
+    {
+      "id": "splits-per-book",
+      "sql": "SELECT a.id AS author_id, a.name AS author_name, COUNT(br.id) AS borrow_count FROM authors AS a LEFT JOIN books AS b ON b.author_id = a.id LEFT JOIN borrow_records AS br ON br.book_id = b.id GROUP BY a.id, b.id;"
+    },
+    {
+      "id": "counts-distinct-readers",
+      "sql": "SELECT a.id AS author_id, a.name AS author_name, COUNT(DISTINCT br.reader_name) AS borrow_count FROM authors AS a LEFT JOIN books AS b ON b.author_id = a.id LEFT JOIN borrow_records AS br ON br.book_id = b.id GROUP BY a.id, a.name;"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "basics",
+  "id": "warehouse-list",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "查看仓库",
+  "prerequisites": [],
+  "concepts": [
+    "select"
+  ],
+  "introducedConcepts": [
+    "select"
+  ],
+  "objective": "查看一张仓库档案表，认出行、列和仓库编号。",
+  "statement": "查看 warehouses 仓库档案，依次输出全部仓库的 id、name、city，保留原列名。无论仓库有没有发运记录都要列出，行顺序不限。",
+  "knowledge": [
+    "warehouses 每行登记一座仓库，id 是唯一编号，name 和 city 分别记录仓库名称和所在城市。同一城市也可以有多座仓库。",
+    "FROM warehouses 指定数据来源，SELECT * 按表中定义的顺序读出 id、name、city 三列。",
+    "蜀山仓没有发运记录，仓库档案仍在。查询档案时不需要读运单表，也不用先检查仓库是否发过货。"
+  ],
+  "readableTables": [
+    "warehouses"
+  ],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 查看仓库档案的全部行和全部列。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "只查看仓库档案：三个字段都要显示，有没有发货不影响是否列出。"
+    },
+    {
+      "id": "syntax",
+      "text": "SELECT * 表示读取全部列，后面用 FROM 指定仓库表。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT * FROM ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT * FROM warehouses;",
+      "explanation": "查询只读取 warehouses 的档案。星号按表结构展开为三列，每座仓库对应一行。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "city"
+        ],
+        "rows": [
+          [
+            1,
+            "北辰仓",
+            "北京"
+          ],
+          [
+            2,
+            "松江仓",
+            "上海"
+          ],
+          [
+            3,
+            "天河仓",
+            "广州"
+          ],
+          [
+            4,
+            "西湖仓",
+            "杭州"
+          ],
+          [
+            5,
+            "江宁仓",
+            "南京"
+          ],
+          [
+            6,
+            "蜀山仓",
+            "成都"
+          ],
+          [
+            7,
+            "灞桥仓",
+            "西安"
+          ],
+          [
+            8,
+            "江城仓",
+            "武汉"
+          ],
+          [
+            9,
+            "泉城仓",
+            "济南"
+          ],
+          [
+            10,
+            "春城仓",
+            "昆明"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "city"
+        ],
+        "rows": [
+          [
+            11,
+            "临港仓",
+            "上海"
+          ],
+          [
+            12,
+            "亦庄仓",
+            "北京"
+          ],
+          [
+            13,
+            "黄埔仓",
+            "广州"
+          ],
+          [
+            14,
+            "河西仓",
+            "天津"
+          ],
+          [
+            15,
+            "光谷仓",
+            "武汉"
+          ],
+          [
+            16,
+            "锦江仓",
+            "成都"
+          ],
+          [
+            17,
+            "长安仓",
+            "西安"
+          ],
+          [
+            18,
+            "江夏仓",
+            "武汉"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "name",
+          "city"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "omits-city",
+      "sql": "SELECT id, name FROM warehouses;"
+    },
+    {
+      "id": "keeps-only-one-city",
+      "sql": "SELECT * FROM warehouses WHERE city = '北京';"
+    }
+  ]
+}

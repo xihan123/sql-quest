@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "products",
+  "chapterId": "aggregation",
+  "id": "sql-l13",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "数值聚合",
+  "prerequisites": [
+    "sql-l12"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null",
+    "numeric-aggregation"
+  ],
+  "introducedConcepts": [
+    "numeric-aggregation"
+  ],
+  "objective": "先计算每条商品的库存价值，再汇总并求已知单价的平均值。",
+  "statement": "对 products 输出一行两列：stock_value（price × stock 的总和，元）、avg_price（已知单价的算术平均值，元）。NULL 乘积不参与求和；平均值按记录计算，不按库存加权，0 元和缺货商品的已知价格都参与。空表或全部价格未知时，两列均为 SQL NULL。",
+  "knowledge": [
+    "在一行中用 * 做乘法，例如 price * stock；这是数值表达式，不是 SELECT * 的全部列。已知价格乘以 0 得到 0，NULL 参与乘法仍得到 NULL。",
+    "SUM(表达式) 汇总每条记录的表达式值并忽略 NULL。SUM(price * stock) 不等于 SUM(price) * SUM(stock)。",
+    "AVG(price) 是非 NULL 价格之和除以非 NULL 价格记录数；0 也是已知价格，重复价格分别参与，不按库存加权。",
+    "没有 GROUP BY 时，空输入或全 NULL 的 SUM / AVG 都得到一行 NULL；这与 COUNT 的 0 不同。本关测试数据的平均值可精确表示，不使用容差。"
+  ],
+  "readableTables": [
+    "products"
+  ],
+  "previewFixtureId": "products-catalog-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 先计算每条商品的库存价值，再汇总并求已知单价的平均值。\n",
+  "flowchart": {
+    "exampleSql": "SELECT SUM(price * stock) AS stock_value, AVG(price) AS avg_price FROM products WHERE category = '日用';",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "逐行计算与整体聚合",
+        "description": "示例只统计日用商品的库存价值与平均单价；题目统计全部商品。"
+      },
+      {
+        "id": "scope",
+        "label": "输入范围\nWHERE category = 日用",
+        "description": "先确定参与聚合的记录。示例只选日用，不额外过滤库存或价格；它与整表统计的输入不同。"
+      },
+      {
+        "id": "sum",
+        "label": "库存价值\nSUM(price * stock)",
+        "description": "先在每行用价格乘库存，再汇总乘积。不能把全部价格之和再乘全部库存之和。"
+      },
+      {
+        "id": "average",
+        "label": "平均单价\nAVG(price)",
+        "description": "按已知价格的商品记录计算算术平均值；免费价格 0 与重复价格都计入，不按库存加权，无库存商品的已知单价也参与。"
+      },
+      {
+        "id": "missing",
+        "label": "未知值与空输入",
+        "description": "NULL 乘库存仍是 NULL，SUM 与 AVG 忽略这些未知输入；没有可参与的非 NULL 值时输出 NULL，不自动变成 0。"
+      },
+      {
+        "id": "units",
+        "label": "先核对单位\n元/件 × 件 = 元",
+        "description": "price 是整数元单价，stock 是件数，因此乘积与 stock_value 是元；avg_price 仍是单价，不是库存价值的平均数。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "sum"
+      },
+      {
+        "from": "topic",
+        "to": "average"
+      },
+      {
+        "from": "topic",
+        "to": "missing"
+      },
+      {
+        "from": "sum",
+        "to": "units"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "总值先逐行相乘；平均单价直接以价格列为输入。"
+    },
+    {
+      "id": "syntax",
+      "text": "把 price * stock 放入 SUM，把 price 放入 AVG。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT SUM(____) AS stock_value, AVG(____) AS avg_price FROM products;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT SUM(price * stock) AS stock_value, AVG(price) AS avg_price FROM products;",
+      "explanation": "预览中已知库存价值合计 200 元，7 个已知单价合计 140 元，平均 20 元；未知值不伪装成零。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "products-catalog-v1",
+      "expected": {
+        "columns": [
+          "stock_value",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            200,
+            20
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "products-catalog-small-v1",
+      "expected": {
+        "columns": [
+          "stock_value",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            40,
+            10
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-3",
+      "fixtureId": "products-catalog-unknown-v1",
+      "expected": {
+        "columns": [
+          "stock_value",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            null,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-4",
+      "fixtureId": "products-catalog-empty-v1",
+      "expected": {
+        "columns": [
+          "stock_value",
+          "avg_price"
+        ],
+        "rows": [
+          [
+            null,
+            null
+          ]
+        ]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "multiplies-totals",
+      "sql": "SELECT SUM(price) * SUM(stock) AS stock_value, AVG(price) AS avg_price FROM products;"
+    },
+    {
+      "id": "wrong-average-denominator",
+      "sql": "SELECT SUM(price * stock) AS stock_value, SUM(price) * 1.0 / COUNT(*) AS avg_price FROM products;"
+    },
+    {
+      "id": "drops-free",
+      "sql": "SELECT SUM(price * stock) AS stock_value, AVG(price) AS avg_price FROM products WHERE price > 0;"
+    },
+    {
+      "id": "coerces-missing-to-zero",
+      "sql": "SELECT COALESCE(SUM(price * stock), 0) AS stock_value, COALESCE(AVG(price), 0) AS avg_price FROM products;"
+    }
+  ]
+}

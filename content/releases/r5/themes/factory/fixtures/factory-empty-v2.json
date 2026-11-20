@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "factory-empty-v2",
+  "tables": [
+    {
+      "name": "production_lines",
+      "description": "生产线档案，一行一条产线。workshop 是所属车间，同一车间可有多条产线，名称相近时以 id 区分。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "产线编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "产线名称"
+        },
+        {
+          "name": "workshop",
+          "type": "TEXT",
+          "description": "所属车间"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "batches",
+      "description": "生产批次，一行一个批次。line_id 指向产线，product 是产品名称，produced_at 为 YYYY-MM-DD 文本，quantity 是生产件数，defect_rate 为不良率百分比（1.85 表示 1.85%，NULL 表示尚未评估）。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "批次编号"
+        },
+        {
+          "name": "line_id",
+          "type": "INTEGER",
+          "description": "产线编号，指向 production_lines.id",
+          "references": {
+            "table": "production_lines",
+            "column": "id"
+          }
+        },
+        {
+          "name": "product",
+          "type": "TEXT",
+          "description": "产品名称"
+        },
+        {
+          "name": "produced_at",
+          "type": "TEXT",
+          "description": "生产日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "quantity",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "生产数量，件"
+        },
+        {
+          "name": "defect_rate",
+          "type": "REAL",
+          "minimum": 0,
+          "nullable": true,
+          "description": "不良率，百分比数值，1.85 表示 1.85%；NULL 表示尚未评估"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "inspections",
+      "description": "检验记录，一行一次检验。batch_id 指向批次，inspector 为检验员，result 为合格 / 不合格 / 待复检，checked_at 为检验日期；同一批次可多次检验，也可能没有记录。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "检验记录编号"
+        },
+        {
+          "name": "batch_id",
+          "type": "INTEGER",
+          "description": "批次编号，指向 batches.id",
+          "references": {
+            "table": "batches",
+            "column": "id"
+          }
+        },
+        {
+          "name": "inspector",
+          "type": "TEXT",
+          "description": "检验员，虚构人物"
+        },
+        {
+          "name": "result",
+          "type": "TEXT",
+          "description": "检验结论：合格 / 不合格 / 待复检"
+        },
+        {
+          "name": "checked_at",
+          "type": "TEXT",
+          "description": "检验日期，固定为 YYYY-MM-DD 文本"
+        }
+      ],
+      "rows": []
+    }
+  ],
+  "indexes": [
+    {
+      "name": "batches_produced_at",
+      "table": "batches",
+      "columns": [
+        {
+          "name": "produced_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

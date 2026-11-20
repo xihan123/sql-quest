@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "filtering",
+  "id": "high-balance",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "高余额账户",
+  "prerequisites": [
+    "account-columns"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare"
+  ],
+  "introducedConcepts": [
+    "where-compare"
+  ],
+  "objective": "按每个账户的余额筛选，保留达到门槛的记录。",
+  "statement": "在 accounts 中找出余额达到 50000 元的账户，包括正好 50000 元的账户。只按余额筛选，冻结账户达到门槛也要列出。依次输出 id、balance，行顺序不限。",
+  "knowledge": [
+    "balance 是这一个账户的余额，按整数元存储。WHERE 在 FROM accounts 后检查每一行；同一客户有多个账户时，不先把余额相加。",
+    "预览中 2 号账户刚好 50000 元。写 >= 50000 将它纳入，写 > 50000 会将它漏掉。",
+    "冻结状态记在 status 列。本关只比较 balance：5 号冻结账户没有入选，是因为它只有 30000 元。"
+  ],
+  "readableTables": [
+    "accounts"
+  ],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出余额不低于 50000 元的账户。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "只看账户自己的余额。用 2 号账户试一下你的条件：刚到 50000 元也要留下。"
+    },
+    {
+      "id": "syntax",
+      "text": "在 FROM 后写 WHERE；用 >= 包含边界，50000 是数值，直接写。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, balance FROM accounts WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, balance FROM accounts WHERE balance >= 50000;",
+      "explanation": "WHERE balance >= 50000 包含边界值，也不检查 status。正常或冻结的账户都用同一个余额条件。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "balance"
+        ],
+        "rows": [
+          [
+            1,
+            52000
+          ],
+          [
+            2,
+            50000
+          ],
+          [
+            4,
+            120000
+          ],
+          [
+            8,
+            66000
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "balance"
+        ],
+        "rows": [
+          [
+            32,
+            50000
+          ],
+          [
+            33,
+            88000
+          ],
+          [
+            36,
+            60000
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "balance"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "strict-greater",
+      "sql": "SELECT id, balance FROM accounts WHERE balance > 50000;"
+    },
+    {
+      "id": "lower-bound-too-low",
+      "sql": "SELECT id, balance FROM accounts WHERE balance >= 40000;"
+    },
+    {
+      "id": "excludes-frozen-accounts",
+      "sql": "SELECT id, balance FROM accounts WHERE balance >= 50000 AND status = '正常';"
+    }
+  ]
+}

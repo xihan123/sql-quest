@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "logistics-empty-v2",
+  "tables": [
+    {
+      "name": "warehouses",
+      "description": "仓库档案，每行一个仓库；没有运单的仓库也在其中。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "仓库编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "仓库名称"
+        },
+        {
+          "name": "city",
+          "type": "TEXT",
+          "description": "所在城市"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "carriers",
+      "description": "承运商档案，每行一家承运商；服务等级只有标准与加急。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "承运商编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "承运商名称"
+        },
+        {
+          "name": "service_level",
+          "type": "TEXT",
+          "description": "服务等级：标准 / 加急"
+        }
+      ],
+      "rows": []
+    },
+    {
+      "name": "shipments",
+      "description": "运单记录，一行一张运单；delivered_at 为 NULL 表示尚未签收。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "运单编号"
+        },
+        {
+          "name": "warehouse_id",
+          "type": "INTEGER",
+          "description": "发运仓库编号，指向 warehouses.id",
+          "references": {
+            "table": "warehouses",
+            "column": "id"
+          }
+        },
+        {
+          "name": "carrier_id",
+          "type": "INTEGER",
+          "description": "承运商编号，指向 carriers.id",
+          "references": {
+            "table": "carriers",
+            "column": "id"
+          }
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "description": "状态：在途 / 已签收 / 异常 / 已取消"
+        },
+        {
+          "name": "weight_kg",
+          "type": "REAL",
+          "minimum": 0,
+          "description": "重量，千克，可能有小数"
+        },
+        {
+          "name": "freight_fee",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "运费，整数元"
+        },
+        {
+          "name": "shipped_at",
+          "type": "TEXT",
+          "description": "发货日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "delivered_at",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "签收日期；NULL 表示尚未签收"
+        }
+      ],
+      "rows": []
+    }
+  ],
+  "indexes": [
+    {
+      "name": "shipments_shipped_at",
+      "table": "shipments",
+      "columns": [
+        {
+          "name": "shipped_at",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

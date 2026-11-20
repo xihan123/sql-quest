@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "summarizing",
+  "id": "recent-shipments",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "最近发货的三张运单",
+  "prerequisites": [
+    "undelivered"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "order-by",
+    "limit"
+  ],
+  "introducedConcepts": [
+    "order-by",
+    "limit"
+  ],
+  "objective": "按发货日排列运单，处理同日记录并截取前几条。",
+  "statement": "从 shipments 查最近发货的运单，依次输出 id、shipped_at、status、freight_fee。发货日从新到旧，同日按编号从大到小；最多取三张，不为同日运单增加名额。不足三张时全部输出。",
+  "knowledge": [
+    "shipped_at 存固定格式的 YYYY-MM-DD 文本，先比年、再比月和日，文本降序就是从新到旧。运单 12 的编号比 11 大，发货日却更早。",
+    "ORDER BY 写在 FROM 之后。排序方向 DESC 表示从大到小；ASC 表示从小到大，也是省略方向时的默认值。",
+    "两个排序键用逗号分开，只有第一个相同时才看第二个。10、11 号同在 3 月 18 日发货，因此 11 应排在 10 前面。",
+    "LIMIT 3 写在 ORDER BY 后，最多取排好的三行；只有 LIMIT 时，不能保证取到最近的运单。"
+  ],
+  "readableTables": [
+    "shipments"
+  ],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按发货日期从新到旧，同一天按编号从大到小，取前三行。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先确定哪天发得更晚，再用编号决定同一天的先后。想想为什么 12 不该排在 11 前面。"
+    },
+    {
+      "id": "syntax",
+      "text": "ORDER BY 写发货日 DESC、运单编号 DESC，用半角逗号隔开两项，最后写 LIMIT 3。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, shipped_at, status, freight_fee FROM shipments ORDER BY ____, ____ LIMIT 3;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, shipped_at, status, freight_fee FROM shipments ORDER BY shipped_at DESC, id DESC LIMIT 3;",
+      "explanation": "预览里 11 和 10 都比 12 晚发货，且同日的 11 排在 10 前。按日期和编号排定后，LIMIT 3 取出这三张运单。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "ordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "shipped_at",
+          "status",
+          "freight_fee"
+        ],
+        "rows": [
+          [
+            11,
+            "2025-03-18",
+            "已签收",
+            240
+          ],
+          [
+            10,
+            "2025-03-18",
+            "已签收",
+            280
+          ],
+          [
+            12,
+            "2025-03-14",
+            "在途",
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "shipped_at",
+          "status",
+          "freight_fee"
+        ],
+        "rows": [
+          [
+            41,
+            "2025-05-21",
+            "异常",
+            260
+          ],
+          [
+            40,
+            "2025-05-20",
+            "异常",
+            260
+          ],
+          [
+            39,
+            "2025-05-15",
+            "在途",
+            400
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "shipped_at",
+          "status",
+          "freight_fee"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "oldest-first",
+      "sql": "SELECT id, shipped_at, status, freight_fee FROM shipments ORDER BY shipped_at ASC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "forgets-limit",
+      "sql": "SELECT id, shipped_at, status, freight_fee FROM shipments ORDER BY shipped_at DESC, id DESC;"
+    },
+    {
+      "id": "wrong-secondary-key",
+      "sql": "SELECT id, shipped_at, status, freight_fee FROM shipments ORDER BY shipped_at DESC, id ASC LIMIT 3;"
+    },
+    {
+      "id": "sorts-only-by-id",
+      "sql": "SELECT id, shipped_at, status, freight_fee FROM shipments ORDER BY id DESC LIMIT 3;"
+    }
+  ]
+}

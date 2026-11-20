@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "library",
+  "chapterId": "relationships",
+  "id": "book-left-join",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "左连接",
+  "prerequisites": [
+    "book-one-many"
+  ],
+  "concepts": [
+    "select",
+    "where",
+    "relational-keys",
+    "inner-join",
+    "join-cardinality",
+    "left-join"
+  ],
+  "introducedConcepts": [
+    "left-join"
+  ],
+  "objective": "用 LEFT JOIN 保留左表全部行，认识未匹配行的 NULL 补位。",
+  "statement": "输出全部 books 图书及其借阅记录，依次为 title、record_id（borrow_records.id）。一本书有多次借阅就输出多行；从未借出的图书也输出一行，record_id 为 SQL NULL。不要求行顺序；没有图书时返回零行。",
+  "knowledge": [
+    "books LEFT JOIN borrow_records 保留左侧全部图书。匹配不到借阅记录时，右表列补为 NULL。",
+    "多次借阅仍各占一行；LEFT JOIN 不保证每本书只输出一行。",
+    "若再用 WHERE br.id IS NOT NULL 筛选，未匹配行会被排除。不是所有右表条件都能在 ON 与 WHERE 之间互换。"
+  ],
+  "readableTables": [
+    "books",
+    "borrow_records"
+  ],
+  "previewFixtureId": "library-loans-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出每本馆藏图书的书名与借阅记录编号，从未借出的图书也要出现。\n",
+  "flowchart": {
+    "exampleSql": "SELECT b.title AS title, br.id AS record_id FROM books AS b LEFT JOIN borrow_records AS br ON br.book_id = b.id;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "保留全部图书",
+        "description": "用 LEFT JOIN 保留从未借出的图书。"
+      },
+      {
+        "id": "source",
+        "label": "谁在左边？\nbooks AS b",
+        "description": "LEFT JOIN 保留左表全部行；本关要每本书都有行，所以 books 写在左边。"
+      },
+      {
+        "id": "condition",
+        "label": "怎么配对？\nON br.book_id = b.id",
+        "description": "配对规则与内连接相同；差别在配不上时怎么处理。"
+      },
+      {
+        "id": "null-row",
+        "label": "配不上怎么办？\n右表补 NULL",
+        "description": "从未借出的图书仍输出一行，record_id 为 SQL NULL；NULL 表示「没有借阅记录」。"
+      },
+      {
+        "id": "contrast",
+        "label": "换成内连接呢？\n少了没借出的书",
+        "description": "INNER JOIN 不输出没有借阅记录的图书；WHERE br.id IS NOT NULL 也会排除左连接产生的未匹配行。"
+      },
+      {
+        "id": "expansion",
+        "label": "行数怎么算？\n借几次就几行",
+        "description": "有借阅记录的书按明细展开成多行；结果行数 = 明细条数 + 未借出图书数。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "source"
+      },
+      {
+        "from": "topic",
+        "to": "condition"
+      },
+      {
+        "from": "topic",
+        "to": "null-row"
+      },
+      {
+        "from": "topic",
+        "to": "contrast"
+      },
+      {
+        "from": "topic",
+        "to": "expansion"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "关键是让没借出的书也出现：books 写在左边，用 LEFT JOIN，配不上时右表列是 NULL。"
+    },
+    {
+      "id": "syntax",
+      "text": "FROM books AS b LEFT JOIN borrow_records AS br ON br.book_id = b.id; LEFT JOIN 保留左表全部行。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT b.title AS title, br.id AS record_id FROM books AS b ____ JOIN borrow_records AS br ON br.book_id = b.id;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT b.title AS title, br.id AS record_id FROM books AS b LEFT JOIN borrow_records AS br ON br.book_id = b.id;",
+      "explanation": "LEFT JOIN 保留全部图书；借出多次的书按明细展开，从未借出的书输出一行、record_id 为 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "loans",
+      "fixtureId": "library-loans-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "record_id"
+        ],
+        "rows": [
+          [
+            "雾中灯塔",
+            201
+          ],
+          [
+            "雾中灯塔",
+            202
+          ],
+          [
+            "雾中灯塔",
+            203
+          ],
+          [
+            "雾中灯塔",
+            210
+          ],
+          [
+            "雾中灯塔",
+            213
+          ],
+          [
+            "河流改道",
+            204
+          ],
+          [
+            "河流改道",
+            205
+          ],
+          [
+            "秋日食谱",
+            206
+          ],
+          [
+            "桥梁简史",
+            207
+          ],
+          [
+            "桥梁简史",
+            208
+          ],
+          [
+            "静物写生",
+            209
+          ],
+          [
+            "静物写生",
+            212
+          ],
+          [
+            "声音的形状",
+            211
+          ],
+          [
+            "候鸟旅馆",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "varied-loans",
+      "fixtureId": "library-loans-varied-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "record_id"
+        ],
+        "rows": [
+          [
+            "慢速列车",
+            301
+          ],
+          [
+            "慢速列车",
+            302
+          ],
+          [
+            "屋顶花园",
+            303
+          ],
+          [
+            "慢速列车",
+            304
+          ],
+          [
+            "纸船",
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty-loans",
+      "fixtureId": "library-loans-empty-v1",
+      "expected": {
+        "columns": [
+          "title",
+          "record_id"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "drops-never-borrowed",
+      "sql": "SELECT b.title AS title, br.id AS record_id FROM books AS b JOIN borrow_records AS br ON br.book_id = b.id;"
+    },
+    {
+      "id": "turns-left-join-into-inner",
+      "sql": "SELECT b.title AS title, br.id AS record_id FROM books AS b LEFT JOIN borrow_records AS br ON br.book_id = b.id WHERE br.id IS NOT NULL;"
+    },
+    {
+      "id": "keeps-only-returned",
+      "sql": "SELECT b.title AS title, br.id AS record_id FROM books AS b LEFT JOIN borrow_records AS br ON br.book_id = b.id WHERE br.returned_on IS NOT NULL;"
+    },
+    {
+      "id": "swaps-join-sides",
+      "sql": "SELECT b.title AS title, br.id AS record_id FROM borrow_records AS br LEFT JOIN books AS b ON br.book_id = b.id;"
+    }
+  ]
+}

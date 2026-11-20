@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "hr",
+  "chapterId": "summarizing",
+  "id": "department-groups",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "部门分组统计",
+  "prerequisites": [
+    "department-headcount"
+  ],
+  "concepts": [
+    "select",
+    "aggregate",
+    "group-by",
+    "having"
+  ],
+  "introducedConcepts": [
+    "group-by",
+    "having"
+  ],
+  "objective": "按部门分组统计，再按组内人数筛选部门。",
+  "statement": "按 department_id 分组，统计每个部门的员工人数和月薪合计，只保留人数不少于 3 的部门，输出 department_id、employee_count、total_salary。3 人整也保留；空表没有分组结果。",
+  "knowledge": [
+    "GROUP BY department_id 将同一部门的员工归为一组，结果每个部门最多一行；COUNT(*) 数组内员工，SUM(salary) 汇总组内月薪。",
+    "SELECT 中的 department_id 是分组标识；按编号分组不会把同名部门或员工姓名误合并。空表没有任何组，因此返回零行。",
+    "HAVING 在分组后按聚合结果筛组，COUNT(*) >= 3 包含三人边界。COUNT(*) 写在 WHERE 中不是“提前筛行”，SQLite 会因 WHERE 不能使用该聚合而报错。"
+  ],
+  "readableTables": [
+    "employees"
+  ],
+  "previewFixtureId": "hr-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 按部门统计，只保留员工人数不少于 3 人的部门。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "输出粒度是一行一个部门：先按 department_id 汇总，再按汇总后的人数保留部门。"
+    },
+    {
+      "id": "syntax",
+      "text": "GROUP BY department_id 形成部门组，HAVING COUNT(*) >= 3 在聚合后筛选；WHERE 用于分组前的普通行条件。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT department_id, COUNT(*) AS employee_count, SUM(salary) AS total_salary FROM employees GROUP BY ____ HAVING ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT department_id, COUNT(*) AS employee_count, SUM(salary) AS total_salary FROM employees GROUP BY department_id HAVING COUNT(*) >= 3;",
+      "explanation": "GROUP BY 让每个 department_id 成为一组，分别计算人数和月薪合计；HAVING 在聚合完成后保留人数至少为三人的组。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "hr-main-v2",
+      "expected": {
+        "columns": [
+          "department_id",
+          "employee_count",
+          "total_salary"
+        ],
+        "rows": [
+          [
+            1,
+            4,
+            43600
+          ],
+          [
+            2,
+            3,
+            26800
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "hr-alt-v3",
+      "expected": {
+        "columns": [
+          "department_id",
+          "employee_count",
+          "total_salary"
+        ],
+        "rows": [
+          [
+            11,
+            3,
+            28600
+          ],
+          [
+            12,
+            3,
+            27700
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "hr-empty-v2",
+      "expected": {
+        "columns": [
+          "department_id",
+          "employee_count",
+          "total_salary"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "no-having",
+      "sql": "SELECT department_id, COUNT(*) AS employee_count, SUM(salary) AS total_salary FROM employees GROUP BY department_id;"
+    },
+    {
+      "id": "strict-greater-than-three",
+      "sql": "SELECT department_id, COUNT(*) AS employee_count, SUM(salary) AS total_salary FROM employees GROUP BY department_id HAVING COUNT(*) > 3;"
+    },
+    {
+      "id": "filters-by-total-salary",
+      "sql": "SELECT department_id, COUNT(*) AS employee_count, SUM(salary) AS total_salary FROM employees GROUP BY department_id HAVING SUM(salary) >= 30000;"
+    }
+  ]
+}

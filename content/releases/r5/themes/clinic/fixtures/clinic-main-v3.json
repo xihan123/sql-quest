@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "id": "clinic-main-v3",
+  "tables": [
+    {
+      "name": "patients",
+      "description": "门诊患者档案，每行一名患者；从未就诊的患者也在此表。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "患者编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "患者姓名"
+        },
+        {
+          "name": "gender",
+          "type": "TEXT",
+          "description": "性别：男 / 女"
+        },
+        {
+          "name": "birth_year",
+          "type": "INTEGER",
+          "minimum": 1900,
+          "description": "出生年份"
+        },
+        {
+          "name": "phone",
+          "type": "TEXT",
+          "nullable": true,
+          "description": "联系电话；NULL 表示未登记"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "陈欣",
+          "女",
+          1985,
+          "13800000001"
+        ],
+        [
+          2,
+          "李强",
+          "男",
+          1972,
+          null
+        ],
+        [
+          3,
+          "王芳",
+          "女",
+          1990,
+          "13800000003"
+        ],
+        [
+          4,
+          "赵磊",
+          "男",
+          1968,
+          null
+        ],
+        [
+          5,
+          "周敏",
+          "女",
+          1995,
+          "13800000005"
+        ],
+        [
+          6,
+          "吴涛",
+          "男",
+          1980,
+          null
+        ],
+        [
+          7,
+          "郑爽",
+          "女",
+          2001,
+          null
+        ],
+        [
+          8,
+          "钱伟",
+          "男",
+          1992,
+          null
+        ],
+        [
+          9,
+          "冯雪",
+          "女",
+          1988,
+          "13800000009"
+        ],
+        [
+          10,
+          "韩磊",
+          "男",
+          1975,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "doctors",
+      "description": "门诊医生名单，每行一位医生。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "医生编号"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "description": "医生姓名"
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "description": "职称：主任医师 / 副主任医师 / 主治医师"
+        },
+        {
+          "name": "department",
+          "type": "TEXT",
+          "description": "所属科室"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "孙立",
+          "主任医师",
+          "内科"
+        ],
+        [
+          2,
+          "何静",
+          "副主任医师",
+          "外科"
+        ],
+        [
+          3,
+          "马晓",
+          "主治医师",
+          "皮肤科"
+        ],
+        [
+          4,
+          "高远",
+          "主治医师",
+          "内科"
+        ]
+      ]
+    },
+    {
+      "name": "visits",
+      "description": "就诊记录，一行一次就诊；同一患者可多次就诊。",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "primaryKey": true,
+          "description": "就诊记录编号"
+        },
+        {
+          "name": "patient_id",
+          "type": "INTEGER",
+          "description": "就诊患者编号，指向 patients.id",
+          "references": {
+            "table": "patients",
+            "column": "id"
+          }
+        },
+        {
+          "name": "doctor_id",
+          "type": "INTEGER",
+          "description": "接诊医生编号，指向 doctors.id",
+          "references": {
+            "table": "doctors",
+            "column": "id"
+          }
+        },
+        {
+          "name": "visit_date",
+          "type": "TEXT",
+          "description": "就诊日期，固定为 YYYY-MM-DD 文本"
+        },
+        {
+          "name": "department",
+          "type": "TEXT",
+          "description": "就诊科室"
+        },
+        {
+          "name": "fee",
+          "type": "INTEGER",
+          "minimum": 0,
+          "description": "本次门诊费用，整数元"
+        }
+      ],
+      "rows": [
+        [
+          1,
+          1,
+          1,
+          "2025-02-10",
+          "内科",
+          320
+        ],
+        [
+          2,
+          1,
+          1,
+          "2025-02-24",
+          "内科",
+          180
+        ],
+        [
+          3,
+          2,
+          2,
+          "2025-02-24",
+          "外科",
+          450
+        ],
+        [
+          4,
+          3,
+          3,
+          "2025-03-01",
+          "皮肤科",
+          300
+        ],
+        [
+          5,
+          4,
+          1,
+          "2025-03-01",
+          "内科",
+          120
+        ],
+        [
+          6,
+          5,
+          3,
+          "2025-03-05",
+          "皮肤科",
+          300
+        ],
+        [
+          7,
+          6,
+          2,
+          "2025-03-05",
+          "外科",
+          260
+        ],
+        [
+          8,
+          3,
+          1,
+          "2025-03-10",
+          "内科",
+          150
+        ],
+        [
+          9,
+          7,
+          2,
+          "2025-03-10",
+          "外科",
+          520
+        ],
+        [
+          10,
+          1,
+          3,
+          "2025-03-15",
+          "皮肤科",
+          90
+        ],
+        [
+          11,
+          5,
+          3,
+          "2025-03-15",
+          "皮肤科",
+          300
+        ],
+        [
+          12,
+          6,
+          1,
+          "2025-03-20",
+          "内科",
+          410
+        ]
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "visits_date",
+      "table": "visits",
+      "columns": [
+        {
+          "name": "visit_date",
+          "direction": "DESC"
+        }
+      ]
+    }
+  ]
+}

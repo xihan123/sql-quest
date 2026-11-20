@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "summarizing",
+  "id": "batch-totals",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "批次数与产量",
+  "prerequisites": [
+    "recent-batches"
+  ],
+  "concepts": [
+    "select",
+    "aggregate"
+  ],
+  "introducedConcepts": [
+    "aggregate"
+  ],
+  "objective": "聚合整张批次表，统计批次数和生产件数。",
+  "statement": "统计 batches 的批次数与生产件数合计，依次输出 batch_count、total_quantity；不按产线分组。空表时次数为 0、件数合计为 SQL NULL。",
+  "knowledge": [
+    "COUNT(*) 统计批次记录数，SUM(quantity) 累加件数；一个批次算一条记录，产量多少另由 quantity 决定。",
+    "defect_rate 有 3 条 SQL NULL，因此 COUNT(defect_rate) 只得到 8 个已评估批次，不能用于统计全部批次。",
+    "没有 GROUP BY 时整表聚合一行。空表下 COUNT(*) 为 0，SUM(quantity) 为 NULL；quantity=0 仍是一条批次记录，只会给产量总和增加 0。"
+  ],
+  "readableTables": [
+    "batches"
+  ],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 统计批次数量与生产数量合计。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "要整张 batches 表的一个批次数和件数总和，不按 line_id 分组。"
+    },
+    {
+      "id": "syntax",
+      "text": "COUNT(*) 数批次记录，SUM(quantity) 加总生产件数；聚合结果可以并列输出。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS batch_count, ____ AS total_quantity FROM batches;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS batch_count, SUM(quantity) AS total_quantity FROM batches;",
+      "explanation": "COUNT(*) 统计 11 条批次记录，SUM(quantity) 将这些批次的件数相加。整表聚合不分组；空表计数为 0、总量为 NULL。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": [
+          "batch_count",
+          "total_quantity"
+        ],
+        "rows": [
+          [
+            11,
+            3945
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": [
+          "batch_count",
+          "total_quantity"
+        ],
+        "rows": [
+          [
+            9,
+            2975
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": [
+          "batch_count",
+          "total_quantity"
+        ],
+        "rows": [
+          [
+            0,
+            null
+          ]
+        ]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "average-instead-of-sum",
+      "sql": "SELECT COUNT(*) AS batch_count, AVG(quantity) AS total_quantity FROM batches;"
+    },
+    {
+      "id": "counts-non-null-rate",
+      "sql": "SELECT COUNT(defect_rate) AS batch_count, SUM(quantity) AS total_quantity FROM batches;"
+    },
+    {
+      "id": "groups-by-line",
+      "sql": "SELECT COUNT(*) AS batch_count, SUM(quantity) AS total_quantity FROM batches GROUP BY line_id;"
+    }
+  ]
+}

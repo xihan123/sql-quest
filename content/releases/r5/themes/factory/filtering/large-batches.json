@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "factory",
+  "chapterId": "filtering",
+  "id": "large-batches",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "大批量批次",
+  "prerequisites": [
+    "batch-columns"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare"
+  ],
+  "introducedConcepts": [
+    "where-compare"
+  ],
+  "objective": "使用包含边界的数值比较筛选生产批次。",
+  "statement": "列出生产数量不少于 300 件的批次，依次输出 id、product、quantity。数量正好 300 件也要保留；不要求行顺序。",
+  "knowledge": [
+    "quantity 的单位是件，300 写作数值常量而不是文本。WHERE quantity >= 300 会逐批判断并保留达标记录。",
+    "大于号 > 不包括边界，>= 才表示“大于或等于”；batches 中 id 2 的电机外壳批次正好 300 件。",
+    "SELECT 决定输出批次编号、产品和件数；筛选不会改变源表或自动对同种产品求和。"
+  ],
+  "readableTables": [
+    "batches"
+  ],
+  "previewFixtureId": "factory-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出生产数量不少于 300 件的批次。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "找数量达到 300 件或更多的批次，注意恰好 300 的批次也符合。"
+    },
+    {
+      "id": "syntax",
+      "text": "WHERE quantity >= 300；整数件数不加引号，>= 包含边界。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, product, quantity FROM batches WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, product, quantity FROM batches WHERE quantity >= 300;",
+      "explanation": "quantity >= 300 包含 300 件整的批次；结果仍是一批一行，没有按产品汇总。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "factory-main-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "product",
+          "quantity"
+        ],
+        "rows": [
+          [
+            1,
+            "电机外壳",
+            420
+          ],
+          [
+            2,
+            "电机外壳",
+            300
+          ],
+          [
+            3,
+            "齿轮箱体",
+            510
+          ],
+          [
+            5,
+            "电机外壳",
+            380
+          ],
+          [
+            7,
+            "支架板",
+            640
+          ],
+          [
+            10,
+            "外壳涂层件",
+            720
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "factory-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "product",
+          "quantity"
+        ],
+        "rows": [
+          [
+            21,
+            "液压阀体",
+            360
+          ],
+          [
+            22,
+            "电机端盖",
+            520
+          ],
+          [
+            24,
+            "电机端盖",
+            300
+          ],
+          [
+            25,
+            "液压阀体",
+            440
+          ],
+          [
+            27,
+            "喷涂外壳",
+            610
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "factory-empty-v2",
+      "expected": {
+        "columns": [
+          "id",
+          "product",
+          "quantity"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "strict-greater",
+      "sql": "SELECT id, product, quantity FROM batches WHERE quantity > 300;"
+    },
+    {
+      "id": "lower-bound-too-low",
+      "sql": "SELECT id, product, quantity FROM batches WHERE quantity >= 250;"
+    }
+  ]
+}

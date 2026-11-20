@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "joining",
+  "id": "accounts-without-transactions",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "没有流水的账户",
+  "prerequisites": [
+    "account-customers"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null-check",
+    "left-join"
+  ],
+  "introducedConcepts": [
+    "left-join"
+  ],
+  "objective": "用账户和流水的匹配结果识别没有流水的账户。",
+  "statement": "找出 accounts 中没有任何 transactions 记录的账户。流水只要有记录就算，金额为 0 也算。依次输出 account_id（账户编号）、account_type（账户类型），每个符合条件的账户一行，行顺序不限。所有账户都有流水时，返回零行。",
+  "knowledge": [
+    "用 accounts LEFT JOIN transactions 按账户编号配对。一个账户有几笔流水就匹配几行；没有流水的账户也保留一行，流水那一侧补上 NULL。",
+    "transactions.id 是不可为空的主键。配对完成后，用 WHERE t.id IS NULL 找没有匹配的账户。t.memo 不能用来判断是否匹配，因为真实流水的备注也可能是 NULL。",
+    "ON 决定哪些流水可以配上，WHERE 决定哪些配对后的行留下。ON 中若只允许正金额流水，就会把仅有 0 元流水的账户误列为没有流水。"
+  ],
+  "readableTables": [
+    "accounts",
+    "transactions"
+  ],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出从未产生流水的账户。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "从完整的账户表出发。要找一笔也没有的账户，哪一列比备注更适合判断有没有配上流水？"
+    },
+    {
+      "id": "syntax",
+      "text": "LEFT JOIN 的 ON 比较两表的账户编号；配对后用 WHERE 检查右表主键 IS NULL。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT a.id AS account_id, a.account_type FROM accounts AS a LEFT JOIN transactions AS t ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT a.id AS account_id, a.account_type FROM accounts AS a LEFT JOIN transactions AS t ON t.account_id = a.id WHERE t.id IS NULL;",
+      "explanation": "左连接保留了没有流水的账户，补出来的流水编号为 NULL。预览里只有账户 7、10、12 没有任何流水编号可匹配。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": [
+          "account_id",
+          "account_type"
+        ],
+        "rows": [
+          [
+            7,
+            "理财"
+          ],
+          [
+            10,
+            "活期"
+          ],
+          [
+            12,
+            "定期"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": [
+          "account_id",
+          "account_type"
+        ],
+        "rows": [
+          [
+            39,
+            "活期"
+          ],
+          [
+            41,
+            "理财"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": [
+          "account_id",
+          "account_type"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "allseen",
+      "fixtureId": "banking-allseen-v3",
+      "expected": {
+        "columns": [
+          "account_id",
+          "account_type"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-join",
+      "sql": "SELECT a.id AS account_id, a.account_type FROM accounts AS a JOIN transactions AS t ON t.account_id = a.id WHERE t.id IS NULL;"
+    },
+    {
+      "id": "condition-in-on",
+      "sql": "SELECT a.id AS account_id, a.account_type FROM accounts AS a LEFT JOIN transactions AS t ON t.account_id = a.id AND t.id IS NULL;"
+    },
+    {
+      "id": "forgets-null-filter",
+      "sql": "SELECT a.id AS account_id, a.account_type FROM accounts AS a LEFT JOIN transactions AS t ON t.account_id = a.id;"
+    },
+    {
+      "id": "checks-nullable-memo",
+      "sql": "SELECT a.id AS account_id, a.account_type FROM accounts AS a LEFT JOIN transactions AS t ON t.account_id = a.id WHERE t.memo IS NULL;"
+    },
+    {
+      "id": "ignores-zero-amount-matches",
+      "sql": "SELECT a.id AS account_id, a.account_type FROM accounts AS a LEFT JOIN transactions AS t ON t.account_id = a.id AND t.amount > 0 WHERE t.id IS NULL;"
+    }
+  ]
+}

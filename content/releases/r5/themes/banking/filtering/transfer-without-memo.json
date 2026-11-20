@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "banking",
+  "chapterId": "filtering",
+  "id": "transfer-without-memo",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "筛选备注列为 NULL 的转账",
+  "prerequisites": [
+    "high-balance"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "where-compare",
+    "and-or-conditions",
+    "null-check"
+  ],
+  "introducedConcepts": [
+    "and-or-conditions",
+    "null-check"
+  ],
+  "objective": "同时按流水类型和 memo 的 SQL NULL 值筛选记录。",
+  "statement": "核对 transactions 里的转账流水。只列出 kind 为“转账”且 memo 存储值为 SQL NULL 的记录，依次输出 id、account_id、amount、memo。空字符串不算 NULL；金额为 0 的转账也参与筛选。行顺序不限。",
+  "knowledge": [
+    "kind 说明一笔流水的类型。用单引号写值 '转账'，再用 AND 同时检查 memo；流水 2 的 memo 是 SQL NULL，但它是消费，不进结果。",
+    "memo 中的 SQL NULL 与零长度文本 '' 是不同的存储值。用 IS NULL 检查 SQL NULL，IS NOT NULL 检查非 NULL 值；写 memo = NULL 不会得到为真的条件。流水 14 存的是零长度文本 ''，不符合 IS NULL。",
+    "流水 13 的金额是 0 元，备注却是 NULL，两列的值互不相干。这笔是转账，仍要输出。"
+  ],
+  "readableTables": [
+    "transactions"
+  ],
+  "previewFixtureId": "banking-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出 memo 为 SQL NULL 的转账流水。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先区分转账与其他流水，再看 memo 是否为 SQL NULL。看看零金额和空字符串各会不会影响入选。"
+    },
+    {
+      "id": "syntax",
+      "text": "用 = 比较单引号里的类型文本，用 IS NULL 检查 memo，两项用 AND 连接。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id, account_id, amount, memo FROM transactions WHERE kind = '转账' AND ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id, account_id, amount, memo FROM transactions WHERE kind = '转账' AND memo IS NULL;",
+      "explanation": "两项同时成立才留下。预览中流水 13 金额为 0，且 memo 为 SQL NULL；流水 14 的 memo 是空字符串，所以排除。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "banking-main-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "account_id",
+          "amount",
+          "memo"
+        ],
+        "rows": [
+          [
+            1,
+            1,
+            5000,
+            null
+          ],
+          [
+            5,
+            4,
+            30000,
+            null
+          ],
+          [
+            7,
+            6,
+            800,
+            null
+          ],
+          [
+            10,
+            11,
+            9000,
+            null
+          ],
+          [
+            11,
+            4,
+            15000,
+            null
+          ],
+          [
+            13,
+            1,
+            0,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "banking-alt-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "account_id",
+          "amount",
+          "memo"
+        ],
+        "rows": [
+          [
+            51,
+            31,
+            3000,
+            null
+          ],
+          [
+            55,
+            35,
+            1200,
+            null
+          ],
+          [
+            56,
+            36,
+            45000,
+            null
+          ],
+          [
+            60,
+            31,
+            2500,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "banking-empty-v3",
+      "expected": {
+        "columns": [
+          "id",
+          "account_id",
+          "amount",
+          "memo"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "memo-equals-null",
+      "sql": "SELECT id, account_id, amount, memo FROM transactions WHERE kind = '转账' AND memo = NULL;"
+    },
+    {
+      "id": "ignores-kind",
+      "sql": "SELECT id, account_id, amount, memo FROM transactions WHERE memo IS NULL;"
+    },
+    {
+      "id": "keeps-noted-transfers",
+      "sql": "SELECT id, account_id, amount, memo FROM transactions WHERE kind = '转账' AND memo IS NOT NULL;"
+    },
+    {
+      "id": "keeps-empty-string",
+      "sql": "SELECT id, account_id, amount, memo FROM transactions WHERE kind = '转账' AND (memo IS NULL OR memo = '');"
+    },
+    {
+      "id": "drops-zero-amount",
+      "sql": "SELECT id, account_id, amount, memo FROM transactions WHERE kind = '转账' AND memo IS NULL AND amount > 0;"
+    }
+  ]
+}

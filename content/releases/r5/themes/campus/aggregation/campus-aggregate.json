@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "campus",
+  "chapterId": "aggregation",
+  "id": "campus-aggregate",
+  "revision": 1,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "聚合统计",
+  "prerequisites": [
+    "campus-limit"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "null",
+    "aggregate"
+  ],
+  "introducedConcepts": [
+    "aggregate"
+  ],
+  "objective": "统计选课记录数、已出分记录数、总分和平均分。",
+  "statement": "对 enrollments 输出一行四列：enrollment_count（全部记录数）、graded_count（score 非 NULL 的记录数）、total_score（已公布成绩之和）、avg_score（已公布成绩的算术平均值）。0 分参与统计，NULL 只计入全部记录数。空表时两个计数为 0，总分和平均分为 NULL。",
+  "knowledge": [
+    "没有 GROUP BY 时，聚合函数对全部输入记录计算，本关只输出一行。",
+    "COUNT(*) 数全部记录，COUNT(score) 只数成绩非 NULL 的记录。",
+    "SUM(score) 与 AVG(score) 忽略 NULL，不忽略 0。没有已知成绩时，两者为 NULL。",
+    "AS 给结果列命名；多个聚合列用逗号分隔。"
+  ],
+  "readableTables": [
+    "enrollments"
+  ],
+  "previewFixtureId": "campus-main-v1",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 对整表选课记录统计条数、已出分条数、总分与平均分。\n",
+  "flowchart": {
+    "exampleSql": "SELECT COUNT(*) AS enroll_count, AVG(score) AS avg_score FROM enrollments WHERE course_id = 101;",
+    "nodes": [
+      {
+        "id": "topic",
+        "label": "整体聚合输出一行",
+        "description": "示例只统计课程 101 的记录数与平均分；题目统计整表的四项指标。"
+      },
+      {
+        "id": "scope",
+        "label": "输入范围\nWHERE course_id = 101",
+        "description": "先确定参与聚合的记录。示例只选一门课，本关是全部选课记录。"
+      },
+      {
+        "id": "count",
+        "label": "两种计数\nCOUNT(*) 与 COUNT(score)",
+        "description": "COUNT(*) 数记录行数；COUNT(score) 只数成绩已公布的记录。未公布成绩的记录只被前者计入。"
+      },
+      {
+        "id": "avg",
+        "label": "平均分\nAVG(score)",
+        "description": "AVG 是已公布成绩之和除以已公布成绩的记录数；0 分计入分子和分母，未公布成绩两者都不计入。"
+      },
+      {
+        "id": "missing",
+        "label": "未知值与空输入",
+        "description": "NULL 不参与 SUM 与 AVG；没有可参与的已知成绩时输出 NULL，不自动变成 0。COUNT 在空输入时是 0。"
+      },
+      {
+        "id": "alias",
+        "label": "AS 命名输出列",
+        "description": "COUNT(*)、AVG(score) 这类表达式用 AS 设置结果列名，让报表列名可读。"
+      }
+    ],
+    "edges": [
+      {
+        "from": "topic",
+        "to": "scope"
+      },
+      {
+        "from": "topic",
+        "to": "count"
+      },
+      {
+        "from": "topic",
+        "to": "avg"
+      },
+      {
+        "from": "topic",
+        "to": "missing"
+      },
+      {
+        "from": "topic",
+        "to": "alias"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "idea",
+      "text": "区分总记录数与已出分记录数，再对已知成绩求和、求平均。"
+    },
+    {
+      "id": "syntax",
+      "text": "COUNT(*)、COUNT(score)、SUM(score)、AVG(score)，分别用 AS 命名。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT COUNT(*) AS enrollment_count, COUNT(score) AS graded_count, SUM(score) AS total_score, ____ AS avg_score FROM enrollments;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT COUNT(*) AS enrollment_count, COUNT(score) AS graded_count, SUM(score) AS total_score, AVG(score) AS avg_score FROM enrollments;",
+      "explanation": "COUNT(*) 包含全部记录，其余三项只使用非 NULL 的成绩。0 分参与计数和平均。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "campus-main-v1",
+      "expected": {
+        "columns": [
+          "enrollment_count",
+          "graded_count",
+          "total_score",
+          "avg_score"
+        ],
+        "rows": [
+          [
+            27,
+            24,
+            1833,
+            76.375
+          ]
+        ]
+      }
+    },
+    {
+      "id": "case-2",
+      "fixtureId": "campus-main-varied-v1",
+      "expected": {
+        "columns": [
+          "enrollment_count",
+          "graded_count",
+          "total_score",
+          "avg_score"
+        ],
+        "rows": [
+          [
+            6,
+            5,
+            280,
+            56
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "campus-main-empty-v1",
+      "expected": {
+        "columns": [
+          "enrollment_count",
+          "graded_count",
+          "total_score",
+          "avg_score"
+        ],
+        "rows": [
+          [
+            0,
+            0,
+            null,
+            null
+          ]
+        ]
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "wrong-average-denominator",
+      "sql": "SELECT COUNT(*) AS enrollment_count, COUNT(score) AS graded_count, SUM(score) AS total_score, SUM(score) * 1.0 / COUNT(*) AS avg_score FROM enrollments;"
+    },
+    {
+      "id": "averages-null-as-zero",
+      "sql": "SELECT COUNT(*) AS enrollment_count, COUNT(score) AS graded_count, SUM(score) AS total_score, AVG(COALESCE(score, 0)) AS avg_score FROM enrollments;"
+    },
+    {
+      "id": "coerces-missing-to-zero",
+      "sql": "SELECT COUNT(*) AS enrollment_count, COUNT(score) AS graded_count, COALESCE(SUM(score), 0) AS total_score, COALESCE(AVG(score), 0) AS avg_score FROM enrollments;"
+    }
+  ]
+}

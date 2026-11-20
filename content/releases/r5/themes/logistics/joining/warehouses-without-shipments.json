@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "joining",
+  "id": "warehouses-without-shipments",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "没有运单的仓库",
+  "prerequisites": [
+    "shipment-warehouses"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "null-check",
+    "left-join"
+  ],
+  "introducedConcepts": [
+    "left-join"
+  ],
+  "objective": "从仓库档案找出尚无运单记录的仓库。",
+  "statement": "找出 warehouses 中一张运单也没有的仓库。运单只要登记在 shipments 里就算，已取消的也算。依次输出 warehouse_id（仓库编号）、warehouse_name（仓库名称），每仓一行，行顺序不限。全部仓库都有运单时返回零行。",
+  "knowledge": [
+    "用 warehouses LEFT JOIN shipments 按仓库编号配对。匹配到几张运单就生成几行；一张都没有的仓库也会有一行，右表列填成 NULL。",
+    "shipments.id 是运单主键，实际登记的运单都有编号。用 WHERE s.id IS NULL 找没连上的行。不能用 s.delivered_at 判断，有运单但未签收时它也可能是 NULL。",
+    "若把 s.id IS NULL 放到 ON 里，任何真实运单都无法匹配，LEFT JOIN 会把所有仓库都保留下来。"
+  ],
+  "readableTables": [
+    "warehouses",
+    "shipments"
+  ],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 找出从未产生运单的仓库。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "从仓库档案查运单。区分根本没有运单，与有运单但尚未签收。"
+    },
+    {
+      "id": "syntax",
+      "text": "LEFT JOIN 的 ON 用发运仓编号配对；配对后用 WHERE 检查运单主键 IS NULL。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT w.id AS warehouse_id, w.name AS warehouse_name FROM warehouses AS w LEFT JOIN shipments AS s ON ____ WHERE ____;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT w.id AS warehouse_id, w.name AS warehouse_name FROM warehouses AS w LEFT JOIN shipments AS s ON s.warehouse_id = w.id WHERE s.id IS NULL;",
+      "explanation": "蜀山仓没有任何运单能够配上，左连接为它保留一行且 s.id 为 NULL。只筛这样补出来的行，北辰仓即使有运单没签收，也不会被列入。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": [
+          "warehouse_id",
+          "warehouse_name"
+        ],
+        "rows": [
+          [
+            6,
+            "蜀山仓"
+          ],
+          [
+            9,
+            "泉城仓"
+          ],
+          [
+            10,
+            "春城仓"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": [
+          "warehouse_id",
+          "warehouse_name"
+        ],
+        "rows": [
+          [
+            15,
+            "光谷仓"
+          ],
+          [
+            18,
+            "江夏仓"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": [
+          "warehouse_id",
+          "warehouse_name"
+        ],
+        "rows": []
+      }
+    },
+    {
+      "id": "allseen",
+      "fixtureId": "logistics-allseen-v2",
+      "expected": {
+        "columns": [
+          "warehouse_id",
+          "warehouse_name"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "inner-join",
+      "sql": "SELECT w.id AS warehouse_id, w.name AS warehouse_name FROM warehouses AS w JOIN shipments AS s ON s.warehouse_id = w.id WHERE s.id IS NULL;"
+    },
+    {
+      "id": "condition-in-on",
+      "sql": "SELECT w.id AS warehouse_id, w.name AS warehouse_name FROM warehouses AS w LEFT JOIN shipments AS s ON s.warehouse_id = w.id AND s.id IS NULL;"
+    },
+    {
+      "id": "forgets-null-filter",
+      "sql": "SELECT w.id AS warehouse_id, w.name AS warehouse_name FROM warehouses AS w LEFT JOIN shipments AS s ON s.warehouse_id = w.id;"
+    },
+    {
+      "id": "checks-nullable-delivery-date",
+      "sql": "SELECT w.id AS warehouse_id, w.name AS warehouse_name FROM warehouses AS w LEFT JOIN shipments AS s ON s.warehouse_id = w.id WHERE s.delivered_at IS NULL;"
+    }
+  ]
+}

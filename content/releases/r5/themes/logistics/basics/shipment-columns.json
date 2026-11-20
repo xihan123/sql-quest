@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "logistics",
+  "chapterId": "basics",
+  "id": "shipment-columns",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "guided",
+  "title": "运单字段与列别名",
+  "prerequisites": [
+    "warehouse-list"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias"
+  ],
+  "introducedConcepts": [
+    "select-columns",
+    "column-alias"
+  ],
+  "objective": "按对账表的表头输出运单编号、承运商编号和运费。",
+  "statement": "从 shipments 整理一份运费明细。依次取 id、carrier_id、freight_fee，结果列名为 shipment_id、carrier_no、fee_yuan。每张运单一行，行顺序不限。",
+  "knowledge": [
+    "shipments.id 是运单编号，carrier_id 是承运商编号。运单 1 和 12 由同一承运商配送，也有相同运费，仍是两张运单。",
+    "把这三个字段按题目顺序写在 SELECT 后，用逗号隔开。状态、重量等字段不显示，所有运单仍各占一行。",
+    "freight_fee 以整数元存储，用 freight_fee AS fee_yuan 让表头写清单位。AS 设置的是输出列名，不改原列或金额。"
+  ],
+  "readableTables": [
+    "shipments"
+  ],
+  "previewFixtureId": "logistics-main-v2",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 输出运单编号、承运商编号和运费，并使用题目要求的列名。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "先分清运单号与承运商号。两张由同一家承运商配送的运单仍要分开列。"
+    },
+    {
+      "id": "syntax",
+      "text": "每列写成 原字段 AS 结果列名，三列表达式用逗号隔开。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT id AS shipment_id, ____ AS carrier_no, freight_fee AS ____ FROM shipments;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT id AS shipment_id, carrier_id AS carrier_no, freight_fee AS fee_yuan FROM shipments;",
+      "explanation": "从每张运单取两个编号和一笔运费，再给三列起名。fee_yuan 仍是原来记录的运费。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "logistics-main-v2",
+      "expected": {
+        "columns": [
+          "shipment_id",
+          "carrier_no",
+          "fee_yuan"
+        ],
+        "rows": [
+          [
+            1,
+            1,
+            100
+          ],
+          [
+            2,
+            2,
+            260
+          ],
+          [
+            3,
+            3,
+            90
+          ],
+          [
+            4,
+            2,
+            300
+          ],
+          [
+            5,
+            1,
+            320
+          ],
+          [
+            6,
+            4,
+            60
+          ],
+          [
+            7,
+            3,
+            150
+          ],
+          [
+            8,
+            1,
+            110
+          ],
+          [
+            9,
+            4,
+            420
+          ],
+          [
+            10,
+            2,
+            280
+          ],
+          [
+            11,
+            3,
+            240
+          ],
+          [
+            12,
+            1,
+            100
+          ],
+          [
+            13,
+            2,
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "logistics-alt-v3",
+      "expected": {
+        "columns": [
+          "shipment_id",
+          "carrier_no",
+          "fee_yuan"
+        ],
+        "rows": [
+          [
+            31,
+            21,
+            140
+          ],
+          [
+            32,
+            22,
+            260
+          ],
+          [
+            33,
+            23,
+            80
+          ],
+          [
+            34,
+            22,
+            300
+          ],
+          [
+            35,
+            21,
+            320
+          ],
+          [
+            36,
+            23,
+            120
+          ],
+          [
+            37,
+            21,
+            210
+          ],
+          [
+            38,
+            23,
+            95
+          ],
+          [
+            39,
+            22,
+            400
+          ],
+          [
+            40,
+            21,
+            260
+          ],
+          [
+            41,
+            22,
+            260
+          ],
+          [
+            42,
+            23,
+            85
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "logistics-empty-v2",
+      "expected": {
+        "columns": [
+          "shipment_id",
+          "carrier_no",
+          "fee_yuan"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "keeps-original-names",
+      "sql": "SELECT id, carrier_id, freight_fee FROM shipments;"
+    },
+    {
+      "id": "omits-fee",
+      "sql": "SELECT id AS shipment_id, carrier_id AS carrier_no FROM shipments;"
+    }
+  ]
+}

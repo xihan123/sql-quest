@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "courseId": "sql-quest-v1",
+  "themeId": "clinic",
+  "chapterId": "joining",
+  "id": "visit-doctors",
+  "revision": 3,
+  "dialect": "sqlite",
+  "mode": "practice",
+  "title": "查询就诊费用与接诊医生",
+  "prerequisites": [
+    "department-groups"
+  ],
+  "concepts": [
+    "select",
+    "select-columns",
+    "column-alias",
+    "where-compare",
+    "inner-join"
+  ],
+  "introducedConcepts": [
+    "inner-join"
+  ],
+  "objective": "从一条就诊记录找到对应的患者和接诊医生。",
+  "statement": "核对单次门诊费达到 300 元的就诊。依次列出 visit_id（就诊编号）、patient_name（患者姓名）、doctor_name（接诊医生姓名）和 fee（门诊费，元）。正好 300 元也要列出，每次就诊一行，行顺序不限。",
+  "knowledge": [
+    "visits.patient_id 引用 patients.id，visits.doctor_id 引用 doctors.id。两个外键都必填，每次就诊各对应一名患者和一名医生。",
+    "JOIN 是 INNER JOIN 的简写，只输出满足 ON 条件的配对。这里从 visits 分别接上患者表和医生表，每接一张表都写明编号怎样对应。",
+    "用 visits AS v、patients AS p、doctors AS d 为表起短名，再用 别名.列名 指定列。patients 和 doctors 都有 name，p.name 是患者姓名，d.name 是医生姓名。",
+    "周敏有两次收费 300 元的就诊，都由马晓接诊。患者、医生和费用相同，仍是两次就诊，各有自己的 visit_id。"
+  ],
+  "readableTables": [
+    "visits",
+    "patients",
+    "doctors"
+  ],
+  "previewFixtureId": "clinic-main-v3",
+  "duplicatePolicy": "preserve",
+  "starterSql": "-- 关联就诊、患者和医生，只保留费用不低于 300 元的记录。\n",
+  "hints": [
+    {
+      "id": "idea",
+      "text": "从一张就诊单出发：哪个编号能找到患者，哪个编号能找到接诊医生？"
+    },
+    {
+      "id": "syntax",
+      "text": "每次用 JOIN 表名 AS 别名 ON 两表的对应编号相等。WHERE 比较就诊表的 fee。"
+    },
+    {
+      "id": "skeleton",
+      "text": "SELECT v.id AS visit_id, ____ AS patient_name, ____ AS doctor_name, v.fee FROM visits AS v JOIN patients AS p ON ____ JOIN doctors AS d ON ____ WHERE v.fee >= 300;"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "sql": "SELECT v.id AS visit_id, p.name AS patient_name, d.name AS doctor_name, v.fee FROM visits AS v JOIN patients AS p ON p.id = v.patient_id JOIN doctors AS d ON d.id = v.doctor_id WHERE v.fee >= 300;",
+      "explanation": "两次连接补上患者姓名和医生姓名，费用仍取自原就诊记录。就诊 6 和 11 的姓名和费用相同，两条都满足 v.fee >= 300。"
+    }
+  ],
+  "comparison": {
+    "rowOrder": "unordered",
+    "columnNames": "exact",
+    "numbers": "exact"
+  },
+  "tests": [
+    {
+      "id": "preview",
+      "fixtureId": "clinic-main-v3",
+      "expected": {
+        "columns": [
+          "visit_id",
+          "patient_name",
+          "doctor_name",
+          "fee"
+        ],
+        "rows": [
+          [
+            1,
+            "陈欣",
+            "孙立",
+            320
+          ],
+          [
+            3,
+            "李强",
+            "何静",
+            450
+          ],
+          [
+            4,
+            "王芳",
+            "马晓",
+            300
+          ],
+          [
+            6,
+            "周敏",
+            "马晓",
+            300
+          ],
+          [
+            9,
+            "郑爽",
+            "何静",
+            520
+          ],
+          [
+            11,
+            "周敏",
+            "马晓",
+            300
+          ],
+          [
+            12,
+            "吴涛",
+            "孙立",
+            410
+          ]
+        ]
+      }
+    },
+    {
+      "id": "alt",
+      "fixtureId": "clinic-alt-v3",
+      "expected": {
+        "columns": [
+          "visit_id",
+          "patient_name",
+          "doctor_name",
+          "fee"
+        ],
+        "rows": [
+          [
+            31,
+            "曹阳",
+            "白露",
+            300
+          ],
+          [
+            33,
+            "许晴",
+            "胡适",
+            460
+          ],
+          [
+            34,
+            "许晴",
+            "白露",
+            300
+          ],
+          [
+            36,
+            "苏敏",
+            "胡适",
+            520
+          ],
+          [
+            37,
+            "姚婷",
+            "胡适",
+            300
+          ]
+        ]
+      }
+    },
+    {
+      "id": "empty",
+      "fixtureId": "clinic-empty-v2",
+      "expected": {
+        "columns": [
+          "visit_id",
+          "patient_name",
+          "doctor_name",
+          "fee"
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "expectedFailures": [
+    {
+      "id": "ignores-fee-filter",
+      "sql": "SELECT v.id AS visit_id, p.name AS patient_name, d.name AS doctor_name, v.fee FROM visits AS v JOIN patients AS p ON p.id = v.patient_id JOIN doctors AS d ON d.id = v.doctor_id;"
+    },
+    {
+      "id": "joins-on-wrong-key",
+      "sql": "SELECT v.id AS visit_id, p.name AS patient_name, d.name AS doctor_name, v.fee FROM visits AS v JOIN patients AS p ON p.id = v.id JOIN doctors AS d ON d.id = v.doctor_id WHERE v.fee >= 300;"
+    },
+    {
+      "id": "strict-greater",
+      "sql": "SELECT v.id AS visit_id, p.name AS patient_name, d.name AS doctor_name, v.fee FROM visits AS v JOIN patients AS p ON p.id = v.patient_id JOIN doctors AS d ON d.id = v.doctor_id WHERE v.fee > 300;"
+    }
+  ]
+}
